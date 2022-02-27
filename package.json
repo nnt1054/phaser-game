@@ -1,0 +1,22 @@
+{
+  "name": "phaser",
+  "version": "1.0.0",
+  "description": "",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
+    "parcel": "^2.3.1"
+  },
+  "dependencies": {
+    "phaser": "^3.55.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}
