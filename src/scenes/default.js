@@ -210,7 +210,6 @@ class defaultScene extends Phaser.Scene {
         const map_bg = this.add.image(0, this.map.heightInPixels, 'jumpquest_bg');
         map_bg.setOrigin(0, 1)
 
-
         // exmaple snippet for applying unique properties based on object type
         // const spikes = this.map.createFromObjects('spikes', {
         //     gid: 71,
