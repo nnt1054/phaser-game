@@ -211,7 +211,7 @@ class defaultScene extends Phaser.Scene {
         map_bg.setOrigin(0, 1)
 
 
-        // exmaple snippet for applying unique properties per an object type
+        // exmaple snippet for applying unique properties based on object type
         // const spikes = this.map.createFromObjects('spikes', {
         //     gid: 71,
         //     classType: Spike,
