@@ -1,4 +1,5 @@
-import React, { Component } from "react";
+import { useEffect } from 'react'
+
 import Phaser from 'phaser';
 
 import defaultScene from './scenes/default.js'
@@ -60,14 +61,14 @@ var config = {
     }
 };
 
-class App extends Component {
-  componentDidMount() {
-    const game = new Phaser.Game(config)
-  }
+const App = () => {
+    useEffect(() => {
+        const game = new Phaser.Game(config)
+    }, [])
 
-  render() {
-    return <div id="phaser-container" />;
-  }
+    return (
+        <div id="phaser-container" />
+    )
 }
 
-export default App;
+export default App
