@@ -1,0 +1,97 @@
+.HotBar {
+	position: absolute;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 540px;
+	left: calc(50vw - 270px);
+	bottom: 10vh;
+}
+
+.HotBar > button {
+	width: 48px;
+	height: 48px;
+
+	border:  4px solid black;
+	border-radius: 12px;
+
+	font-size: 10pt;
+	font-family: 'Comfortaa';
+	font-weight: bold;
+
+	color: white;
+	background-color: rgba(0, 0, 0, .5);
+}
+
+.HotBar > .KeyBind:hover {
+	color: black;
+	background-color: white;
+}
+
+.HotBar > .KeyBind:active {
+	color: white;
+	background-color: rgba(0, 0, 0, .8);
+}
+
+.PlayerBars {
+	position: absolute;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 540px;
+	left: calc(50vw - 270px);
+	bottom: 5vh;
+}
+
+.HealthBar, .ManaBar {
+	position: relative;
+
+	height: 16px;
+	width: 256px;
+
+	border:  4px solid black;
+	border-radius: 12px;
+	background-color: rgba(0, 0, 0, .5);
+
+	overflow: hidden;
+}
+
+.HealthBar > *, .ManaBar > * {
+	position: absolute;
+}
+
+.BarPrimary {
+	height: 24px;
+	background-color: green;
+}
+
+.ManaBarPrimary {
+	height: 24px;
+	background-color: blue;
+    transition: width 0.2s;
+}
+
+.BarText {
+	position: absolute;
+	margin-top: -12px;
+	padding-left: 12px;
+
+	width: 256px;
+
+	font-size: 12pt;
+	font-family: 'Comfortaa';
+	font-weight: bold;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.BarValue {
+	display: flex;
+	justify-content: center;
+	flex-grow: 1;
+
+	font-size: 16pt;
+	font-weight: bold;
+}

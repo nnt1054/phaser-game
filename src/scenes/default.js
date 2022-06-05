@@ -104,24 +104,24 @@ class Player extends ArcadeContainer {
     }
 
     update () {
-        if (this.cursors.left.isDown) {
+        if (this.cursors.left.isDown || this.cursors.leftArrow.isDown) {
             if (this.cursors.shift.isDown) {
-                this.setVelocityX(-140);
-                this.sprite.anims.play('run', true);
-                this.composite.scaleX = -Math.abs(this.composite.scaleX);
-            } else {
                 this.setVelocityX(-80);
                 this.sprite.anims.play('walk', true);
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
-            }
-        } else if (this.cursors.right.isDown) {
-            if (this.cursors.shift.isDown) {
-                this.setVelocityX(140);
-                this.sprite.anims.play('run', true);
-                this.composite.scaleX = Math.abs(this.composite.scaleX);
             } else {
+                this.setVelocityX(-140);
+                this.sprite.anims.play('run', true);
+                this.composite.scaleX = -Math.abs(this.composite.scaleX);
+            }
+        } else if (this.cursors.right.isDown || this.cursors.rightArrow.isDown) {
+            if (this.cursors.shift.isDown) {
                 this.setVelocityX(80);
                 this.sprite.anims.play('walk', true);
+                this.composite.scaleX = Math.abs(this.composite.scaleX);
+            } else {
+                this.setVelocityX(140);
+                this.sprite.anims.play('run', true);
                 this.composite.scaleX = Math.abs(this.composite.scaleX);
             }
         } else {
@@ -197,7 +197,7 @@ class defaultScene extends Phaser.Scene {
 
         const layer2 = this.map.createLayer("platforms");
         layer2.setVisible(false);
-        setLayerCollisionTopOnly(layer2.layer, [8, 10, 16, 20, 24, 25, 31, 26]);
+        setLayerCollisionTopOnly(layer2.layer, [8, 9, 10, 16, 20, 24, 25, 31, 26]);
 
         const layer1 = this.map.createLayer("ground");
         layer1.setVisible(false);
@@ -291,6 +291,10 @@ class defaultScene extends Phaser.Scene {
             space: Phaser.Input.Keyboard.KeyCodes.SPACE,
             tab: Phaser.Input.Keyboard.KeyCodes.TAB,
             shift: Phaser.Input.Keyboard.KeyCodes.SHIFT,
+            upArrow: Phaser.Input.Keyboard.KeyCodes.UP,
+            downArrow: Phaser.Input.Keyboard.KeyCodes.DOWN,
+            leftArrow: Phaser.Input.Keyboard.KeyCodes.LEFT,
+            rightArrow: Phaser.Input.Keyboard.KeyCodes.RIGHT,
         });
 
         this.player = new Player(this, 80, 1800);
