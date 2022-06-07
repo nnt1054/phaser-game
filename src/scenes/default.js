@@ -4,10 +4,8 @@ import {
     scaleToWidth,
     setLayerCollisionTopOnly,
     debugTiles,
-    FBFupdateFrames,
-    FBFupdateFramesFromJSON,
     createTiledMap,
-} from '../game/utils.js'
+} from '../game/utils'
 
 import jumpquest_map from '../assets/tilemaps/jq_map.json';
 import jumpquest_bg from '../assets/jq.png';
@@ -76,7 +74,7 @@ class Player extends ArcadeContainer {
 
         this.sprite = scene.add.sprite(0, 0, 'lambseel');
         this.sprite.setOrigin(0.5, 1);
-        scene.plugins.get('fbfplugin').add(this.sprite);
+        scene.frameAnimator.add(this.sprite);
 
         this.composite.add([
             this.sprite
@@ -192,6 +190,7 @@ class defaultScene extends Phaser.Scene {
     }
 
     create () {
+        this.frameAnimator = this.plugins.get('frameAnimator');
         this.map = createTiledMap(this, 'jumpquest_map');
         this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels + 300);
 
@@ -281,7 +280,7 @@ class defaultScene extends Phaser.Scene {
             ]
         }
         this.anims.fromJSON(animationJSON);
-        FBFupdateFramesFromJSON(this.anims, animationJSON);
+        this.frameAnimator.frameAnimatorUpdateFramesFromJSON(this.anims, animationJSON);
 
         this.cursors = this.input.keyboard.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,

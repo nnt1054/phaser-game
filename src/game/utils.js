@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-var GetValue = Phaser.Utils.Objects.GetValue;
 var FromOrientationString = Phaser.Tilemaps.Parsers.FromOrientationString;
 var ParseTileLayers = Phaser.Tilemaps.Parsers.Tiled.ParseTileLayers;
 var ParseObjectLayers = Phaser.Tilemaps.Parsers.Tiled.ParseObjectLayers;
@@ -46,35 +45,6 @@ export function debugTiles(layer, index) {
         }
     }
     return layer;
-}
-
-export function FBFupdateFrames(manager, config) {
-    var animation = manager.get(config.key);
-    var len = animation.frames.length;
-
-    var frame;
-    var frameConfig;
-
-    for (var i = 0; i < len; i++)
-    {
-        frame = animation.frames[i];
-        frameConfig = config.frames[i];
-        frame.fbfconfig = {
-            translateX: GetValue(frameConfig, 'translateX', 0),
-            translateY: GetValue(frameConfig, 'translateY', 0),
-            rotate: GetValue(frameConfig, 'rotate', 0),
-            scale: GetValue(frameConfig, 'rotate', 1),
-        }
-    }
-
-    return animation;
-}
-
-export function FBFupdateFramesFromJSON(manager, data) {
-    for (var i = 0; i < data.anims.length; i++)
-    {
-        FBFupdateFrames(manager, data.anims[i]);
-    }
 }
 
 export function createTiledMap(scene, key) {
