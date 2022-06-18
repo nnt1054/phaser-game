@@ -71,3 +71,61 @@ function ParseJSONTiled(name, json, insertNull) {
     mapData.objects = ParseObjectLayers(json);
     return mapData;
 }
+
+export class ArcadeContainer extends Phaser.GameObjects.Container {
+
+    mixins = [
+        Phaser.Physics.Arcade.Components.Acceleration,
+        Phaser.Physics.Arcade.Components.Angular,
+        Phaser.Physics.Arcade.Components.Bounce,
+        Phaser.Physics.Arcade.Components.Debug,
+        Phaser.Physics.Arcade.Components.Drag,
+        Phaser.Physics.Arcade.Components.Enable,
+        Phaser.Physics.Arcade.Components.Friction,
+        Phaser.Physics.Arcade.Components.Gravity,
+        Phaser.Physics.Arcade.Components.Immovable,
+        Phaser.Physics.Arcade.Components.Mass,
+        Phaser.Physics.Arcade.Components.Pushable,
+        Phaser.Physics.Arcade.Components.Size,
+        Phaser.Physics.Arcade.Components.Velocity
+    ]
+
+    constructor(scene, x, y, children) {
+        super(scene, x, y, children);
+        this.mixins.forEach(mixin => {
+            Object.assign(this, mixin);
+        })
+        this.body = null;
+
+        this.cursors = scene.cursors
+        this.time = scene.time
+        this.physics = scene.physics
+    }
+}
+
+export class StaticSprite extends Phaser.Physics.Arcade.Sprite {
+    // Example Usage:
+    // class Spike extends StaticSprite {};
+
+    // const spikes = this.map.createFromObjects('spikes', {
+    //     gid: 71,
+    //     classType: Spike,
+    //     key: 'tile_spritesheet',
+    //     frame: 70,
+    // });
+    // spikes.forEach(spike => {
+    //     spike.setCollisionFromTileData(71, this.map, 'tileset');
+    // });
+
+    setCollisionFromTileData(index, map, layer) {
+        this.scene.physics.add.existing(this, true);
+        let tileset = map.getTileset(layer);
+        let collisionGroup = tileset.getTileCollisionGroup(index);
+        for (var i = 0; i < collisionGroup.objects.length; i++) {
+            let collisionObject = collisionGroup.objects[i];
+            this.setBodySize(collisionObject.width, collisionObject.height);
+            this.setOffset(collisionObject.x, collisionObject.y);
+        }
+    };
+
+}

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
     incrementMana,
@@ -14,7 +15,13 @@ import {
     setPlayerMaxHealth,
     setPlayerHealth,   
 } from '~/src/store/playerHealth';
+
+import {
+    setQueuedAbility
+} from '~/src/store/playerState';
+
 import * as styles from '~/src/App.module.css';
+
 
 const HotBar = () => {
     const increasing = useSelector(state => state.playerHealth.increasing);
@@ -54,7 +61,10 @@ const HotBar = () => {
                 className={ styles.KeyBind }
                 onClick={() => dispatch(setPlayerCurrentMana(100))}
             > 100% MP </button>
-            <button></button>
+            <button
+                className={ styles.KeyBind }
+                onClick={() => dispatch(setQueuedAbility('attack'))}
+            > Q </button>
             <button></button>
             <button></button>
         </div>

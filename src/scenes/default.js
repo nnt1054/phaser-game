@@ -1,10 +1,12 @@
 import Phaser from 'phaser';
+const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
 
 import {
     scaleToWidth,
     setLayerCollisionTopOnly,
     debugTiles,
     createTiledMap,
+    ArcadeContainer,
 } from '../game/utils'
 
 import jumpquest_map from '../assets/tilemaps/jq_map.json';
@@ -12,39 +14,67 @@ import jumpquest_bg from '../assets/jq.png';
 import kugane_bg from '../assets/kugane.jpg';
 import lambseel from '../assets/lambseel.png';
 import lambseel_idle from '../assets/lambseel_idle.png';
+import lambseel_attack from '../assets/attack.png';
 
 
-class ArcadeContainer extends Phaser.GameObjects.Container {
+import {
+    incrementHealth,
+    decrementHealth,
+    setPlayerCurrentHealth,
+    setPlayerMaxHealth,
+    setPlayerHealth,   
+} from '~/src/store/playerHealth';
 
-    mixins = [
-        Phaser.Physics.Arcade.Components.Acceleration,
-        Phaser.Physics.Arcade.Components.Angular,
-        Phaser.Physics.Arcade.Components.Bounce,
-        Phaser.Physics.Arcade.Components.Debug,
-        Phaser.Physics.Arcade.Components.Drag,
-        Phaser.Physics.Arcade.Components.Enable,
-        Phaser.Physics.Arcade.Components.Friction,
-        Phaser.Physics.Arcade.Components.Gravity,
-        Phaser.Physics.Arcade.Components.Immovable,
-        Phaser.Physics.Arcade.Components.Mass,
-        Phaser.Physics.Arcade.Components.Pushable,
-        Phaser.Physics.Arcade.Components.Size,
-        Phaser.Physics.Arcade.Components.Velocity
-    ]
+import {
+    clearQueuedAbility,
+} from '~/src/store/playerState';
 
-    constructor(scene, x, y, children) {
-        super(scene, x, y, children);
-        this.mixins.forEach(mixin => {
-            Object.assign(this, mixin);
-        })
-        this.body = null;
+import store from '~/src/store/store';
 
-        this.cursors = scene.cursors
-        this.time = scene.time
-        this.physics = scene.physics
+function observeStore(store, select, onChange) {
+  let currentState;
+
+  function handleChange() {
+    let nextState = select(store.getState());
+    if (nextState !== currentState) {
+      currentState = nextState;
+      onChange(currentState);
     }
+  }
+
+  let unsubscribe = store.subscribe(handleChange);
+  handleChange();
+  return unsubscribe;
 }
 
+const basicAbility = {
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    cooldown: 2500,
+    execute: (player) => {
+        store.dispatch(incrementHealth());
+    },
+}
+
+const basicAttack = {
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    cooldown: 1000,
+    execute: (player) => {
+        player.isAttacking = true;
+        player.sprite.anims.play('attack', false);
+        player.sprite.on('animationcomplete', () => {
+            player.isAttacking = false;
+        });
+    },
+}
+
+const abilityMap = {
+    'attack': basicAttack,
+    'heal': basicAbility,
+}
 
 class Player extends ArcadeContainer {
     constructor(scene, x, y, children) {
@@ -86,6 +116,11 @@ class Player extends ArcadeContainer {
         ]);
 
         this.platformColliders = [];
+
+        this.gcdQueue = null;
+        this.gcdTimer = 0;
+
+        this.isAttacking = false;
     }
 
     addPlatforms(platforms) {
@@ -101,30 +136,39 @@ class Player extends ArcadeContainer {
         })
     }
 
-    update () {
+    queueAbility(ability) {
+        if (this.gcdQueue) return;
+        if (this.gcdTimer > 1000) return;
+        this.gcdQueue = ability;
+    }
+
+    update (time, delta) {
+        let anim = 'idle';
         if (this.cursors.left.isDown || this.cursors.leftArrow.isDown) {
             if (this.cursors.shift.isDown) {
                 this.setVelocityX(-80);
-                this.sprite.anims.play('walk', true);
+                anim = 'walk';
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
             } else {
                 this.setVelocityX(-140);
-                this.sprite.anims.play('run', true);
+                anim = 'run';
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
             }
         } else if (this.cursors.right.isDown || this.cursors.rightArrow.isDown) {
             if (this.cursors.shift.isDown) {
                 this.setVelocityX(80);
-                this.sprite.anims.play('walk', true);
+                anim = 'walk';
                 this.composite.scaleX = Math.abs(this.composite.scaleX);
             } else {
                 this.setVelocityX(140);
-                this.sprite.anims.play('run', true);
+                anim = 'run';
                 this.composite.scaleX = Math.abs(this.composite.scaleX);
             }
         } else {
             this.setVelocityX(0);
-            this.sprite.anims.play('idle', true);
+        }
+        if (!this.isAttacking) {
+            this.sprite.anims.play(anim, true);
         }
 
         if (this.body.onFloor()) {
@@ -147,29 +191,24 @@ class Player extends ArcadeContainer {
                 this.setGravityY(800);
             }
         }
+
+        if (this.gcdTimer > 0) {
+            this.gcdTimer = Math.max(0, this.gcdTimer - delta)
+        }
+
+        if (this.gcdQueue && this.gcdTimer == 0) {
+            const ability = this.gcdQueue;
+            ability.execute(this);
+            this.gcdTimer += ability.cooldown;
+            this.gcdQueue = null;
+        }
     }
 
-    autoZoomCamera(zoom) {
+    autoZoom(zoom) {
         this.name.setScale(1 / zoom);
     }
 }
 
-class StaticSprite extends Phaser.Physics.Arcade.Sprite {
-
-    setCollisionFromTileData(index, map, layer) {
-        this.scene.physics.add.existing(this, true);
-        let tileset = map.getTileset(layer);
-        let collisionGroup = tileset.getTileCollisionGroup(index);
-        for (var i = 0; i < collisionGroup.objects.length; i++) {
-            let collisionObject = collisionGroup.objects[i];
-            this.setBodySize(collisionObject.width, collisionObject.height);
-            this.setOffset(collisionObject.x, collisionObject.y);
-        }
-    };
-
-}
-
-class Spike extends StaticSprite {};
 
 class defaultScene extends Phaser.Scene {
 
@@ -183,6 +222,11 @@ class defaultScene extends Phaser.Scene {
             frameHeight: 512,
         })
         this.load.spritesheet('lambseel', lambseel, {
+            frameWidth: 512,
+            frameHeight: 512,
+            spacing: 1,
+        })
+        this.load.spritesheet('attack', lambseel_attack, {
             frameWidth: 512,
             frameHeight: 512,
             spacing: 1,
@@ -209,17 +253,6 @@ class defaultScene extends Phaser.Scene {
         const map_bg = this.add.image(0, this.map.heightInPixels, 'jumpquest_bg');
         map_bg.setOrigin(0, 1)
 
-        // exmaple snippet for applying unique properties based on object type
-        // const spikes = this.map.createFromObjects('spikes', {
-        //     gid: 71,
-        //     classType: Spike,
-        //     key: 'tile_spritesheet',
-        //     frame: 70,
-        // });
-        // spikes.forEach(spike => {
-        //     spike.setCollisionFromTileData(71, this.map, 'nature_tileset');
-        // });
-
         let idleConfig = {
             key: 'idle',
             frames: [ 
@@ -228,6 +261,13 @@ class defaultScene extends Phaser.Scene {
             ],
             frameRate: 1.5
         };
+
+        let attackConfig = {
+            key: 'attack',
+            frames: this.anims.generateFrameNumbers('attack', { start: 0, end: 4 }),
+            frameRate: 8,
+            repeat: 0,
+        }
 
         let walkConfig = {
             key: 'walk',
@@ -277,24 +317,57 @@ class defaultScene extends Phaser.Scene {
                 idleConfig,
                 walkConfig,
                 runConfig,
+                attackConfig,
             ]
         }
         this.anims.fromJSON(animationJSON);
         this.frameAnimator.frameAnimatorUpdateFramesFromJSON(this.anims, animationJSON);
 
+        // only need cursors for modifiers (can you bind a key to a modifier?)
         this.cursors = this.input.keyboard.addKeys({
-            up: Phaser.Input.Keyboard.KeyCodes.W,
-            down: Phaser.Input.Keyboard.KeyCodes.S,
-            left: Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D,
-            space: Phaser.Input.Keyboard.KeyCodes.SPACE,
-            tab: Phaser.Input.Keyboard.KeyCodes.TAB,
-            shift: Phaser.Input.Keyboard.KeyCodes.SHIFT,
-            upArrow: Phaser.Input.Keyboard.KeyCodes.UP,
-            downArrow: Phaser.Input.Keyboard.KeyCodes.DOWN,
-            leftArrow: Phaser.Input.Keyboard.KeyCodes.LEFT,
-            rightArrow: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+            up: KeyCodes.W,
+            down: KeyCodes.S,
+            left: KeyCodes.A,
+            right: KeyCodes.D,
+            upArrow: KeyCodes.UP,
+            downArrow: KeyCodes.DOWN,
+            leftArrow: KeyCodes.LEFT,
+            rightArrow: KeyCodes.RIGHT,
+
+            space: KeyCodes.SPACE,
+            tab: KeyCodes.TAB,
+            shift: KeyCodes.SHIFT,
+            control: KeyCodes.CTRL,
+            alt: KeyCodes.ALT,
         });
+
+        this.input.keyboard.on('keydown', (event) => {
+            const hotbarSlot = this.keyMap[event.keyCode];
+            if (!hotbarSlot) return;
+            const ability = this.hotbarMap[hotbarSlot];
+            if (!ability) return;
+            this.player.queueAbility(ability);
+        });
+
+        const getQueuedAbility = state => state.playerState.queuedAbility;
+        const unsubscribe = observeStore(store, getQueuedAbility, (abilityName) => {
+            if (!abilityName) return;
+            const ability = abilityMap[abilityName];
+            if (!ability) return;
+            this.player.queueAbility(ability);
+            store.dispatch(clearQueuedAbility());
+        });
+
+        this.keyMap = {
+            [KeyCodes.Q]: 1,
+            [KeyCodes.E]: 2,
+            [KeyCodes.ENTER]: 1,
+        };
+
+        this.hotbarMap = {
+            1: basicAttack,
+            2: basicAbility,
+        }
 
         this.player = new Player(this, 80, 1800);
         this.player.setCollideWorldBounds(true);
@@ -309,19 +382,27 @@ class defaultScene extends Phaser.Scene {
         this.scale.on(Phaser.Scale.Events.RESIZE, () => {
             this.autoZoomCamera();
         });
+
+        this.zoom = 1;
+        this.input.on(Phaser.Input.Events.POINTER_WHEEL, (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
+            this.zoom -= deltaY * 0.001;
+            this.autoZoomCamera();
+        });
+
+        this.autoZoomCamera();
     }
 
     update (time, delta) {
         this.player.update(time, delta);
-        this.autoZoomCamera();
     }
 
     autoZoomCamera() {
         let zoomY = this.game.canvas.height / this.map.heightInPixels;
         let zoomX = this.game.canvas.width / this.map.widthInPixels;
-        let zoom = Math.max(zoomX, zoomY, 1)
-        this.cameras.main.setZoom(zoom);
-        this.player.autoZoomCamera(zoom);
+        this.zoom = Math.max(this.zoom, zoomX, zoomY, 1);
+        this.zoom = Math.min(this.zoom, 6)
+        this.cameras.main.setZoom(this.zoom);
+        this.player.autoZoom(this.zoom);
     }
 
 }

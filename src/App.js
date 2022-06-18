@@ -2,7 +2,7 @@
 import Phaser from 'phaser';
 
 // React
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 // Scenes
@@ -45,9 +45,14 @@ const App = () => {
         const game = new Phaser.Game(config)
     }, [])
 
+    const phaserReference = useRef(null);
+
     return (
         <div id="game-container">
-            <div id="phaser-container" />
+            <div
+                ref={ phaserReference }
+                id="phaser-container"
+            />
             <div id="ui-container">
                 <HotBar />
                 <div className={ styles.PlayerBars }>
