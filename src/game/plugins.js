@@ -20,9 +20,11 @@ class FrameAnimator extends Phaser.Plugins.BasePlugin {
             let config = animationFrame.config;
             gameObject.setPosition(config.translateX, config.translateY);
             gameObject.setAngle(config.rotate);
+            gameObject.setDepth(config.depth);
         } else {
             gameObject.setPosition(0, 0);
             gameObject.setAngle(0);
+            gameObject.setDepth(0);
         }
     }
 
@@ -47,7 +49,8 @@ class FrameAnimator extends Phaser.Plugins.BasePlugin {
                 translateX: GetValue(frameConfig, 'translateX', 0),
                 translateY: GetValue(frameConfig, 'translateY', 0),
                 rotate: GetValue(frameConfig, 'rotate', 0),
-                scale: GetValue(frameConfig, 'rotate', 1),
+                scale: GetValue(frameConfig, 'scale', 1),
+                depth: GetValue(frameConfig, 'depth', 0),
             }
         }
 

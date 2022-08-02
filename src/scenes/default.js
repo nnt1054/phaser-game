@@ -16,6 +16,13 @@ import lambseel from '../assets/lambseel.png';
 import lambseel_idle from '../assets/lambseel_idle.png';
 import lambseel_attack from '../assets/attack.png';
 
+import arms from '../assets/arms.png';
+import base_body from '../assets/base_body.png';
+import ears from '../assets/ears.png';
+import faces_demo from '../assets/faces_demo.png';
+import haircuts from '../assets/haircuts.png';
+import head_base from '../assets/head_base.png';
+import legs_base from '../assets/legs_base.png';
 
 import {
     incrementHealth,
@@ -30,6 +37,7 @@ import {
 } from '~/src/store/playerState';
 
 import store from '~/src/store/store';
+
 
 function observeStore(store, select, onChange) {
   let currentState;
@@ -76,6 +84,42 @@ const abilityMap = {
     'heal': basicAbility,
 }
 
+
+class CompositeSprite extends Phaser.GameObjects.Container {
+    constructor(scene, x, y) {
+        super(scene, x, y)
+
+        this.composition = {};
+        this.config = {
+            'hair_back': 'haircuts',
+            'legs_base': 'legs_base',
+            'arm_back': 'arm_back',
+            'base_body': 'base_body',
+            'arm_front': 'arm_front',
+            'head_base': 'head_base',
+            'ears': 'ears',
+            'face': 'face',
+            'hair_front': 'haircuts',
+        }
+
+        // create sprites
+        Object.entries(this.config).forEach(([key, texture]) => {
+            this.composition[key] = scene.add.sprite(0, 0, texture);
+            this.add(this.composition[key]);
+            this.composition[key].setOrigin(0.5, 1);
+            scene.frameAnimator.add(this.composition[key]);
+        })
+    }
+
+    play(anim, ignoreIfPlaying) {
+        Object.entries(this.config).forEach(([key, texture]) => {
+            const animKey = `${key}_${anim}`
+            this.composition[key].anims.play(animKey, ignoreIfPlaying)
+        })
+    }
+}
+
+
 class Player extends ArcadeContainer {
     constructor(scene, x, y, children) {
         super(scene, x, y, children);
@@ -106,13 +150,17 @@ class Player extends ArcadeContainer {
         this.sprite.setOrigin(0.5, 1);
         scene.frameAnimator.add(this.sprite);
 
+        this.character = new CompositeSprite(scene, 0, 0);
+        this.character.setPosition(this.ref_x, this.ref_y + 1);
+        this.character.setScale(0.1);
+
         this.composite.add([
-            this.sprite
+            this.sprite,
         ])
 
         this.add([
             this.name,
-            this.composite,
+            this.character,
         ]);
 
         this.platformColliders = [];
@@ -147,28 +195,33 @@ class Player extends ArcadeContainer {
         if (this.cursors.left.isDown || this.cursors.leftArrow.isDown) {
             if (this.cursors.shift.isDown) {
                 this.setVelocityX(-80);
-                anim = 'walk';
+                // anim = 'legs_base_walk';
+                anim = 'run'
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
+                this.character.scaleX = -Math.abs(this.character.scaleX);
             } else {
                 this.setVelocityX(-140);
-                anim = 'run';
+                // anim = 'legs_base_run';
+                anim = 'run'
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
+                this.character.scaleX = -Math.abs(this.character.scaleX);
             }
         } else if (this.cursors.right.isDown || this.cursors.rightArrow.isDown) {
             if (this.cursors.shift.isDown) {
                 this.setVelocityX(80);
-                anim = 'walk';
+                // anim = 'legs_base_walk';
+                anim = 'run'
                 this.composite.scaleX = Math.abs(this.composite.scaleX);
+                this.character.scaleX = Math.abs(this.character.scaleX);
             } else {
                 this.setVelocityX(140);
-                anim = 'run';
+                // anim = 'legs_base_run';
+                anim = 'run'
                 this.composite.scaleX = Math.abs(this.composite.scaleX);
+                this.character.scaleX = Math.abs(this.character.scaleX);
             }
         } else {
             this.setVelocityX(0);
-        }
-        if (!this.isAttacking) {
-            this.sprite.anims.play(anim, true);
         }
 
         if (this.body.onFloor()) {
@@ -185,8 +238,14 @@ class Player extends ArcadeContainer {
                 })
             } else if (this.cursors.space.isDown) {
                 this.setVelocityY(-480);
+            } else if (this.cursors.down.isDown) {
+                // anim = 'legs_base_crouch';
+                anim = 'idle'
+                this.setVelocityX(0);
             }
         } else {
+            // anim = 'legs_base_jump';
+            anim = 'run'
             if (this.body.velocity.y >= 0) {
                 this.setGravityY(800);
             }
@@ -201,6 +260,14 @@ class Player extends ArcadeContainer {
             ability.execute(this);
             this.gcdTimer += ability.cooldown;
             this.gcdQueue = null;
+        }
+
+        this.composite.sort('depth');
+
+        if (!this.isAttacking) {
+            // this.sprite.anims.play(anim, true);
+            this.character.play(anim, true);
+            // this.character.play('idle', true);
         }
     }
 
@@ -231,6 +298,34 @@ class defaultScene extends Phaser.Scene {
             frameHeight: 512,
             spacing: 1,
         })
+        this.load.spritesheet('legs_base', legs_base, {
+            frameWidth: 512,
+            frameHeight: 512,
+        })
+        this.load.spritesheet('arms', arms, {
+            frameWidth: 512,
+            frameHeight: 512,
+        })
+        this.load.spritesheet('base_body', base_body, {
+            frameWidth: 512,
+            frameHeight: 512,
+        })
+        this.load.spritesheet('head_base', head_base, {
+            frameWidth: 512,
+            frameHeight: 512,
+        })
+        this.load.spritesheet('ears', ears, {
+            frameWidth: 512,
+            frameHeight: 512,
+        })
+        this.load.spritesheet('haircuts', haircuts, {
+            frameWidth: 512,
+            frameHeight: 512,
+        })
+        this.load.spritesheet('face', faces_demo, {
+            frameWidth: 512,
+            frameHeight: 512,
+        })
     }
 
     create () {
@@ -256,8 +351,8 @@ class defaultScene extends Phaser.Scene {
         let idleConfig = {
             key: 'idle',
             frames: [ 
-                { key: 'idle', frame: 0 },
-                { key: 'idle', frame: 0, translateY: 8 },
+                { key: 'idle', frame: 0, depth: 2 },
+                { key: 'idle', frame: 0, depth: 2, translateY: 8 },
             ],
             frameRate: 1.5
         };
@@ -299,6 +394,7 @@ class defaultScene extends Phaser.Scene {
                     translateX: 0,
                     translateY: 0,
                     rotate: 8,
+                    depth: 4,
                 },
                 {
                     key: 'lambseel',
@@ -306,11 +402,182 @@ class defaultScene extends Phaser.Scene {
                     translateX: 16,
                     translateY: -32,
                     rotate: 12,
+                    depth: 4,
                 },
             ],
             frameRate: 8,
             repeat: -1,
         }
+
+        let legsIdle = {
+            key: 'legs_base_idle',
+            frames: this.anims.generateFrameNumbers('legs_base', { start: 0, end: 0 }),
+            frameRate: 8,
+            repeat: -1,
+        }
+        let legsWalk = {
+            key: 'legs_base_walk',
+            frames: this.anims.generateFrameNumbers('legs_base', { start: 1, end: 4 }),
+            frameRate: 8,
+            repeat: -1,
+        }
+        let legsRun = {
+            key: 'legs_base_run',
+            frames: this.anims.generateFrameNumbers('legs_base', { start: 5, end: 8 }),
+            frameRate: 8,
+            repeat: -1,
+        }
+        let alternate = true;
+        for (const frame of legsRun.frames) {
+            frame.rotate = 12;
+            if (alternate) {
+                frame.translateY = -8;
+            }
+            alternate = !alternate;
+        }
+
+        let legsJump = {
+            key: 'legs_base_jump',
+            frames: this.anims.generateFrameNumbers('legs_base', { start: 9, end: 9 }),
+            frameRate: 8,
+            repeat: -1,
+        }
+        let legsCrouch = {
+            key: 'legs_base_crouch',
+            frames: this.anims.generateFrameNumbers('legs_base', { start: 10, end: 10 }),
+            frameRate: 8,
+            repeat: -1,
+        }
+
+        // idle
+        let arm_front_idle = {
+            key: 'arm_front_idle',
+            frames: [ 
+                { key: 'arms', frame: 0},
+                { key: 'arms', frame: 0, translateY: 4},
+            ],
+            frameRate: 1
+        };
+        let base_body_idle = {
+            key: 'base_body_idle',
+            frames: [ 
+                { key: 'base_body', frame: 0},
+                { key: 'base_body', frame: 0, translateY: 4},
+            ],
+            frameRate: 1
+        };
+        let arm_back_idle = {
+            key: 'arm_back_idle',
+            frames: [ 
+                { key: 'arms', frame: 1},
+                { key: 'arms', frame: 1, translateY: 4},
+            ],
+            frameRate: 1
+        };
+        let head_base_idle = {
+            key: 'head_base_idle',
+            frames: [ 
+                { key: 'head_base', frame: 0},
+                { key: 'head_base', frame: 0, translateY: 4},
+            ],
+            frameRate: 1
+        };
+        let ears_idle = {
+            key: 'ears_idle',
+            frames: [ 
+                { key: 'ears', frame: 0},
+                { key: 'ears', frame: 0, translateY: 4},
+            ],
+            frameRate: 1
+        };
+        let hair_front_idle = {
+            key: 'hair_front_idle',
+            frames: [ 
+                { key: 'haircuts', frame: 0},
+                { key: 'haircuts', frame: 0, translateY: 4},
+            ],
+            frameRate: 1
+        };
+        let hair_back_idle = {
+            key: 'hair_back_idle',
+            frames: [ 
+                { key: 'haircuts', frame: 1},
+                { key: 'haircuts', frame: 1, translateY: 4},
+            ],
+            frameRate: 1
+        };
+        let face_idle = {
+            key: 'face_idle',
+            frames: [ 
+                { key: 'face', frame: 0},
+                { key: 'face', frame: 0, translateY: 4},
+            ],
+            frameRate: 1
+        };
+
+
+        let arm_front_run = {
+            key: 'arm_front_run',
+            frames: [ 
+                { key: 'arms', frame: 0, rotate: 45, translateX: -112, translateY: -32},
+            ],
+            frameRate: 8
+        };
+        let base_body_run = {
+            key: 'base_body_run',
+            frames: [ 
+                { key: 'base_body', frame: 0, rotate: 12},
+                { key: 'base_body', frame: 0, rotate: 12, translateY: 4},
+            ],
+            frameRate: 8
+        };
+        let arm_back_run = {
+            key: 'arm_back_run',
+            frames: [ 
+                { key: 'arms', frame: 1, rotate: 90, translateX: -169, translateY: -196},
+            ],
+            frameRate: 8
+        };
+        let head_base_run = {
+            key: 'head_base_run',
+            frames: [ 
+                { key: 'head_base', frame: 0, rotate: 12},
+                { key: 'head_base', frame: 0, rotate: 12, translateY: 4},
+            ],
+            frameRate: 8
+        };
+        let ears_run = {
+            key: 'ears_run',
+            frames: [ 
+                { key: 'ears', frame: 0, rotate: 12},
+                { key: 'ears', frame: 0, rotate: 12, translateY: 4},
+            ],
+            frameRate: 8
+        };
+        let hair_front_run = {
+            key: 'hair_front_run',
+            frames: [ 
+                { key: 'haircuts', frame: 0, rotate: 12},
+                { key: 'haircuts', frame: 0, rotate: 12, translateY: 4},
+            ],
+            frameRate: 8
+        };
+        let hair_back_run = {
+            key: 'hair_back_run',
+            frames: [ 
+                { key: 'haircuts', frame: 1, rotate: 12},
+                { key: 'haircuts', frame: 1, rotate: 12, translateY: 4},
+            ],
+            frameRate: 8
+        };
+        let face_run = {
+            key: 'face_run',
+            frames: [ 
+                { key: 'face', frame: 0, rotate: 12},
+                { key: 'face', frame: 0, rotate: 12, translateY: 4},
+            ],
+            frameRate: 8
+        };
 
         let animationJSON = {
             anims: [
@@ -318,6 +585,30 @@ class defaultScene extends Phaser.Scene {
                 walkConfig,
                 runConfig,
                 attackConfig,
+
+                legsIdle,
+                legsWalk,
+                legsRun,
+                legsJump,
+                legsCrouch,
+
+                arm_front_idle,
+                base_body_idle,
+                arm_back_idle,
+                head_base_idle,
+                ears_idle,
+                hair_front_idle,
+                hair_back_idle,
+                face_idle,
+
+                arm_front_run,
+                base_body_run,
+                arm_back_run,
+                head_base_run,
+                ears_run,
+                hair_front_run,
+                hair_back_run,
+                face_run,
             ]
         }
         this.anims.fromJSON(animationJSON);
