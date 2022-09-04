@@ -6,6 +6,7 @@ var MapData = Phaser.Tilemaps.MapData;
 var Formats = Phaser.Tilemaps.Formats;
 var Tilemap = Phaser.Tilemaps.Tilemap;
 
+
 export function scaleToWidth(target, width) {
     let aspectRatio = (target.height === 0) ? 1 : target.width / target.height;
     target.displayWidth = width;
