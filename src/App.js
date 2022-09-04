@@ -6,7 +6,9 @@ import { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 // Scenes
-import defaultScene from './scenes/default'
+import defaultScene from './scenes/default';
+import { LoadingScene } from './scenes/default';
+import animationLoader from './scenes/animationLoader';
 
 // CSS
 import * as styles from './App.module.css';
@@ -29,7 +31,7 @@ var config = {
           debug: false,
         }
     },
-    scene: defaultScene,
+    scene: [animationLoader, defaultScene],
     parent: 'phaser-container',
     plugins: {
         global: [{

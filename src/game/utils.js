@@ -129,3 +129,25 @@ export class StaticSprite extends Phaser.Physics.Arcade.Sprite {
     };
 
 }
+
+export class CompositeSprite extends Phaser.GameObjects.Container {
+    constructor(scene, x, y, config) {
+        super(scene, x, y)
+        this.config = config;
+        this.composition = {};
+
+        Object.entries(this.config).forEach(([key, texture]) => {
+            this.composition[key] = scene.add.sprite(0, 0, texture);
+            this.add(this.composition[key]);
+            this.composition[key].setOrigin(0.5, 1);
+            scene.frameAnimator.add(this.composition[key]);
+        })
+    }
+
+    play(anim, ignoreIfPlaying) {
+        Object.entries(this.config).forEach(([key, texture]) => {
+            const animKey = `${key}_1_${anim}`
+            this.composition[key].anims.play(animKey, ignoreIfPlaying)
+        })
+    }
+}

@@ -9,7 +9,29 @@ class FrameAnimator extends Phaser.Plugins.BasePlugin {
 
     start() {
         var eventEmitter = this.game.events;
-        eventEmitter.on('destroy', this.destroy, this);
+        // eventEmitter.on('destroy', this.destroy, this);
+
+        this.game.textures.on(
+            Phaser.Textures.Events.ADD,
+            this.testHandle,
+        )
+    }
+
+    testHandle(key, texture) {
+        var width = texture.source[0].width;
+        var height = texture.source[0].height;
+
+        // need to assume margin and spacing are 0
+        var margin = 0;
+        var spacing = 0;
+        var frameWidth = 512;
+        var frameHeight = 512;
+
+        var rows = Math.floor((height - margin + spacing) / (frameHeight + spacing));
+        var columns = Math.floor((width - margin + spacing) / (frameWidth + spacing));
+
+        texture.customData['rows'] = rows;
+        texture.customData['columns'] = columns;
     }
 
     handler(animation, animationFrame, gameObject) {
