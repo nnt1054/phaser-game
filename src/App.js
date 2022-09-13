@@ -56,7 +56,8 @@ const App = () => {
                 id="phaser-container"
             />
             <div id="ui-container">
-                <HotBar />
+                <HotBar index='1' />
+                <HotBar index='2' />
                 <div className={ styles.PlayerBars }>
                     <HealthBar />
                     <ManaBar />

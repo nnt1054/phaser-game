@@ -33,12 +33,18 @@ export class Player extends ArcadeContainer {
             'hair_back': 'hair',
             'legs': 'legs',
             'arm_back': 'arm_back',
+            'armor_body_back_sleeve': 'armor_body_back_sleeve',
             'torso': 'torso',
+            'armor_body': 'armor_body',
             'arm_front': 'arm_front',
+            'armor_body_front_sleeve': 'armor_body_front_sleeve',
+            'armor_body_collar': 'armor_body_collar',
             'head': 'head',
             'ears': 'ears',
             'face': 'face',
             'hair_front': 'hair',
+            // 'arm_back': 'arm_back',
+            // 'armor_body_back_sleeve': 'armor_body_back_sleeve',
         }
         this.character = new CompositeSprite(scene, 0, 0, compositeConfig);
         this.character.setPosition(this.ref_x, this.ref_y + 1);
@@ -81,7 +87,7 @@ export class Player extends ArcadeContainer {
         if (this.cursors.left.isDown || this.cursors.leftArrow.isDown) {
             if (this.cursors.shift.isDown) {
                 this.setVelocityX(-80);
-                anim = 'run'
+                anim = 'walk'
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
                 this.character.scaleX = -Math.abs(this.character.scaleX);
             } else {
@@ -93,7 +99,7 @@ export class Player extends ArcadeContainer {
         } else if (this.cursors.right.isDown || this.cursors.rightArrow.isDown) {
             if (this.cursors.shift.isDown) {
                 this.setVelocityX(80);
-                anim = 'run'
+                anim = 'walk'
                 this.composite.scaleX = Math.abs(this.composite.scaleX);
                 this.character.scaleX = Math.abs(this.character.scaleX);
             } else {
