@@ -13,7 +13,7 @@ import {
     decrementHealth,
     setPlayerCurrentHealth,
     setPlayerMaxHealth,
-    setPlayerHealth,   
+    setPlayerHealth,
 } from '~/src/store/playerHealth';
 
 import {
@@ -23,6 +23,10 @@ import {
 import {
     doNothing
 } from '~/src/store/hotBars';
+
+import {
+    setFrameIndex
+} from '~/src/store/aniEditor';
 
 import * as styles from '~/src/App.module.css';
 
@@ -62,7 +66,27 @@ const reducerMap = {
     'empty': {
         label: '',
         action: doNothing(),
-    }
+    },
+    'frameIndex00': {
+        label: 0,
+        action: setQueuedAbility('frame00'),
+    },
+    'frameIndex01': {
+        label: 1,
+        action: setQueuedAbility('frame01'),
+    },
+    'frameIndex02': {
+        label: 2,
+        action: setQueuedAbility('frame02'),
+    },
+    'pause': {
+        label: 'PAUSE',
+        action: setQueuedAbility('pause'),
+    },
+    'resume': {
+        label: 'PLAY',
+        action: setQueuedAbility('resume'),
+    },
 }
 
 const HotBar = (props) => {
@@ -70,11 +94,14 @@ const HotBar = (props) => {
     const position = useSelector(state => state.hotBars[props.index])
     const dispatch = useDispatch();
 
-    const width = 540;
+    const width = props.vertical ? 48 : 540;
+    const height = props.vertical ? 540 : 48;
     const hotBarStyles = {
         width: `${ width }px`,
+        height: `${ height }px`,
         left: `calc(${ position.left }vw - ${ width / 2 }px)`,
         bottom: `${ position.bottom }vh`,
+        flexDirection: props.vertical ? `column` : `row`,
     }
 
     return (
@@ -95,4 +122,5 @@ const HotBar = (props) => {
     )
 }
 
+export { reducerMap };
 export default HotBar;

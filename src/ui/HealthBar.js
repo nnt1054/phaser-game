@@ -28,11 +28,11 @@ const HealthBar = () => {
                 <div
                     style={ underlayBarStyles }
                     className={ styles.BarPrimary }
-                ></div>
+                />
                 <div
                     style={ barStyles }
                     className={ styles.BarPrimary }
-                ></div>
+                />
             </div>
             <div className={ styles.BarText }>
                 <span> Health </span>

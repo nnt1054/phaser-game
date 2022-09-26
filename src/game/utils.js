@@ -151,4 +151,28 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
             this.composition[key].anims.play(animKey, ignoreIfPlaying)
         })
     }
+
+    pause() {
+        Object.entries(this.config).forEach(([key, texture]) => {
+            this.composition[key].anims.pause()
+        })
+    }
+
+    resume() {
+        Object.entries(this.config).forEach(([key, texture]) => {
+            this.composition[key].anims.resume()
+        })
+    }
+
+    setToFrame(frameIndex) {
+        Object.entries(this.config).forEach(([key, texture]) => {
+            const anim = this.composition[key].anims;
+            const frame = anim.currentAnim.getFrameAt(frameIndex);
+            if (frame) {
+                anim.resume();
+                anim.setCurrentFrame(frame);
+                anim.pause();
+            }
+        })
+    }
 }

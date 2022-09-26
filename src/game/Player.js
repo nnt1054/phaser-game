@@ -3,6 +3,32 @@ import {
     CompositeSprite,
 } from './utils'
 
+import actionMap from './actions';
+
+// redux imports
+import store from '~/src/store/store';
+import {
+    clearInputQueues,
+} from '~/src/store/playerState';
+
+
+function observeStore(store, select, onChange) {
+  let currentState;
+
+  function handleChange() {
+    let nextState = select(store.getState());
+    if (nextState !== currentState) {
+      currentState = nextState;
+      onChange(currentState);
+    }
+  }
+
+  let unsubscribe = store.subscribe(handleChange);
+  handleChange();
+  return unsubscribe;
+}
+
+
 export class Player extends ArcadeContainer {
     constructor(scene, x, y, children) {
         super(scene, x, y, children);
@@ -43,8 +69,6 @@ export class Player extends ArcadeContainer {
             'ears': 'ears',
             'face': 'face',
             'hair_front': 'hair',
-            // 'arm_back': 'arm_back',
-            // 'armor_body_back_sleeve': 'armor_body_back_sleeve',
         }
         this.character = new CompositeSprite(scene, 0, 0, compositeConfig);
         this.character.setPosition(this.ref_x, this.ref_y + 1);
@@ -61,6 +85,26 @@ export class Player extends ArcadeContainer {
         this.gcdTimer = 0;
 
         this.isAttacking = false;
+        this.paused = false;
+
+        const getPlayerState = state => state.playerState;
+        this.observer = observeStore(store, getPlayerState, (playerState) => {
+            let clearInputs = false;
+
+            if (playerState.queuedAbility) {
+                this.queueAbility(playerState.queuedAbility);
+                clearInputs = true;
+            }
+
+            if (playerState.jump) {
+                this.queueJump();
+                clearInputs = true;
+            }
+
+            if (clearInputs) {
+                store.dispatch(clearInputQueues());
+            }
+        });
     }
 
     addPlatforms(platforms) {
@@ -76,16 +120,39 @@ export class Player extends ArcadeContainer {
         })
     }
 
-    queueAbility(ability) {
+    queueAbility(abilityName) {
+        // need to import action Map here instead
+        if (!abilityName) return;
+        const ability = actionMap[abilityName];
+        if (!ability) return;
+
         if (this.gcdQueue) return;
         if (this.gcdTimer > 1000) return;
         this.gcdQueue = ability;
     }
 
-    update (time, delta) {
+    update_2(time, delta) {
+        if (this.gcdTimer > 0) {
+            this.gcdTimer = Math.max(0, this.gcdTimer - delta)
+        }
+        if (this.gcdQueue && this.gcdTimer == 0) {
+            const ability = this.gcdQueue;
+            ability.execute(this);
+            this.gcdTimer += ability.cooldown;
+            this.gcdQueue = null;
+        }
+
+        if (!this.paused) {
+            this.character.play('run', true);
+        }
+    }
+
+    update(time, delta) {
         let anim = 'idle';
+
+        // horizontal position changes
         if (this.cursors.left.isDown || this.cursors.leftArrow.isDown) {
-            if (this.cursors.shift.isDown) {
+            if (this.cursors.down.isDown) {
                 this.setVelocityX(-80);
                 anim = 'walk'
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
@@ -97,7 +164,7 @@ export class Player extends ArcadeContainer {
                 this.character.scaleX = -Math.abs(this.character.scaleX);
             }
         } else if (this.cursors.right.isDown || this.cursors.rightArrow.isDown) {
-            if (this.cursors.shift.isDown) {
+            if (this.cursors.down.isDown) {
                 this.setVelocityX(80);
                 anim = 'walk'
                 this.composite.scaleX = Math.abs(this.composite.scaleX);
@@ -112,6 +179,7 @@ export class Player extends ArcadeContainer {
             this.setVelocityX(0);
         }
 
+        // vertical position changes
         if (this.body.onFloor()) {
             this.setGravityY(1600);
             if (this.cursors.down.isDown && this.cursors.space.isDown) {
@@ -126,9 +194,6 @@ export class Player extends ArcadeContainer {
                 })
             } else if (this.cursors.space.isDown) {
                 this.setVelocityY(-480);
-            } else if (this.cursors.down.isDown) {
-                anim = 'idle'
-                this.setVelocityX(0);
             }
         } else {
             anim = 'run'
@@ -137,10 +202,13 @@ export class Player extends ArcadeContainer {
             }
         }
 
+        // TODO: move this later? does this even work
+        this.composite.sort('depth');
+
+        // execute queued ability when appropriate
         if (this.gcdTimer > 0) {
             this.gcdTimer = Math.max(0, this.gcdTimer - delta)
         }
-
         if (this.gcdQueue && this.gcdTimer == 0) {
             const ability = this.gcdQueue;
             ability.execute(this);
@@ -148,9 +216,8 @@ export class Player extends ArcadeContainer {
             this.gcdQueue = null;
         }
 
-        this.composite.sort('depth');
-
-        if (!this.isAttacking) {
+        // play animation if not currently locked in another animation
+        if (!this.isAttacking && !this.paused) {
             this.character.play(anim, true);
         }
     }

@@ -24,56 +24,11 @@ import {
 
 import {
     clearQueuedAbility,
+    clearInputQueues,
 } from '~/src/store/playerState';
 
 import store from '~/src/store/store';
 
-
-function observeStore(store, select, onChange) {
-  let currentState;
-
-  function handleChange() {
-    let nextState = select(store.getState());
-    if (nextState !== currentState) {
-      currentState = nextState;
-      onChange(currentState);
-    }
-  }
-
-  let unsubscribe = store.subscribe(handleChange);
-  handleChange();
-  return unsubscribe;
-}
-
-const basicAbility = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
-    charges: -1,
-    cost: -1,
-    cooldown: 2500,
-    execute: (player) => {
-        store.dispatch(incrementHealth());
-    },
-}
-
-const basicAttack = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
-    charges: -1,
-    cost: -1,
-    cooldown: 1000,
-    execute: (player) => {
-        player.isAttacking = true;
-        player.character.play('run', false);
-        // player.sprite.on('animationcomplete', () => {
-        //     player.isAttacking = false;
-        // });
-        setTimeout(() => player.isAttacking = false, 1000);
-    },
-}
-
-const abilityMap = {
-    'attack': basicAttack,
-    'heal': basicAbility,
-}
 
 class defaultScene extends Phaser.Scene {
     constructor() {
@@ -104,9 +59,8 @@ class defaultScene extends Phaser.Scene {
         background.setOrigin(0, 1);
 
         const map_bg = this.add.image(0, this.map.heightInPixels, 'jumpquest_bg');
-        map_bg.setOrigin(0, 1)
+        map_bg.setOrigin(0, 1);
 
-        // only need cursors for modifiers (can you bind a key to a modifier?)
         this.cursors = this.input.keyboard.addKeys({
             up: KeyCodes.W,
             down: KeyCodes.S,
@@ -124,6 +78,7 @@ class defaultScene extends Phaser.Scene {
             alt: KeyCodes.ALT,
         });
 
+        // TODO: move to react code; find better input library
         this.input.keyboard.on('keydown', (event) => {
             const hotbarSlot = this.keyMap[event.keyCode];
             if (!hotbarSlot) return;
@@ -132,25 +87,12 @@ class defaultScene extends Phaser.Scene {
             this.player.queueAbility(ability);
         });
 
-        const getQueuedAbility = state => state.playerState.queuedAbility;
-        observeStore(store, getQueuedAbility, (abilityName) => {
-            if (!abilityName) return;
-            const ability = abilityMap[abilityName];
-            if (!ability) return;
-            this.player.queueAbility(ability);
-            store.dispatch(clearQueuedAbility());
-        });
-
+        this.hotbarMap = {}
         this.keyMap = {
-            [KeyCodes.Q]: 1,
-            [KeyCodes.E]: 2,
-            [KeyCodes.ENTER]: 1,
+            [KeyCodes.Q]: 3,
+            [KeyCodes.E]: 4,
+            [KeyCodes.R]: 5,
         };
-
-        this.hotbarMap = {
-            1: basicAttack,
-            2: basicAbility,
-        }
 
         this.player = new Player(this, 80, 1800);
         this.player.setCollideWorldBounds(true);
