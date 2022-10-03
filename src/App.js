@@ -60,8 +60,8 @@ const App = () => {
                 <InputManager />
                 <HotBar index='1' />
                 <HotBar index='2' />
-                <HotBar index='3' vertical />
-                <HotBar index='4' vertical />
+{/*                <HotBar index='3' vertical />
+                <HotBar index='4' vertical />*/}
                 <div className={ styles.PlayerBars }>
                     <HealthBar />
                     <ManaBar />

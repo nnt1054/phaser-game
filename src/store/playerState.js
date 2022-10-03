@@ -19,17 +19,7 @@ const playerStateSlice = createSlice({
     // 5. next update loop we check for player.jumpOnNextUpdate
     // 6. player executes jump logic and sets jumpOnNextUpdate=False
     // 7. easy and epic
-    jump: false,
-
-    // also only need 1 observer
-    // we can declare this in Player code and later break it out into like
-    // a Controller mixin idk we'll see
-
-    // oh wait queued ability is already listening to the same slice
-    // so observeStore listens for changes to the WHOLE store?
-    // so on the react end, there's only really ONE subscriber (which is the <Provider>)
-    // so for phaser/engine, we can also just work with one subscriber and build a
-    // context handler
+    jump: 0,
   },
   reducers: {
     setQueuedAbility: (state, action) => {
@@ -37,20 +27,32 @@ const playerStateSlice = createSlice({
             state.queuedAbility = action.payload;
         }
     },
+    setJump: (state) => {
+        state.jump = true;
+    },
     clearQueuedAbility: (state) => {
         state.queuedAbility = null;
     },
     clearInputQueues: (state) => {
         state.queuedAbility = null;
-        state.jump = false;
-    }
+        // state.jump = false;
+    },
+    setCursorState: (state, action) => {
+        let cursor = action.payload.cursor
+        let value = action.payload.value
+        if (cursor in state) {
+            state[cursor] = value;
+        }
+    },
   }
 })
 
 export const {
     setQueuedAbility,
+    setJump,
     clearQueuedAbility,
     clearInputQueues,
+    setCursorState,
 } = playerStateSlice.actions;
 
 export default playerStateSlice;

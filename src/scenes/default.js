@@ -61,39 +61,6 @@ class defaultScene extends Phaser.Scene {
         const map_bg = this.add.image(0, this.map.heightInPixels, 'jumpquest_bg');
         map_bg.setOrigin(0, 1);
 
-        this.cursors = this.input.keyboard.addKeys({
-            up: KeyCodes.W,
-            down: KeyCodes.S,
-            left: KeyCodes.A,
-            right: KeyCodes.D,
-            upArrow: KeyCodes.UP,
-            downArrow: KeyCodes.DOWN,
-            leftArrow: KeyCodes.LEFT,
-            rightArrow: KeyCodes.RIGHT,
-
-            space: KeyCodes.SPACE,
-            tab: KeyCodes.TAB,
-            shift: KeyCodes.SHIFT,
-            control: KeyCodes.CTRL,
-            alt: KeyCodes.ALT,
-        });
-
-        // TODO: move to react code; find better input library
-        this.input.keyboard.on('keydown', (event) => {
-            const hotbarSlot = this.keyMap[event.keyCode];
-            if (!hotbarSlot) return;
-            const ability = this.hotbarMap[hotbarSlot];
-            if (!ability) return;
-            this.player.queueAbility(ability);
-        });
-
-        this.hotbarMap = {}
-        this.keyMap = {
-            [KeyCodes.Q]: 3,
-            [KeyCodes.E]: 4,
-            [KeyCodes.R]: 5,
-        };
-
         this.player = new Player(this, 80, 1800);
         this.player.setCollideWorldBounds(true);
 

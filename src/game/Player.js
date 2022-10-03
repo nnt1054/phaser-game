@@ -40,7 +40,7 @@ export class Player extends ArcadeContainer {
         this.ref_x = this.body.width / 2;
         this.ref_y = this.body.height;
 
-        this.name = scene.add.text(0, 0, 'Lamb Seel', {
+        this.name = scene.add.text(0, 0, 'Player 1', {
             fontFamily: 'Comic Sans MS',
             fontSize: '16px',
             fill: '#FFF',
@@ -87,6 +87,15 @@ export class Player extends ArcadeContainer {
         this.isAttacking = false;
         this.paused = false;
 
+        this.reduxCursors = {
+            up: 0,
+            down: 0,
+            left: 0,
+            right: 0,
+        }
+
+        this.jumpOnNextUpdate = false;
+
         const getPlayerState = state => state.playerState;
         this.observer = observeStore(store, getPlayerState, (playerState) => {
             let clearInputs = false;
@@ -96,13 +105,21 @@ export class Player extends ArcadeContainer {
                 clearInputs = true;
             }
 
-            if (playerState.jump) {
-                this.queueJump();
-                clearInputs = true;
-            }
+            this.jumpOnNextUpdate = playerState.jump;
+            // if (playerState.jump) {
+            //     this.jumpOnNextUpdate = true;
+            //     clearInputs = true;
+            // }
 
             if (clearInputs) {
                 store.dispatch(clearInputQueues());
+            }
+
+            this.reduxCursors = {
+                up: playerState.up,
+                down: playerState.down,
+                left: playerState.left,
+                right: playerState.right,
             }
         });
     }
@@ -151,10 +168,11 @@ export class Player extends ArcadeContainer {
         let anim = 'idle';
 
         // horizontal position changes
-        if (this.cursors.left.isDown || this.cursors.leftArrow.isDown) {
-            if (this.cursors.down.isDown) {
+        if (this.reduxCursors.left) {
+            if (this.reduxCursors.down) {
                 this.setVelocityX(-80);
-                anim = 'walk'
+                // anim = 'walk'
+                anim = 'run'
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
                 this.character.scaleX = -Math.abs(this.character.scaleX);
             } else {
@@ -163,10 +181,11 @@ export class Player extends ArcadeContainer {
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
                 this.character.scaleX = -Math.abs(this.character.scaleX);
             }
-        } else if (this.cursors.right.isDown || this.cursors.rightArrow.isDown) {
-            if (this.cursors.down.isDown) {
+        } else if (this.reduxCursors.right) {
+            if (this.reduxCursors.down) {
                 this.setVelocityX(80);
-                anim = 'walk'
+                // anim = 'walk'
+                anim = 'run'
                 this.composite.scaleX = Math.abs(this.composite.scaleX);
                 this.character.scaleX = Math.abs(this.character.scaleX);
             } else {
@@ -182,7 +201,7 @@ export class Player extends ArcadeContainer {
         // vertical position changes
         if (this.body.onFloor()) {
             this.setGravityY(1600);
-            if (this.cursors.down.isDown && this.cursors.space.isDown) {
+            if (this.reduxCursors.down && this.jumpOnNextUpdate) {
                 this.setVelocityY(-30);
                 this.platformColliders.forEach(collider => {
                     collider.active = false;
@@ -192,7 +211,7 @@ export class Player extends ArcadeContainer {
                         callbackScope: this, 
                     })
                 })
-            } else if (this.cursors.space.isDown) {
+            } else if (this.jumpOnNextUpdate) {
                 this.setVelocityY(-480);
             }
         } else {
@@ -201,6 +220,8 @@ export class Player extends ArcadeContainer {
                 this.setGravityY(800);
             }
         }
+        // this.jumpOnNextUpdate = false;
+
 
         // TODO: move this later? does this even work
         this.composite.sort('depth');

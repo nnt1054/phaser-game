@@ -17,7 +17,9 @@ import {
 } from '~/src/store/playerHealth';
 
 import {
-    setQueuedAbility
+    setQueuedAbility,
+    setCursorState,
+    setJump,
 } from '~/src/store/playerState';
 
 import {
@@ -31,6 +33,65 @@ import {
 import * as styles from '~/src/App.module.css';
 
 const reducerMap = {
+    'jump': {
+        label: 'jump',
+        action: setJump(),
+    },
+    'jumpCursor': {
+        label: 'jump',
+        action: setCursorState({
+            cursor: 'jump',
+            value: 1,
+        }),
+        upAction: setCursorState({
+            cursor: 'jump',
+            value: 0,
+        }),
+    },
+    'left': {
+        label: 'left',
+        action: setCursorState({
+            cursor: 'left',
+            value: 1,
+        }),
+        upAction: setCursorState({
+            cursor: 'left',
+            value: 0,
+        }),
+    },
+    'right': {
+        label: 'right',
+        action: setCursorState({
+            cursor: 'right',
+            value: 1,
+        }),
+        upAction: setCursorState({
+            cursor: 'right',
+            value: 0,
+        }),
+    },
+    'up': {
+        label: 'up',
+        action: setCursorState({
+            cursor: 'up',
+            value: 1,
+        }),
+        upAction: setCursorState({
+            cursor: 'up',
+            value: 0,
+        }),
+    },
+    'down': {
+        label: 'down',
+        action: setCursorState({
+            cursor: 'down',
+            value: 1,
+        }),
+        upAction: setCursorState({
+            cursor: 'down',
+            value: 0,
+        }),
+    },
     'decrementHP10': {
         label: '-10 HP',
         action: decrementHealth(),
@@ -90,8 +151,7 @@ const reducerMap = {
 }
 
 const HotBar = (props) => {
-    // const increasing = useSelector(state => state.playerHealth.increasing);
-    const position = useSelector(state => state.hotBars[props.index])
+    const position = useSelector(state => state.hotBars[props.index]);
     const dispatch = useDispatch();
 
     const width = props.vertical ? 48 : 540;
