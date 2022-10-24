@@ -29,6 +29,9 @@ import {
 
 import store from '~/src/store/store';
 
+// animations loaders
+import { animationPreload, animationCreate } from '../animations';
+
 
 class defaultScene extends Phaser.Scene {
     constructor() {
@@ -39,10 +42,14 @@ class defaultScene extends Phaser.Scene {
         this.load.image('jumpquest_bg', jumpquest_bg);
         this.load.image('kugane_bg', kugane_bg);
         this.load.tilemapTiledJSON('jumpquest_map', jumpquest_map);
+
+        animationPreload(this);
     }
 
     create () {
         this.frameAnimator = this.plugins.get('frameAnimator');
+        animationCreate(this);
+
         this.map = createTiledMap(this, 'jumpquest_map');
         this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels + 300);
 

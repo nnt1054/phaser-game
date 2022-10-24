@@ -68,6 +68,7 @@ class FrameAnimator extends Phaser.Plugins.BasePlugin {
             frame = animation.frames[i];
             frameConfig = config.frames[i];
             frame.config = {
+                baseFrame: GetValue(frameConfig, 'baseFrame', 0),
                 translateX: GetValue(frameConfig, 'translateX', 0),
                 translateY: GetValue(frameConfig, 'translateY', 0),
                 rotate: GetValue(frameConfig, 'rotate', 0),

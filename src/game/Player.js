@@ -122,6 +122,16 @@ export class Player extends ArcadeContainer {
                 right: playerState.right,
             }
         });
+
+        this.currentFrame = 0;
+        const getFrameIndex = state => state.aniEditor;
+        this.observer_animation = observeStore(store, getFrameIndex, (animState) => {
+            if (animState.frameIndex != this.currentFrame) {
+                this.currentFrame = animState.frameIndex;
+                this.queueAbility(`frame${animState.frameIndex}`);
+            }
+            this.character.setActiveCompositeStates(animState.compositeStates);
+        })
     }
 
     addPlatforms(platforms) {
@@ -171,8 +181,7 @@ export class Player extends ArcadeContainer {
         if (this.reduxCursors.left) {
             if (this.reduxCursors.down) {
                 this.setVelocityX(-80);
-                // anim = 'walk'
-                anim = 'run'
+                anim = 'walk'
                 this.composite.scaleX = -Math.abs(this.composite.scaleX);
                 this.character.scaleX = -Math.abs(this.character.scaleX);
             } else {
@@ -184,8 +193,7 @@ export class Player extends ArcadeContainer {
         } else if (this.reduxCursors.right) {
             if (this.reduxCursors.down) {
                 this.setVelocityX(80);
-                // anim = 'walk'
-                anim = 'run'
+                anim = 'walk'
                 this.composite.scaleX = Math.abs(this.composite.scaleX);
                 this.character.scaleX = Math.abs(this.character.scaleX);
             } else {

@@ -13,20 +13,12 @@ import legs from '../assets/spritesheets/legs.png';
 // armor spritesheets
 import armor_body from '../assets/spritesheets/armor_body.png';
 
-// import arms from '../assets/arms.png';
-// import base_body from '../assets/base_body.png';
-// import ears from '../assets/ears.png';
-// import haircuts from '../assets/haircuts.png';
-// import head_base from '../assets/head_base.png';
-// import legs_base from '../assets/legs_base.png';
+import idleJson from './idle.json';
+import walkJson from './walk.json';
+import runJson from './run.json';
 
-export class AnimationLoader extends Phaser.Scene {
 
-  constructor() {
-    super('animationLoader');
-  }
-
-  preload() {
+export function animationPreload(scene) {
   	let spritesheets_512 = {
         'face': faces_demo,
   		'legs': legs,
@@ -36,18 +28,18 @@ export class AnimationLoader extends Phaser.Scene {
   		'ears': ears,
   		'hair': hair,
         'armor_body': armor_body,
-  	}
+  	};
   	for (const [key, source] of Object.entries(spritesheets_512)) {
-	    this.load.spritesheet(key, source, {
+	    scene.load.spritesheet(key, source, {
 	        frameWidth: 512,
 	        frameHeight: 512,
-	    })
-  	}
-  }
+	    });
+  	};
+}
 
-  create() {
-    this.frameAnimator = this.plugins.get('frameAnimator');
-    this.compositeToTextureMap = {
+export function animationCreate(scene) {
+    scene.frameAnimator = scene.plugins.get('frameAnimator');
+    scene.compositeToTextureMap = {
         arm_front: 'arms',
         torso: 'torso',
         arm_back: 'arms',
@@ -61,7 +53,7 @@ export class AnimationLoader extends Phaser.Scene {
         armor_body_collar: 'armor_body',
         armor_body_front_sleeve: 'armor_body',
         armor_body_back_sleeve: 'armor_body',
-    }
+    };
 
     let faceIdle = {
         key: `face_1_idle`,
@@ -70,7 +62,7 @@ export class AnimationLoader extends Phaser.Scene {
             { key: 'face', frame: 0},
             { key: 'face', frame: 0, translateY: 4},
         ],
-    }
+    };
 
     let faceWalk = {
         key: `face_1_walk`,
@@ -81,87 +73,20 @@ export class AnimationLoader extends Phaser.Scene {
             { key: 'face', frame: 0, translateY: 0},
             { key: 'face', frame: 0, translateY: 0},
         ]
-    }
+    };
 
     let faceRun = {
         key: `face_1_run`,
         frameRate: 12,
         frames: [
-            { key: 'face', frame: 0, rotate: 12},
-            { key: 'face', frame: 0, rotate: 12},
-            { key: 'face', frame: 0, rotate: 12, translateY: 4},
+            { "key": "face", "frame": 0, "rotate": 12, "translateX": 2, "translateY": -3},
+            { "key": "face", "frame": 0, "rotate": 13, "translateX": 0, "translateY": 2},
+            { "key": "face", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 4},
+            { "key": "face", "frame": 0, "rotate": 12, "translateX": 3, "translateY": -4},
+            { "key": "face", "frame": 0, "rotate": 13, "translateX": 0, "translateY": 3},
+            { "key": "face", "frame": 0, "rotate": 12, "translateX": -2, "translateY": 4}
         ]
-    }
-
-    let runAnimation = {
-        key: 'run',
-        frameRate: 12,
-        frames: {
-            arm_front: [
-                { key: 'arms', frame: 0, rotate: 45, translateX: -112, translateY: -32},
-                { key: 'arms', frame: 0, rotate: 45, translateX: -112, translateY: -32},
-                { key: 'arms', frame: 0, rotate: 46, translateX: -112, translateY: -28},
-            ],
-            armor_body_front_sleeve: [
-                { key: 'armor_body', frame: 2, rotate: 45, translateX: -112, translateY: -32},
-                { key: 'armor_body', frame: 2, rotate: 45, translateX: -112, translateY: -32},
-                { key: 'armor_body', frame: 2, rotate: 46, translateX: -112, translateY: -28},
-            ],
-            torso: [
-                { key: 'torso', frame: 0, rotate: 12},
-                { key: 'torso', frame: 0, rotate: 12},
-                { key: 'torso', frame: 0, rotate: 12, translateY: 4},
-            ],
-            armor_body: [
-                { key: 'armor_body', frame: 0, rotate: 12},
-                { key: 'armor_body', frame: 0, rotate: 12},
-                { key: 'armor_body', frame: 0, rotate: 12, translateY: 4},
-            ],
-            armor_body_collar: [
-                { key: 'armor_body', frame: 1, rotate: 12},
-                { key: 'armor_body', frame: 1, rotate: 12},
-                { key: 'armor_body', frame: 1, rotate: 12, translateY: 4},
-            ],
-            arm_back: [
-                { key: 'arms', frame: 0, rotate: 45, translateX: -64, translateY: -32},
-                { key: 'arms', frame: 0, rotate: 45, translateX: -64, translateY: -32},
-                { key: 'arms', frame: 0, rotate: 46, translateX: -64, translateY: -28},
-            ],
-            armor_body_back_sleeve: [
-                { key: 'armor_body', frame: 2, rotate: 45, translateX: -64, translateY: -32},
-                { key: 'armor_body', frame: 2, rotate: 45, translateX: -64, translateY: -32},
-                { key: 'armor_body', frame: 2, rotate: 46, translateX: -64, translateY: -28},
-            ],
-            head: [
-                { key: 'head', frame: 0, rotate: 12},
-                { key: 'head', frame: 0, rotate: 12},
-                { key: 'head', frame: 0, rotate: 12, translateY: 4},
-            ],
-            ears: [
-                { key: 'ears', frame: 0, rotate: 12},
-                { key: 'ears', frame: 0, rotate: 12},
-                { key: 'ears', frame: 0, rotate: 12, translateY: 4},
-            ],
-            hair_front: [
-                { key: 'hair', frame: 0, rotate: 12},
-                { key: 'hair', frame: 0, rotate: 12},
-                { key: 'hair', frame: 0, rotate: 12, translateY: 4},
-            ],
-            hair_back: [
-                { key: 'hair', frame: 1, rotate: 12},
-                { key: 'hair', frame: 1, rotate: 12},
-                { key: 'hair', frame: 1, rotate: 12, translateY: 4},
-            ],
-            legs: [
-                { key: 'legs', frame: 5, translateY: -8, rotate: 12},
-                { key: 'legs', frame: 5, translateY: -8, rotate: 12},
-                { key: 'legs', frame: 6, translateY: 0, rotate: 12},
-                { key: 'legs', frame: 7, translateY: -8, rotate: 12},
-                { key: 'legs', frame: 7, translateY: -8, rotate: 12},
-                { key: 'legs', frame: 8, translateY: 0, rotate: 12},
-            ]
-        }
-    }
+    };
 
     let walkAnimation = {
         key: 'walk',
@@ -242,64 +167,9 @@ export class AnimationLoader extends Phaser.Scene {
         }
     }
 
-    let idleAnimation = {
-        key: 'idle',
-        frameRate: 1,
-        frames: {
-            arm_front: [
-                { key: 'arms', frame: 0},
-                { key: 'arms', frame: 0, translateY: 4},
-            ],
-            armor_body_front_sleeve: [
-                { key: 'armor_body', frame: 2},
-                { key: 'armor_body', frame: 2, translateY: 4},
-            ],
-            torso: [
-                { key: 'torso', frame: 0},
-                { key: 'torso', frame: 0, translateY: 4},
-            ],
-            armor_body: [
-                { key: 'armor_body', frame: 0},
-                { key: 'armor_body', frame: 0, translateY: 4},
-            ],
-            armor_body_collar: [
-                { key: 'armor_body', frame: 1},
-                { key: 'armor_body', frame: 1, translateY: 4},
-            ],
-            arm_back: [
-                { key: 'arms', frame: 1},
-                { key: 'arms', frame: 1, translateY: 4},
-            ],
-            armor_body_back_sleeve: [
-                { key: 'armor_body', frame: 3},
-                { key: 'armor_body', frame: 3, translateY: 4},
-            ],
-            head: [
-                { key: 'head', frame: 0},
-                { key: 'head', frame: 0, translateY: 4},
-            ],
-            ears: [
-                { key: 'ears', frame: 0},
-                { key: 'ears', frame: 0, translateY: 4},
-            ],
-            hair_front: [
-                { key: 'hair', frame: 0},
-                { key: 'hair', frame: 0, translateY: 4},
-            ],
-            hair_back: [
-                { key: 'hair', frame: 1},
-                { key: 'hair', frame: 1, translateY: 4},
-            ],
-            legs: [
-                { key: 'legs', frame: 0},
-                { key: 'legs', frame: 0},
-            ]
-        }
-    }
-
-    this.loadCompositeAnimation(idleAnimation);
-    this.loadCompositeAnimation(walkAnimation);
-    this.loadCompositeAnimation(runAnimation);
+    loadCompositeAnimation(scene, idleJson);
+    loadCompositeAnimation(scene, walkJson);
+    loadCompositeAnimation(scene, runJson);
 
     let animationJSON = {
         anims: [
@@ -307,16 +177,16 @@ export class AnimationLoader extends Phaser.Scene {
             faceRun,
             faceWalk,
         ]
-    }
-    this.anims.fromJSON(animationJSON);
-    this.frameAnimator.frameAnimatorUpdateFramesFromJSON(this.anims, animationJSON);
-    setTimeout(() => this.scene.start('default'), 1)
-  }
+    };
+    scene.anims.fromJSON(animationJSON);
+    scene.frameAnimator.frameAnimatorUpdateFramesFromJSON(scene.anims, animationJSON);
+}
 
-  loadCompositeAnimation(config) {
+
+function loadCompositeAnimation(scene, config) {
     for (const [key, frames] of Object.entries(config.frames)) {
-        let textureKey = this.compositeToTextureMap[key];
-        let texture = this.textures.list[textureKey];
+        let textureKey = scene.compositeToTextureMap[key];
+        let texture = scene.textures.list[textureKey];
         let rows = texture.customData.rows;
         let columns = texture.customData.columns;
         for (var i = 0; i < rows; i++) {
@@ -326,6 +196,7 @@ export class AnimationLoader extends Phaser.Scene {
                 frames: frames.map(frame => {
                     return {
                         key: textureKey,
+                        baseFrame: frame.frame,
                         frame: (i * columns) + frame.frame,
                         translateX: frame.translateX,
                         translateY: frame.translateY,
@@ -333,12 +204,8 @@ export class AnimationLoader extends Phaser.Scene {
                     }
                 }),
             }
-            this.anims.create(data);
-            this.frameAnimator.frameAnimatorUpdateFrames(this.anims, data);   
+            scene.anims.create(data);
+            scene.frameAnimator.frameAnimatorUpdateFrames(scene.anims, data);   
         }
     }
-  }
-
 }
-
-export default AnimationLoader;

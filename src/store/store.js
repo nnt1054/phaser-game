@@ -13,7 +13,7 @@ export default configureStore({
         playerMana: playerManaSlice.reducer,
         playerState: playerStateSlice.reducer,
         hotBars: hotBarsSlice.reducer,
-        // aniEditor: aniEditorSlice.reducer,
+        aniEditor: aniEditorSlice.reducer,
         inputManager: inputManagerSlice.reducer,
     }
 })

@@ -32,7 +32,7 @@ var config = {
           debug: false,
         }
     },
-    scene: [animationLoader, defaultScene],
+    scene: [defaultScene],
     parent: 'phaser-container',
     plugins: {
         global: [{

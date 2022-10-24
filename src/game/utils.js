@@ -136,6 +136,10 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
         super(scene, x, y)
         this.config = config;
         this.composition = {};
+        this.currentAnim = null;
+
+        // used for animation editing
+        this.activeComposites = {};
 
         Object.entries(this.config).forEach(([key, texture]) => {
             this.composition[key] = scene.add.sprite(0, 0, texture);
@@ -146,6 +150,7 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
     }
 
     play(anim, ignoreIfPlaying) {
+        this.currentAnim = anim;
         Object.entries(this.config).forEach(([key, texture]) => {
             const animKey = `${key}_1_${anim}`
             this.composition[key].anims.play(animKey, ignoreIfPlaying)
@@ -167,12 +172,86 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
     setToFrame(frameIndex) {
         Object.entries(this.config).forEach(([key, texture]) => {
             const anim = this.composition[key].anims;
-            const frame = anim.currentAnim.getFrameAt(frameIndex);
+            const currentAnim = anim.currentAnim
+            if (!currentAnim) return;
+            const frame = currentAnim.getFrameAt(frameIndex);
             if (frame) {
                 anim.resume();
                 anim.setCurrentFrame(frame);
                 anim.pause();
             }
         })
+    }
+
+    translateX(increment) {
+        Object.entries(this.config).forEach(([key, texture]) => {
+            const anims = this.composition[key].anims;
+            const frame = this.composition[key].anims.currentFrame;
+            if (frame) {
+                frame.config.translateX += increment;
+                anims.resume();
+                anims.setCurrentFrame(frame);
+                anims.pause();
+            }
+        })
+    }
+
+    setActiveCompositeStates(state) {
+        this.activeComposites = state;
+    }
+
+    updateFrameConfig(configKey, increment) {
+        Object.entries(this.config).forEach(([key, texture]) => {
+            if (!this.activeComposites[`composite_${key}`]) return;
+            const anims = this.composition[key].anims;
+            const frame = this.composition[key].anims.currentFrame;
+            if (frame) {
+                frame.config[configKey] += increment;
+                anims.resume();
+                anims.setCurrentFrame(frame);
+                anims.pause();
+            }
+        })
+    }
+
+    updateFrameKey(increment) {
+        Object.entries(this.config).forEach(([key, texture]) => {
+            const anims = this.composition[key].anims;
+            const frame = this.composition[key].anims.currentFrame;
+            if (frame) {
+                var frameName = frame.frame.name += increment;
+                frame.config.baseFrame += increment;
+                frame.frame = this.scene.textures.get(frame.textureKey).get(frameName);
+                anims.resume();
+                anims.setCurrentFrame(frame);
+                anims.pause();
+            }
+        })
+    }
+
+    toJSON() {
+        let animJson = {
+            key: this.currentAnim,
+            frameRate: 0,
+            frames: {},
+        };
+        Object.entries(this.config).forEach(([key, texture]) => {
+            const anim = this.composition[key].anims.currentAnim;
+            if (!animJson.frameRate) animJson.frameRate = anim.frameRate;
+            animJson.frames[key] = anim.frames.map(frame => {
+                return {
+                    key: frame.textureKey,
+                    frame: frame.config.baseFrame,
+                    rotate: frame.config.rotate ?? 0,
+                    translateX: frame.config.translateX ?? 0,
+                    translateY: frame.config.translateY ?? 0,
+                }
+            });
+        });
+
+        let res = JSON.stringify(animJson, null, 4);
+        res = res.replace(/\n                /g, ' ');
+        res = res.replace(/\n            }/g, '}');
+        return res;
     }
 }

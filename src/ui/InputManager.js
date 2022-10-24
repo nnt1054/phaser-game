@@ -3,6 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
 import { reducerMap } from './HotBar';
 
+import Phaser from 'phaser';
+const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
+
 
 // Hook
 const useKeyPress = callback => {
@@ -17,14 +20,16 @@ const useKeyPress = callback => {
           ctrl: event.ctrlKey,
           alt: event.alt,
       }
+
       if (!keyPressed[event.keyCode]) {
-        setKeyPressed(state => ({...state, [event.keyCode]: true}))
+        setKeyPressed(state => ({...state, [event.keyCode]: true}));
         callback && callback(input, event.type);
       }
 
       // if (event.ctrlKey) {
-      //   event.preventDefault();
-      // }
+      if (event.keyCode == KeyCodes.SPACE) {
+        event.preventDefault();
+      }
     };
 
     const upHandler = event => {
@@ -128,6 +133,7 @@ const InputManager = () => {
             break;
 
           case 'keyup':
+            // release all modifiers
             releaseKeyPress(input, inputManager.shiftKeymap);
             releaseKeyPress(input, inputManager.ctrlKeymap);
             releaseKeyPress(input, inputManager.altKeymap);

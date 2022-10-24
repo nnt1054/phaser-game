@@ -27,12 +27,14 @@ import {
 } from '~/src/store/hotBars';
 
 import {
-    setFrameIndex
+    setFrameIndex,
+    toggleCompositeState,
+    clearCompositeStates,
 } from '~/src/store/aniEditor';
 
 import * as styles from '~/src/App.module.css';
 
-const reducerMap = {
+var reducerMap = {
     'jump': {
         label: 'jump',
         action: setJump(),
@@ -128,33 +130,99 @@ const reducerMap = {
         label: '',
         action: doNothing(),
     },
-    'frameIndex00': {
-        label: 0,
-        action: setQueuedAbility('frame00'),
-    },
-    'frameIndex01': {
-        label: 1,
-        action: setQueuedAbility('frame01'),
-    },
-    'frameIndex02': {
-        label: 2,
-        action: setQueuedAbility('frame02'),
-    },
     'pause': {
-        label: 'PAUSE',
+        label: 'Stop',
         action: setQueuedAbility('pause'),
     },
     'resume': {
-        label: 'PLAY',
+        label: 'Play',
         action: setQueuedAbility('resume'),
     },
+    'select_all_composite_state': {
+        label: 'All',
+        action: clearCompositeStates(true),
+    },
+    'unselect_all_composite_state': {
+        label: 'Rst',
+        action: clearCompositeStates(false),
+    },
+    'copy_anim_to_clipboard': {
+        label: 'Cpy',
+        action: setQueuedAbility('copyAnim'),
+    },
+    'incrementTranslateX': {
+        label: '→',
+        action: setQueuedAbility('incrementTranslateX'),
+    },
+    'decrementTranslateX': {
+        label: '←',
+        action: setQueuedAbility('decrementTranslateX'),
+    },
+    'incrementTranslateY': {
+        label: '↑',
+        action: setQueuedAbility('incrementTranslateY'),
+    },
+    'decrementTranslateY': {
+        label: '↓',
+        action: setQueuedAbility('decrementTranslateY'),
+    },
+    'incrementRotate': {
+        label: '↷',
+        action: setQueuedAbility('incrementRotate'),
+    },
+    'decrementRotate': {
+        label: '↶',
+        action: setQueuedAbility('decrementRotate'),
+    },
+    'incrementFrameKey': {
+        label: '↟',
+        action: setQueuedAbility('incrementFrameKey'),
+    },
+    'decrementFrameKey': {
+        label: '↡',
+        action: setQueuedAbility('decrementFrameKey'),
+    }
 }
+for (var i = 0; i <= 12; i++) {
+    reducerMap[`frameIndex${i}`] = {
+        label: i,
+        action: setFrameIndex(i),
+    }
+}
+const compositeKeys = {
+      'hair_back': 'a',
+      'legs': 'b',
+      'arm_back': 'c',
+      'armor_body_back_sleeve': 'd',
+      'torso': 'e',
+      'armor_body': 'f',
+      'arm_front': 'g',
+      'armor_body_front_sleeve': 'h',
+      'armor_body_collar': 'i',
+      'head': 'j',
+      'ears': 'k',
+      'face': 'l',
+      'hair_front': 'm',
+};
+for (const [key, value] of Object.entries(compositeKeys)) {
+    reducerMap[`composite_${key}`] = {
+        label: value,
+        action: toggleCompositeState(`composite_${key}`),
+    }
+}
+
 
 const HotBar = (props) => {
     const position = useSelector(state => state.hotBars[props.index]);
+    const compositeStates = useSelector(state => state.aniEditor.compositeStates);
+    const frameIndex = useSelector(state => state.aniEditor.frameIndex);
+    const frameIndexString = `frameIndex${frameIndex}`;
+
     const dispatch = useDispatch();
 
-    const width = props.vertical ? 48 : 540;
+    const num_slots = position.slots.length;
+    const width = props.vertical ? 48: 52 * num_slots;
+    // const width = props.vertical ? 48 : 540;
     const height = props.vertical ? 540 : 48;
     const hotBarStyles = {
         width: `${ width }px`,
@@ -163,6 +231,13 @@ const HotBar = (props) => {
         bottom: `${ position.bottom }vh`,
         flexDirection: props.vertical ? `column` : `row`,
     }
+
+    const activeButtonStyle = {
+        color: 'black',
+        backgroundColor: 'white',
+    }
+
+    const buttonStyle = {}
 
     return (
         <div
@@ -173,6 +248,7 @@ const HotBar = (props) => {
                 position.slots.map((slot, i) => {
                     return <button
                         key={ i }
+                        style= { compositeStates[slot] || slot == frameIndexString ? activeButtonStyle : buttonStyle }
                         className={ styles.KeyBind }
                         onClick={() => dispatch(reducerMap[slot].action)}
                     > { reducerMap[slot].label } </button>
