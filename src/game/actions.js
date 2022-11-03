@@ -1,10 +1,10 @@
-import store from '~/src/store/store';
+import store from '../store/store';
 import {
     incrementHealth,
-} from '~/src/store/playerHealth';
+} from '../store/playerHealth';
 import {
     setFrameIndex,
-} from '~/src/store/aniEditor';
+} from '../store/aniEditor';
 
 const basicAbility = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',

@@ -4,6 +4,7 @@ const hotBarsSlice = createSlice({
   name: 'hotBars',
   initialState: {
     1: {
+        visible: true,
         left: 50,
         bottom: 8,
         slots: [
@@ -29,6 +30,7 @@ const hotBarsSlice = createSlice({
         ]
     },
     2: {
+        visible: true,
         left: 50,
         bottom: 13,
         slots: [
@@ -54,22 +56,24 @@ const hotBarsSlice = createSlice({
         ]
     },
     3: {
+        visible: false,
         left: 96,
         bottom: 5,
         slots: [
-            'frameIndex00',
-            'frameIndex01',
-            'frameIndex02',
             'empty',
             'empty',
             'empty',
             'empty',
             'empty',
-            'resume',
-            'pause',
+            'empty',
+            'empty',
+            'empty',
+            'empty',
+            'empty',
         ]
     },
     4: {
+        visible: false,
         left: 92,
         bottom: 5,
         slots: [

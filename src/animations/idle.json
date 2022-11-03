@@ -46,6 +46,10 @@
             { "key": "ears", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
             { "key": "ears", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 4}
         ],
+        "face": [
+            { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
+            { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 4}
+        ],
         "hair_front": [
             { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
             { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 4}

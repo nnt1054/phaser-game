@@ -20,14 +20,14 @@ import {
     setPlayerCurrentHealth,
     setPlayerMaxHealth,
     setPlayerHealth,   
-} from '~/src/store/playerHealth';
+} from '../store/playerHealth';
 
 import {
     clearQueuedAbility,
     clearInputQueues,
-} from '~/src/store/playerState';
+} from '../store/playerState';
 
-import store from '~/src/store/store';
+import store from '../store/store';
 
 // animations loaders
 import { animationPreload, animationCreate } from '../animations';
@@ -82,7 +82,7 @@ class defaultScene extends Phaser.Scene {
             this.autoZoomCamera();
         });
 
-        this.zoom = 10;
+        this.zoom = 2;
         this.input.on(Phaser.Input.Events.POINTER_WHEEL, (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
             this.zoom -= deltaY * 0.001;
             this.autoZoomCamera();

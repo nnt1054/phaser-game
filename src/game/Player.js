@@ -6,11 +6,15 @@ import {
 import actionMap from './actions';
 
 // redux imports
-import store from '~/src/store/store';
+import store from '../store/store';
 import {
     clearInputQueues,
-} from '~/src/store/playerState';
-
+    clearQueuedAbility,
+} from '../store/playerState';
+import {
+    incrementHealth,
+    setPlayerCurrentHealth
+} from '../store/playerHealth';
 
 function observeStore(store, select, onChange) {
   let currentState;
@@ -49,11 +53,6 @@ export class Player extends ArcadeContainer {
         });
         this.name.setOrigin(0.5, 1);
         this.name.setPosition(this.ref_x + 0, this.ref_y - this.body.height);
-        this.name.setScale(0.3);
-
-        this.composite = scene.add.container(0, 0);
-        this.composite.setPosition(this.ref_x, this.ref_y + 1);
-        this.composite.setScale(0.1);
 
         let compositeConfig = {
             'hair_back': 'hair',
@@ -69,8 +68,25 @@ export class Player extends ArcadeContainer {
             'ears': 'ears',
             'face': 'face',
             'hair_front': 'hair',
-        }
-        this.character = new CompositeSprite(scene, 0, 0, compositeConfig);
+        };
+
+        let compositeConfigIndexes = {
+            'hair_back': 1,
+            'legs': 1,
+            'arm_back': 1,
+            'armor_body_back_sleeve': 1,
+            'torso': 1,
+            'armor_body': 1,
+            'arm_front': 1,
+            'armor_body_front_sleeve': 1,
+            'armor_body_collar': 1,
+            'head': 1,
+            'ears': 1,
+            'face': 0,
+            'hair_front': 1,
+        };
+
+        this.character = new CompositeSprite(scene, 0, 0, compositeConfig, compositeConfigIndexes);
         this.character.setPosition(this.ref_x, this.ref_y + 1);
         this.character.setScale(0.1);
 
@@ -80,6 +96,10 @@ export class Player extends ArcadeContainer {
         ]);
 
         this.platformColliders = [];
+
+        this.coyoteTime = 0;
+        this.jumpUsed = true;
+        this.setGravityY(1600);
 
         this.gcdQueue = null;
         this.gcdTimer = 0;
@@ -94,7 +114,9 @@ export class Player extends ArcadeContainer {
             right: 0,
         }
 
-        this.jumpOnNextUpdate = false;
+        // experimental timers
+        this.regenTimer = 3000;
+        this.previousVelocityY = 0;
 
         const getPlayerState = state => state.playerState;
         this.observer = observeStore(store, getPlayerState, (playerState) => {
@@ -105,14 +127,8 @@ export class Player extends ArcadeContainer {
                 clearInputs = true;
             }
 
-            this.jumpOnNextUpdate = playerState.jump;
-            // if (playerState.jump) {
-            //     this.jumpOnNextUpdate = true;
-            //     clearInputs = true;
-            // }
-
             if (clearInputs) {
-                store.dispatch(clearInputQueues());
+                store.dispatch(clearQueuedAbility());
             }
 
             this.reduxCursors = {
@@ -120,6 +136,7 @@ export class Player extends ArcadeContainer {
                 down: playerState.down,
                 left: playerState.left,
                 right: playerState.right,
+                jump: playerState.jump,
             }
         });
 
@@ -158,95 +175,119 @@ export class Player extends ArcadeContainer {
         this.gcdQueue = ability;
     }
 
-    update_2(time, delta) {
-        if (this.gcdTimer > 0) {
-            this.gcdTimer = Math.max(0, this.gcdTimer - delta)
-        }
-        if (this.gcdQueue && this.gcdTimer == 0) {
-            const ability = this.gcdQueue;
-            ability.execute(this);
-            this.gcdTimer += ability.cooldown;
-            this.gcdQueue = null;
-        }
-
-        if (!this.paused) {
-            this.character.play('run', true);
-        }
-    }
-
-    update(time, delta) {
-        let anim = 'idle';
-
+    updateMovement(delta) {
         // horizontal position changes
         if (this.reduxCursors.left) {
             if (this.reduxCursors.down) {
                 this.setVelocityX(-80);
-                anim = 'walk'
-                this.composite.scaleX = -Math.abs(this.composite.scaleX);
-                this.character.scaleX = -Math.abs(this.character.scaleX);
             } else {
                 this.setVelocityX(-140);
-                anim = 'run'
-                this.composite.scaleX = -Math.abs(this.composite.scaleX);
-                this.character.scaleX = -Math.abs(this.character.scaleX);
             }
         } else if (this.reduxCursors.right) {
             if (this.reduxCursors.down) {
                 this.setVelocityX(80);
-                anim = 'walk'
-                this.composite.scaleX = Math.abs(this.composite.scaleX);
-                this.character.scaleX = Math.abs(this.character.scaleX);
             } else {
                 this.setVelocityX(140);
-                anim = 'run'
-                this.composite.scaleX = Math.abs(this.composite.scaleX);
-                this.character.scaleX = Math.abs(this.character.scaleX);
             }
         } else {
             this.setVelocityX(0);
         }
 
-        // vertical position changes
         if (this.body.onFloor()) {
-            this.setGravityY(1600);
-            if (this.reduxCursors.down && this.jumpOnNextUpdate) {
-                this.setVelocityY(-30);
-                this.platformColliders.forEach(collider => {
-                    collider.active = false;
-                    this.time.addEvent({
-                        delay: 250,
-                        callback: () => {collider.active = true},
-                        callbackScope: this, 
-                    })
-                })
-            } else if (this.jumpOnNextUpdate) {
-                this.setVelocityY(-480);
+            this.coyoteTime = 0;
+            this.jumpUsed = false;
+            if (this.reduxCursors.down && this.reduxCursors.jump) {
+                this.executeDownJump();
+            } else if (this.reduxCursors.jump) {
+                this.executeJump();
             }
         } else {
-            anim = 'run'
-            if (this.body.velocity.y >= 0) {
-                this.setGravityY(800);
+            if (this.reduxCursors.jump && this.coyoteTime < 240 && !this.jumpUsed) {
+                this.executeJump();
+            }
+            this.coyoteTime += delta;
+        }
+        this.previousVelocityY = this.body.velocity.y;
+
+        if (this.body.velocity.y > 0) {
+            this.setGravityY(800);
+        } else {
+            this.setGravityY(1600);
+        }
+    }
+
+    executeDownJump() {
+        this.jumpUsed = true;
+        this.platformColliders.forEach(collider => {
+            collider.active = false;
+            this.time.addEvent({
+                delay: 250,
+                callback: () => {collider.active = true},
+                callbackScope: this, 
+            })
+        })
+    }
+
+    executeJump() {
+        this.jumpUsed = true;
+        this.setVelocityY(-480);
+    }
+
+    calculateAnimationState() {
+        let anim = 'idle';
+        const speedX = Math.abs(this.body.velocity.x);
+        if (speedX > 100) {
+            anim = 'run';
+        } else if (speedX > 0) {
+            anim = 'walk';
+        }
+        if (!this.body.onFloor() || this.reduxCursors.jump) {
+            if (this.body.velocity.x && this.body.velocity.y > 90) {
+                anim = 'jump';
+            } else if (this.body.velocity.x == 0) {
+                anim = 'jumpIdle';
             }
         }
-        // this.jumpOnNextUpdate = false;
-
-
-        // TODO: move this later? does this even work
-        this.composite.sort('depth');
-
-        // execute queued ability when appropriate
-        if (this.gcdTimer > 0) {
-            this.gcdTimer = Math.max(0, this.gcdTimer - delta)
+        if (this.body.onFloor() && this.reduxCursors.down && this.body.velocity.x == 0) {
+            anim = 'crouch';
         }
+
+        if (this.body.velocity.x > 0) {
+            this.character.scaleX = Math.abs(this.character.scaleX);
+        } else if (this.body.velocity.x < 0) {
+            this.character.scaleX = -Math.abs(this.character.scaleX);
+        }
+        return anim;
+    }
+
+    updateAbilityState(delta) {
+        this.gcdTimer = Math.max(0, this.gcdTimer - delta)
         if (this.gcdQueue && this.gcdTimer == 0) {
             const ability = this.gcdQueue;
             ability.execute(this);
             this.gcdTimer += ability.cooldown;
             this.gcdQueue = null;
         }
+    }
 
-        // play animation if not currently locked in another animation
-        if (!this.isAttacking && !this.paused) {
+    update(time, delta) {
+
+        // test fall damage
+        if (this.body.onFloor() && this.previousVelocityY >= 800) {
+            store.dispatch(setPlayerCurrentHealth(1));
+        }
+
+        // test regen
+        this.regenTimer -= delta;
+        if (this.regenTimer <= 0) {
+            store.dispatch(incrementHealth(10));
+            this.regenTimer += 3000;
+        }
+
+        this.updateMovement(delta);
+        this.updateAbilityState(delta);
+        const anim = this.calculateAnimationState();
+        if (!this.paused) {
             this.character.play(anim, true);
         }
     }

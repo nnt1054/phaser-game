@@ -3,10 +3,10 @@
     "frameRate": 6,
     "frames": {
         "hair_back": [
-            { "key": "hair", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "hair", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "hair", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "hair", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0}
+            { "key": "hair", "frame": 1, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "hair", "frame": 1, "rotate": 0, "translateX": 0, "translateY": -1},
+            { "key": "hair", "frame": 1, "rotate": 1, "translateX": 0, "translateY": 0},
+            { "key": "hair", "frame": 1, "rotate": 0, "translateX": 0, "translateY": -1}
         ],
         "legs": [
             { "key": "legs", "frame": 1, "rotate": 2, "translateX": 0, "translateY": 2},
@@ -15,70 +15,70 @@
             { "key": "legs", "frame": 4, "rotate": 0, "translateX": 0, "translateY": 0}
         ],
         "arm_back": [
-            { "key": "arms", "frame": 1, "rotate": 45, "translateX": -130, "translateY": -57},
-            { "key": "arms", "frame": 1, "rotate": 23, "translateX": -68, "translateY": -17},
-            { "key": "arms", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "arms", "frame": 1, "rotate": 23, "translateX": -68, "translateY": -17},
+            { "key": "arms", "frame": 1, "rotate": 46, "translateX": -130, "translateY": -57},
+            { "key": "arms", "frame": 1, "rotate": 23, "translateX": -68, "translateY": -18},
+            { "key": "arms", "frame": 1, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "arms", "frame": 1, "rotate": 23, "translateX": -68, "translateY": -18}
         ],
         "armor_body_back_sleeve": [
-            { "key": "armor_body", "frame": 3, "rotate": 45, "translateX": -130, "translateY": -57},
-            { "key": "armor_body", "frame": 3, "rotate": 23, "translateX": -68, "translateY": -17},
-            { "key": "armor_body", "frame": 3, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "armor_body", "frame": 3, "rotate": 23, "translateX": -68, "translateY": -17},
+            { "key": "armor_body", "frame": 3, "rotate": 46, "translateX": -130, "translateY": -57},
+            { "key": "armor_body", "frame": 3, "rotate": 23, "translateX": -68, "translateY": -18},
+            { "key": "armor_body", "frame": 3, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "armor_body", "frame": 3, "rotate": 23, "translateX": -68, "translateY": -18}
         ],
         "torso": [
-            { "key": "torso", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "torso", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "torso", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "torso", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+            { "key": "torso", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "torso", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1},
+            { "key": "torso", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 0},
+            { "key": "torso", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1}
         ],
         "armor_body": [
-            { "key": "armor_body", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "armor_body", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "armor_body", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "armor_body", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+            { "key": "armor_body", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "armor_body", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1},
+            { "key": "armor_body", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 0},
+            { "key": "armor_body", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1}
         ],
         "arm_front": [
-            { "key": "arms", "frame": 0, "rotate": -45, "translateX": 128, "translateY": -72},
-            { "key": "arms", "frame": 0, "rotate": -23, "translateX": 72, "translateY": -24},
-            { "key": "arms", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "arms", "frame": 0, "rotate": -23, "translateX": 72, "translateY": -24}
+            { "key": "arms", "frame": 0, "rotate": -44, "translateX": 128, "translateY": -72},
+            { "key": "arms", "frame": 0, "rotate": -23, "translateX": 72, "translateY": -25},
+            { "key": "arms", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "arms", "frame": 0, "rotate": -23, "translateX": 72, "translateY": -25}
         ],
         "armor_body_front_sleeve": [
-            { "key": "armor_body", "frame": 2, "rotate": -45, "translateX": 128, "translateY": -72},
-            { "key": "armor_body", "frame": 2, "rotate": -23, "translateX": 72, "translateY": -24},
-            { "key": "armor_body", "frame": 2, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "armor_body", "frame": 2, "rotate": -23, "translateX": 72, "translateY": -24}
+            { "key": "armor_body", "frame": 2, "rotate": -44, "translateX": 128, "translateY": -72},
+            { "key": "armor_body", "frame": 2, "rotate": -23, "translateX": 72, "translateY": -25},
+            { "key": "armor_body", "frame": 2, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "armor_body", "frame": 2, "rotate": -23, "translateX": 72, "translateY": -25}
         ],
         "armor_body_collar": [
-            { "key": "armor_body", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "armor_body", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "armor_body", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "armor_body", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0}
+            { "key": "armor_body", "frame": 1, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "armor_body", "frame": 1, "rotate": 0, "translateX": 0, "translateY": -1},
+            { "key": "armor_body", "frame": 1, "rotate": 1, "translateX": 0, "translateY": 0},
+            { "key": "armor_body", "frame": 1, "rotate": 0, "translateX": 0, "translateY": -1}
         ],
         "head": [
-            { "key": "head", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "head", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "head", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "head", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+            { "key": "head", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "head", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1},
+            { "key": "head", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 0},
+            { "key": "head", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1}
         ],
         "ears": [
-            { "key": "ears", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "ears", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "ears", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "ears", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+            { "key": "ears", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "ears", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1},
+            { "key": "ears", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 0},
+            { "key": "ears", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1}
         ],
         "face": [
-            { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+            { "key": "face", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1},
+            { "key": "face", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 0},
+            { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1}
         ],
         "hair_front": [
-            { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 2},
-            { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0},
-            { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+            { "key": "hair", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 2},
+            { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1},
+            { "key": "hair", "frame": 0, "rotate": 1, "translateX": 0, "translateY": 0},
+            { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": -1}
         ]
     }
 }

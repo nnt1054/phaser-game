@@ -132,9 +132,10 @@ export class StaticSprite extends Phaser.Physics.Arcade.Sprite {
 }
 
 export class CompositeSprite extends Phaser.GameObjects.Container {
-    constructor(scene, x, y, config) {
+    constructor(scene, x, y, config, indexes) {
         super(scene, x, y)
         this.config = config;
+        this.indexes = indexes;
         this.composition = {};
         this.currentAnim = null;
 
@@ -152,7 +153,8 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
     play(anim, ignoreIfPlaying) {
         this.currentAnim = anim;
         Object.entries(this.config).forEach(([key, texture]) => {
-            const animKey = `${key}_1_${anim}`
+            const index = this.indexes[key];
+            const animKey = `${key}_${index}_${anim}`
             this.composition[key].anims.play(animKey, ignoreIfPlaying)
         })
     }
@@ -216,6 +218,7 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
 
     updateFrameKey(increment) {
         Object.entries(this.config).forEach(([key, texture]) => {
+            if (!this.activeComposites[`composite_${key}`]) return;
             const anims = this.composition[key].anims;
             const frame = this.composition[key].anims.currentFrame;
             if (frame) {

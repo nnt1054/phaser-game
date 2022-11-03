@@ -7,7 +7,6 @@ import { useSelector, useDispatch } from 'react-redux';
 
 // Scenes
 import defaultScene from './scenes/default';
-import { LoadingScene } from './scenes/default';
 import animationLoader from './scenes/animationLoader';
 
 // CSS

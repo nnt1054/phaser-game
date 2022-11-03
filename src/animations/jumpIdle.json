@@ -1,0 +1,45 @@
+{
+    "key": "jumpIdle",
+    "frameRate": 1,
+    "frames": {
+        "hair_back": [
+            { "key": "hair", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "legs": [
+            { "key": "legs", "frame": 5, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "arm_back": [
+            { "key": "arms", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "armor_body_back_sleeve": [
+            { "key": "armor_body", "frame": 3, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "torso": [
+            { "key": "torso", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "armor_body": [
+            { "key": "armor_body", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "arm_front": [
+            { "key": "arms", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "armor_body_front_sleeve": [
+            { "key": "armor_body", "frame": 2, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "armor_body_collar": [
+            { "key": "armor_body", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "head": [
+            { "key": "head", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "ears": [
+            { "key": "ears", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "face": [
+            { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "hair_front": [
+            { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+        ]
+    }
+}

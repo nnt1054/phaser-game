@@ -6,7 +6,7 @@ import {
     setPlayerCurrentMana,
     setPlayerMaxMana,
     setPlayerMana,
-} from '~/src/store/playerMana';
+} from '../store/playerMana';
 
 import {
     incrementHealth,
@@ -14,25 +14,25 @@ import {
     setPlayerCurrentHealth,
     setPlayerMaxHealth,
     setPlayerHealth,
-} from '~/src/store/playerHealth';
+} from '../store/playerHealth';
 
 import {
     setQueuedAbility,
     setCursorState,
     setJump,
-} from '~/src/store/playerState';
+} from '../store/playerState';
 
 import {
     doNothing
-} from '~/src/store/hotBars';
+} from '../store/hotBars';
 
 import {
     setFrameIndex,
     toggleCompositeState,
     clearCompositeStates,
-} from '~/src/store/aniEditor';
+} from '../store/aniEditor';
 
-import * as styles from '~/src/App.module.css';
+import * as styles from '../App.module.css';
 
 var reducerMap = {
     'jump': {
@@ -225,6 +225,7 @@ const HotBar = (props) => {
     // const width = props.vertical ? 48 : 540;
     const height = props.vertical ? 540 : 48;
     const hotBarStyles = {
+        display: position.visible ? 'flex' : 'none',
         width: `${ width }px`,
         height: `${ height }px`,
         left: `calc(${ position.left }vw - ${ width / 2 }px)`,
