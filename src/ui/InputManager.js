@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
-import { reducerMap } from './HotBar';
+import reducerMap from './HotBarItems';
 
 import Phaser from 'phaser';
 const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
@@ -38,8 +38,8 @@ const useKeyPress = callback => {
           shift: event.shiftKey,
           ctrl: event.ctrlKey,
           alt: event.alt,
-      }
-      setKeyPressed(state => ({...state, [event.keyCode]: false}))
+      };
+      setKeyPressed(state => ({...state, [event.keyCode]: false}));
       callback && callback(input, event.type);
     };
 

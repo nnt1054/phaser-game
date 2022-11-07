@@ -92,11 +92,17 @@ const hotBarsSlice = createSlice({
   },
   reducers: {
     doNothing: (state) => {},
+    setPosition: (state, action) => {
+        const hotbar = state[action.payload.index];
+        hotbar.left = action.payload.x;
+        hotbar.bottom = action.payload.y;
+    },
   }
 })
 
 export const {
     doNothing,
+    setPosition,
 } = hotBarsSlice.actions;
 
 export default hotBarsSlice;
