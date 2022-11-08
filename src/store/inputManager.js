@@ -24,6 +24,12 @@ const movementOnly = {
       type: 'cursor',
       cursor: 'right',
     },
+
+    // menus
+    [KeyCodes.C]: {
+      type: 'simple',
+      key: 'characterMenu',
+    },
 }
 
 const inputManagerSlice = createSlice({

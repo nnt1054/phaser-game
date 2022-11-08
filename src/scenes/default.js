@@ -42,7 +42,6 @@ class defaultScene extends Phaser.Scene {
         this.load.image('jumpquest_bg', jumpquest_bg);
         this.load.image('kugane_bg', kugane_bg);
         this.load.tilemapTiledJSON('jumpquest_map', jumpquest_map);
-
         animationPreload(this);
     }
 

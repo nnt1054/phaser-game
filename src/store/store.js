@@ -6,6 +6,7 @@ import playerStateSlice from './playerState';
 import hotBarsSlice from './hotBars';
 import aniEditorSlice from './aniEditor';
 import inputManagerSlice from './inputManager';
+import menuStatesSlice from './menuStates';
 
 export default configureStore({
     reducer: {
@@ -15,5 +16,6 @@ export default configureStore({
         hotBars: hotBarsSlice.reducer,
         aniEditor: aniEditorSlice.reducer,
         inputManager: inputManagerSlice.reducer,
+        menuStates: menuStatesSlice.reducer,
     }
 })

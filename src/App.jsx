@@ -17,6 +17,7 @@ import HealthBar from './ui/HealthBar';
 import ManaBar from './ui/ManaBar';
 import HotBar from './ui/HotBar';
 import InputManager from './ui/InputManager';
+import CharacterMenu from './ui/CharacterMenu';
 
 var config = {
     type: Phaser.AUTO,
@@ -57,6 +58,7 @@ const App = () => {
             />
             <div id="ui-container">
                 <InputManager />
+
                 <HotBar index='1' />
                 <HotBar index='2' />
 {/*                <HotBar index='3' vertical />
@@ -65,6 +67,9 @@ const App = () => {
                     <HealthBar />
                     <ManaBar />
                 </div>
+
+                {/* menus */}
+                <CharacterMenu />
             </div>
         </div>
     )

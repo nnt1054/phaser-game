@@ -5,33 +5,10 @@ import useDrag from '../hooks/useDrag';
 import {
     setPosition,
 } from '../store/hotBars';
+import { calculatePosition } from './utils.js';
 
 import * as styles from '../App.module.css';
 
-
-const _calculatePosition = (index, ref) => {
-    const element = ref.current;
-    const vw = document.documentElement.clientWidth;
-    const vh = document.documentElement.clientHeight;
-    const style = window.getComputedStyle(element);
-    const temp = window.getComputedStyle(element).transform;
-    const numberPattern = /-?\d+\.?\d+|\d+/g;
-    const values = style.transform.match( numberPattern );
-    const translateX = parseFloat(values[4]);
-    const translateY = parseFloat(values[5]);
-    const width = parseFloat(style.width);
-    const left = parseFloat(style.left);
-    const bottom = parseFloat(style.bottom);
-
-    const newLeft = ((left + width/2 + translateX) / vw) * 100;
-    const newBottom = ((bottom - translateY) / vh) * 100;
-
-    return {
-        index: index,
-        x: newLeft,
-        y: newBottom,
-    }
-};
 
 const HotBar = (props) => {
     const ref = useRef();
@@ -52,7 +29,7 @@ const HotBar = (props) => {
             });
         },
         event => {
-            const data = _calculatePosition(props.index, ref);
+            const data = calculatePosition(props.index, ref);
             dispatch(setPosition(data));
             setTranslate({ x: 0, y: 0 });
         }
@@ -69,7 +46,7 @@ const HotBar = (props) => {
         bottom: `${ position.bottom }vh`,
         flexDirection: props.vertical ? `column` : `row`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
-    }
+    };
 
     const activeButtonStyle = {
         color: 'black',

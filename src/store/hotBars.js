@@ -93,7 +93,7 @@ const hotBarsSlice = createSlice({
   reducers: {
     doNothing: (state) => {},
     setPosition: (state, action) => {
-        const hotbar = state[action.payload.index];
+        const hotbar = state[action.payload.key];
         hotbar.left = action.payload.x;
         hotbar.bottom = action.payload.y;
     },

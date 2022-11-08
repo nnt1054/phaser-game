@@ -27,6 +27,10 @@ import {
     clearCompositeStates,
 } from '../store/aniEditor';
 
+import {
+    toggleMenuVisible,
+} from '../store/menuStates';
+
 import * as styles from '../App.module.css';
 
 
@@ -177,6 +181,10 @@ const reducerMap = {
     'decrementFrameKey': {
         label: '↡',
         action: setQueuedAbility('decrementFrameKey'),
+    },
+    'characterMenu': {
+        label: 'menu',
+        action: toggleMenuVisible('character'),
     }
 }
 

@@ -13,11 +13,11 @@ class FrameAnimator extends Phaser.Plugins.BasePlugin {
 
         this.game.textures.on(
             Phaser.Textures.Events.ADD,
-            this.testHandle,
+            this.setCustomData,
         )
     }
 
-    testHandle(key, texture) {
+    setCustomData(key, texture) {
         var width = texture.source[0].width;
         var height = texture.source[0].height;
 
