@@ -5,12 +5,28 @@ import {
     setMenuPosition,
 } from '../store/menuStates';
 import { calculatePosition } from './utils.js';
+import store from '../store/store';
 
 import * as styles from './../App.module.css';
 
 import Phaser from 'phaser';
 import { animationPreload, animationCreate } from '../animations';
 
+function observeStore(store, select, onChange) {
+  let currentState;
+
+  function handleChange() {
+    let nextState = select(store.getState());
+    if (nextState !== currentState) {
+      currentState = nextState;
+      onChange(currentState);
+    }
+  }
+
+  let unsubscribe = store.subscribe(handleChange);
+  handleChange();
+  return unsubscribe;
+}
 
 class TextureAnnotator extends Phaser.Plugins.BasePlugin {
     start() {
@@ -38,37 +54,39 @@ class TextureAnnotator extends Phaser.Plugins.BasePlugin {
     }
 }
 
-
 class StaticCompositeSprite extends Phaser.GameObjects.Container {
-    constructor(scene, x, y, textureMap, indexes, textureFrames) {
+    constructor(scene, x, y, textureMap) {
         super(scene, x, y)
+        this.scene = scene;
         this.textureMap = textureMap;
-        this.indexes = indexes;
-        this.frames = frames;
         this.composition = {};
 
         Object.entries(this.textureMap).forEach(([key, texture]) => {
-            const frame = this._getFrameNumber(
-                scene,
-                texture,
-                indexes[key],
-                textureFrames[key],
-            )
-            this.composition[key] = scene.add.sprite(0, 0, texture, frame);
+            this.composition[key] = scene.add.sprite(0, 0, texture);
             this.composition[key].setOrigin(0.5, 1);
             this.add(this.composition[key]);
         })
-
         scene.add.existing(this);
     }
 
-    _getFrameNumber(scene, textureKey, index, frame) {
-        const texture = scene.textures.list[textureKey];
+    _getFrameNumber(texture, index, frame) {
         const columns = texture.customData.columns;
         const frameNumber = (index * columns) + frame;
         return frameNumber;
     }
 
+    setState(state) {
+        const indexes = state.indexes;
+        const frames = state.frames;
+        Object.entries(this.composition).forEach(([key, sprite]) => {
+            const frame = this._getFrameNumber(
+                sprite.texture,
+                indexes[key],
+                frames[key],
+            )
+            sprite.setFrame(frame);
+        })
+    }
 }
 
 class characterPreview extends Phaser.Scene {
@@ -93,51 +111,14 @@ class characterPreview extends Phaser.Scene {
             face: 'face',
             hair_front: 'hair',
         };
-
-        let compositeConfigIndexes = {
-            'hair_back': 1,
-            'legs': 1,
-            'arm_back': 1,
-            'armor_body_back_sleeve': 1,
-            'torso': 1,
-            'armor_body': 1,
-            'arm_front': 1,
-            'armor_body_front_sleeve': 1,
-            'armor_body_collar': 1,
-            'head': 1,
-            'ears': 1,
-            'face': 0,
-            'hair_front': 1,
-        };
-
-        let compositeConfigFrames = {
-            'hair_back': 1,
-            'legs': 0,
-            'arm_back': 1,
-            'armor_body_back_sleeve': 3,
-            'torso': 0,
-            'armor_body': 0,
-            'arm_front': 0,
-            'armor_body_front_sleeve': 2,
-            'armor_body_collar': 1,
-            'head': 0,
-            'ears': 0,
-            'face': 0,
-            'hair_front': 0,
-        };
-
-        this.character = new StaticCompositeSprite(
-            this,
-            150,
-            430,
-            textureMap,
-            compositeConfigIndexes,
-            compositeConfigFrames,
-        );
+        this.character = new StaticCompositeSprite(this, 150, 430, textureMap);
         this.character.setScale(0.9);
+        const getCharacterPreviewState = state => state.characterPreview;
+        this.observer = observeStore(store, getCharacterPreviewState, (state) => {
+            this.character.setState(state);
+        });
     }
 }
-
 
 const CharacterMenu = () => {
     const ref = useRef();
