@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
 import reducerMap from './HotBarItems';
+import {
+    setSlotActive,
+} from '../store/hotBars';
 
 import Phaser from 'phaser';
 const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
@@ -61,7 +64,7 @@ const InputManager = () => {
     const hotbars = useSelector(state => state.hotBars);
     const dispatch = useDispatch();
 
-    const getActionFromInput = (input) => {
+    const getKeybindFromInput = (input) => {
       let keymap;
       if (input.shift) {
         keymap = inputManager.shiftKeymap;
@@ -73,7 +76,23 @@ const InputManager = () => {
         keymap = inputManager.keymap;
       }
 
-      const keybind = keymap[input.key]
+      return keymap[input.key]
+    }
+
+    const setHotbarSlotState = (input, active) => {
+      const keybind = getKeybindFromInput(input);
+      if (!keybind) return;
+      if (keybind.type === 'hotbar') {
+        dispatch(setSlotActive({
+          key: keybind.hotbar,
+          index: keybind.slot,
+          active: active,
+        }))
+      }
+    }
+
+    const getActionFromInput = (input) => {
+      const keybind = getKeybindFromInput(input);
       if (!keybind) return;
 
       let actionKey, action;
@@ -82,10 +101,12 @@ const InputManager = () => {
           const hotbar = hotbars[keybind.hotbar];
           if (!hotbar) return;
 
-          actionKey = hotbar.slots[keybind.slot];
+          const slot = hotbar.slots[keybind.slot]
+          if (!slot) return;
+
+          actionKey = slot.name;
           if (!actionKey) return;
 
-          // TODO: move reducerMap out of ui/HotBar.js
           action = reducerMap[actionKey];
           if (!action) return;
 
@@ -126,13 +147,17 @@ const InputManager = () => {
 
     useKeyPress(
       (input, eventType) => {
+        let keybind, action;
         switch (eventType) {
           case 'keydown':
-            let action = getActionFromInput(input);
+            setHotbarSlotState(input, true);
+            action = getActionFromInput(input);
             if (action && action.action) dispatch(action.action);
             break;
 
           case 'keyup':
+            setHotbarSlotState(input, false);
+
             // release all modifiers
             releaseKeyPress(input, inputManager.shiftKeymap);
             releaseKeyPress(input, inputManager.ctrlKeymap);

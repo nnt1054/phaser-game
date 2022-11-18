@@ -107,6 +107,19 @@ function updateFrameKey(i) {
     }
 }
 
+const floss = {
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    cooldown: 0,
+    execute: (player) => {
+        const cooldown = player.cooldownManager.getTimer('floss');
+        if (cooldown == 0 && player.body.onFloor()) {
+            player.doEmote('floss');
+            player.cooldownManager.startTimer('floss', 10000);
+        }
+    },
+}
 
 const actionMap = {
     'attack': basicAttack,
@@ -135,6 +148,7 @@ const actionMap = {
     'decrementRotate': updateFrameConfig('rotate', -1),
     'incrementFrameKey': updateFrameKey(1),
     'decrementFrameKey': updateFrameKey(-1),
+    'floss': floss,
 }
 
 export default actionMap;

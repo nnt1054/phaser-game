@@ -19,6 +19,7 @@ import runJson from './run.json';
 import jumpJson from './jump.json';
 import jumpIdleJson from './jumpIdle.json';
 import crouchJson from './crouch.json';
+import flossJson from './floss.json';
 
 
 export function animationPreload(scene) {
@@ -64,6 +65,7 @@ export function animationCreate(scene) {
     loadCompositeAnimation(scene, jumpJson, playerTextureMap);
     loadCompositeAnimation(scene, jumpIdleJson, playerTextureMap);
     loadCompositeAnimation(scene, crouchJson, playerTextureMap);
+    loadCompositeAnimation(scene, flossJson, playerTextureMap);
 }
 
 
@@ -85,6 +87,8 @@ function loadCompositeAnimation(scene, config, playerTextureMap) {
                         translateX: frame.translateX,
                         translateY: frame.translateY,
                         rotate: frame.rotate,
+                        depth: frame.depth ?? 0,
+                        scale: frame.scale ?? 1,
                     }
                 }),
             }

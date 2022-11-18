@@ -185,6 +185,11 @@ const reducerMap = {
     'characterMenu': {
         label: 'menu',
         action: toggleMenuVisible('character'),
+    },
+    'floss': {
+        label: 'flss',
+        action: setQueuedAbility('floss'),
+        icon: 'vercure.png',
     }
 }
 

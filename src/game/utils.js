@@ -248,6 +248,8 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
                     rotate: frame.config.rotate ?? 0,
                     translateX: frame.config.translateX ?? 0,
                     translateY: frame.config.translateY ?? 0,
+                    depth: frame.config.depth ?? 0,
+                    scale: frame.config.scale ?? 1,
                 }
             });
         });

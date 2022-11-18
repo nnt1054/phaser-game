@@ -10,6 +10,7 @@ import store from '../store/store';
 import {
     clearInputQueues,
     clearQueuedAbility,
+    setCooldowns,
 } from '../store/playerState';
 import {
     incrementHealth,
@@ -33,9 +34,41 @@ function observeStore(store, select, onChange) {
 }
 
 
+class CooldownManager {
+    constructor() {
+        this._cooldowns = new Map();
+    }
+
+    getTimer(key) {
+        return this._cooldowns.get(key) || 0;
+    }
+
+    startTimer(key, time) {
+        this._cooldowns.set(key, time);
+    }
+
+    update(delta) {
+        for (var [key, value] of this._cooldowns.entries()) {
+            this._cooldowns.set(key, Math.max(0, value - delta));
+        }
+        this.updateStore();
+    }
+
+    updateStore() {
+        store.dispatch(
+            setCooldowns(
+                Object.fromEntries(this._cooldowns)
+            )
+        );
+    }
+}
+
+
 export class Player extends ArcadeContainer {
+
     constructor(scene, x, y, children) {
         super(scene, x, y, children);
+
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
@@ -118,6 +151,8 @@ export class Player extends ArcadeContainer {
         this.regenTimer = 3000;
         this.previousVelocityY = 0;
 
+        this.current_anim = null;
+
         const getPlayerState = state => state.playerState;
         this.observer = observeStore(store, getPlayerState, (playerState) => {
             let clearInputs = false;
@@ -149,6 +184,8 @@ export class Player extends ArcadeContainer {
             }
             this.character.setActiveCompositeStates(animState.compositeStates);
         })
+
+        this.cooldownManager = new CooldownManager();
     }
 
     addPlatforms(platforms) {
@@ -234,7 +271,8 @@ export class Player extends ArcadeContainer {
     }
 
     calculateAnimationState() {
-        let anim = 'idle';
+        let anim = this.current_anim ?? 'idle';
+
         const speedX = Math.abs(this.body.velocity.x);
         if (speedX > 100) {
             anim = 'run';
@@ -250,6 +288,7 @@ export class Player extends ArcadeContainer {
         }
         if (this.body.onFloor() && this.reduxCursors.down && this.body.velocity.x == 0) {
             anim = 'crouch';
+            this.current_anim = null;
         }
 
         if (this.body.velocity.x > 0) {
@@ -257,6 +296,8 @@ export class Player extends ArcadeContainer {
         } else if (this.body.velocity.x < 0) {
             this.character.scaleX = -Math.abs(this.character.scaleX);
         }
+
+        if (anim !== this.current_anim) this.current_anim = null;
         return anim;
     }
 
@@ -290,9 +331,16 @@ export class Player extends ArcadeContainer {
         if (!this.paused) {
             this.character.play(anim, true);
         }
+
+        this.cooldownManager.update(delta);
     }
 
     autoZoom(zoom) {
         this.name.setScale(1 / zoom);
+    }
+
+    doEmote(emote) {
+        this.current_anim = emote;
+        this.character.play(emote);
     }
 }

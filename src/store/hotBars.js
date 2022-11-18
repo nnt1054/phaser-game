@@ -1,10 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
+import CONSTANTS from '../constants';
+
+const animationToggle = CONSTANTS.animationToggle;
 
 const hotBarsSlice = createSlice({
   name: 'hotBars',
   initialState: {
     1: {
-        visible: true,
+        visible: animationToggle,
         left: 50,
         bottom: 8,
         slots: [
@@ -27,10 +30,11 @@ const hotBarsSlice = createSlice({
             'decrementTranslateY',
             'incrementTranslateX',
             'decrementFrameKey',
+            'empty',
         ]
     },
     2: {
-        visible: true,
+        visible: animationToggle,
         left: 50,
         bottom: 13,
         slots: [
@@ -53,40 +57,31 @@ const hotBarsSlice = createSlice({
             'incrementTranslateY',
             'incrementRotate',
             'incrementFrameKey',
+            'empty',
         ]
     },
     3: {
-        visible: false,
-        left: 96,
-        bottom: 5,
+        visible: !animationToggle,
+        left: 50,
+        bottom: 8,
         slots: [
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
+            { name: 'floss', active: false, keybind: 'Q', charges: 1, timer: 10},
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
         ]
     },
     4: {
-        visible: false,
-        left: 92,
-        bottom: 5,
+        visible: !animationToggle,
+        left: 50,
+        bottom: 13,
         slots: [
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
-            'empty',
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
         ]
     },
   },
@@ -97,12 +92,18 @@ const hotBarsSlice = createSlice({
         hotbar.left = action.payload.x;
         hotbar.bottom = action.payload.y;
     },
+    setSlotActive: (state, action) => {
+        const hotbar = state[action.payload.key]
+        const slot = hotbar.slots[action.payload.index]
+        slot.active = action.payload.active;
+    },
   }
 })
 
 export const {
     doNothing,
     setPosition,
+    setSlotActive,
 } = hotBarsSlice.actions;
 
 export default hotBarsSlice;

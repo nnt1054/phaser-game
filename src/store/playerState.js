@@ -20,6 +20,10 @@ const playerStateSlice = createSlice({
     // 6. player executes jump logic and sets jumpOnNextUpdate=False
     // 7. easy and epic
     jump: 0,
+
+    cooldowns: {
+        'floss': 99,
+    },
   },
   reducers: {
     setQueuedAbility: (state, action) => {
@@ -44,6 +48,9 @@ const playerStateSlice = createSlice({
             state[cursor] = value;
         }
     },
+    setCooldowns: (state, action) => {
+        state.cooldowns = action.payload;
+    }
   }
 })
 
@@ -53,6 +60,7 @@ export const {
     clearQueuedAbility,
     clearInputQueues,
     setCursorState,
+    setCooldowns,
 } = playerStateSlice.actions;
 
 export default playerStateSlice;

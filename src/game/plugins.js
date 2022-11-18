@@ -38,15 +38,17 @@ class FrameAnimator extends Phaser.Plugins.BasePlugin {
         let index = animationFrame.index;
         let ref_x = gameObject.parentContainer.ref_x;
         let ref_y = gameObject.parentContainer.ref_y;
-        if (animationFrame.config) {
-            let config = animationFrame.config;
+        let config = animationFrame.config;
+        if (config) {
             gameObject.setPosition(config.translateX, config.translateY);
             gameObject.setAngle(config.rotate);
             gameObject.setDepth(config.depth);
-        } else {
-            gameObject.setPosition(0, 0);
-            gameObject.setAngle(0);
-            gameObject.setDepth(0);
+            gameObject.setScale(config.scale);
+        }
+
+        if (gameObject.parentContainer && gameObject.parentContainer.type === 'Container') {
+            // todo: optimize to run once per frame
+            gameObject.parentContainer.sort('depth');
         }
     }
 

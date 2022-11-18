@@ -4,6 +4,8 @@ import Phaser from 'phaser';
 const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
 
 const movementOnly = {
+
+    // cursors
     [KeyCodes.SPACE]: {
       type: 'cursor',
       cursor: 'jumpCursor',
@@ -30,6 +32,33 @@ const movementOnly = {
       type: 'simple',
       key: 'characterMenu',
     },
+
+    // keybinds
+    [KeyCodes.Q]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 0,
+    },
+    [KeyCodes.E]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 1,
+    },
+    [KeyCodes.R]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 2,
+    },
+    [KeyCodes.F]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 3,
+    },
+    [KeyCodes.G]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 4,
+    },
 }
 
 const inputManagerSlice = createSlice({
@@ -44,120 +73,33 @@ const inputManagerSlice = createSlice({
     right: 0,
 
     keymap: movementOnly,
-    shiftKeymap: {},
-
-    // keymap: {
-    //   // [KeyCodes.SPACE]: {
-    //   //   type: 'simple',
-    //   //   key: 'jump',
-    //   // },
-    //   [KeyCodes.SPACE]: {
-    //     type: 'cursor',
-    //     cursor: 'jumpCursor',
-    //   },
-    //   [KeyCodes.W]: {
-    //     type: 'cursor',
-    //     cursor: 'up',
-    //   },
-    //   [KeyCodes.A]: {
-    //     type: 'cursor',
-    //     cursor: 'left',
-    //   },
-    //   [KeyCodes.S]: {
-    //     type: 'cursor',
-    //     cursor: 'down',
-    //   },
-    //   [KeyCodes.D]: {
-    //     type: 'cursor',
-    //     cursor: 'right',
-    //   },
-    //   [KeyCodes.Q]: {
-    //     type: 'hotbar',
-    //     hotbar: 1,
-    //     slot: 1,
-    //   },
-    //   [KeyCodes.E]: {
-    //     type: 'hotbar',
-    //     hotbar: 1,
-    //     slot: 2,
-    //   },
-    //   [KeyCodes.R]: {
-    //     type: 'hotbar',
-    //     hotbar: 1,
-    //     slot: 3,
-    //   },
-    //   [KeyCodes.ONE]: {
-    //     type: 'hotbar',
-    //     hotbar: 3,
-    //     slot: 0,
-    //   },
-    //   [KeyCodes.TWO]: {
-    //     type: 'hotbar',
-    //     hotbar: 3,
-    //     slot: 1,
-    //   },
-    //   [KeyCodes.THREE]: {
-    //     type: 'hotbar',
-    //     hotbar: 3,
-    //     slot: 2,
-    //   },
-    //   [KeyCodes.UP]: {
-    //     type: 'hotbar',
-    //     hotbar: 2,
-    //     slot: 16,
-    //   },
-    //   [KeyCodes.LEFT]: {
-    //     type: 'hotbar',
-    //     hotbar: 1,
-    //     slot: 15,
-    //   },
-    //   [KeyCodes.DOWN]: {
-    //     type: 'hotbar',
-    //     hotbar: 1,
-    //     slot: 16,
-    //   },
-    //   [KeyCodes.RIGHT]: {
-    //     type: 'hotbar',
-    //     hotbar: 1,
-    //     slot: 17,
-    //   },
-    // },
-    // shiftKeymap: {
-    //   // cursors
-    //   [KeyCodes.W]: {
-    //     type: 'cursor',
-    //     cursor: 'up',
-    //   },
-    //   [KeyCodes.A]: {
-    //     type: 'cursor',
-    //     cursor: 'left',
-    //   },
-    //   [KeyCodes.S]: {
-    //     type: 'cursor',
-    //     cursor: 'down',
-    //   },
-    //   [KeyCodes.D]: {
-    //     type: 'hotbar',
-    //     hotbar: 2,
-    //     slot: 1,
-    //   },
-
-    //   [KeyCodes.Q]: {
-    //     type: 'hotbar',
-    //     hotbar: 2,
-    //     slot: 1,
-    //   },
-    //   [KeyCodes.E]: {
-    //     type: 'hotbar',
-    //     hotbar: 2,
-    //     slot: 2,
-    //   },
-    //   [KeyCodes.R]: {
-    //     type: 'hotbar',
-    //     hotbar: 2,
-    //     slot: 3,
-    //   }
-    // },
+    shiftKeymap: {
+      [KeyCodes.Q]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 0,
+      },
+      [KeyCodes.E]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 1,
+      },
+      [KeyCodes.R]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 2,
+      },
+      [KeyCodes.F]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 3,
+      },
+      [KeyCodes.G]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 4,
+    },
+    },
     ctrlKeymap: {},
     altKeymap: {},
   },

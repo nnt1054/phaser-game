@@ -9,32 +9,23 @@ body {
 	justify-content: space-between;
 }
 
-.HotBar > button {
+.KeyBind {
 	width: 48px;
 	height: 48px;
 
-	border:  4px solid black;
 	border-radius: 12px;
 
 	font-size: 10pt;
 	font-family: 'Comfortaa';
 	font-weight: bold;
 
-	color: white;
-	background-color: rgba(0, 0, 0, .5);
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
-.HotBar > .KeyBind:hover {
-	color: black;
-	background-color: white;
-}
-
-.HotBar > .KeyBind:active {
-	color: white;
-	background-color: rgba(0, 0, 0, .8);
-}
-
-.HotBar > .KeyBind:focus {
+.KeyBind:focus {
 	outline: none;
 }
 
@@ -107,4 +98,9 @@ body {
 
 	color: white;
 	background-color: rgba(0, 0, 0, .5);
+}
+
+.Trash {
+	width: 100vw;
+	height: 100vh;
 }

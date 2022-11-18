@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 
-import * as styles from '../App.module.css';
-
 
 const useDrag = (ref, onDrag, onRelease) => {
     const [isDragging, setIsDragging] = useState(false);
@@ -37,7 +35,7 @@ const useDrag = (ref, onDrag, onRelease) => {
         };
     });
 
-  return isDragging;
+    return isDragging;
 }
 
 export default useDrag;

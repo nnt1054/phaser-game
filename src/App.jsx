@@ -51,25 +51,34 @@ const App = () => {
     const phaserReference = useRef(null);
 
     return (
-        <div id="game-container">
+        <div
+            id="game-container"
+        >
             <div
                 ref={ phaserReference }
                 id="phaser-container"
             />
-            <div id="ui-container">
+            <div
+                id="ui-container"
+            >
+                <div
+                    className={ styles.Trash }
+                    onDragOver={ event => {
+                        event.preventDefault();
+                    }}
+                />
                 <InputManager />
 
-                <HotBar index='1' />
-                <HotBar index='2' />
-{/*                <HotBar index='3' vertical />
-                <HotBar index='4' vertical />*/}
+                {/*<HotBar index='1' />*/}
+                {/*<HotBar index='2' />*/}
+                <HotBar index='3' />
+                <HotBar index='4' />
                 <div className={ styles.PlayerBars }>
                     <HealthBar />
                     <ManaBar />
                 </div>
-
                 {/* menus */}
-                <CharacterMenu />
+                {/*<CharacterMenu />*/}
             </div>
         </div>
     )
