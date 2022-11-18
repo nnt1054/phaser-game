@@ -116,7 +116,7 @@ const floss = {
         const cooldown = player.cooldownManager.getTimer('floss');
         if (cooldown == 0 && player.body.onFloor()) {
             player.doEmote('floss');
-            player.cooldownManager.startTimer('floss', 10000);
+            player.cooldownManager.startTimer('floss', 120000);
         }
     },
 }

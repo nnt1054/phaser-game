@@ -6,6 +6,7 @@ const animationToggle = CONSTANTS.animationToggle;
 const hotBarsSlice = createSlice({
   name: 'hotBars',
   initialState: {
+    dragging: null,
     1: {
         visible: animationToggle,
         left: 50,
@@ -97,6 +98,15 @@ const hotBarsSlice = createSlice({
         const slot = hotbar.slots[action.payload.index]
         slot.active = action.payload.active;
     },
+    setDragging: (state, action) => {
+        state.dragging = action.payload.name;
+    },
+    setSlot: (state, action) => {
+        const hotbar = state[action.payload.key];
+        const slot = hotbar.slots[action.payload.index];
+        slot.name = action.payload.name;
+        state.dragging = null;
+    },
   }
 })
 
@@ -104,6 +114,8 @@ export const {
     doNothing,
     setPosition,
     setSlotActive,
+    setSlot,
+    setDragging,
 } = hotBarsSlice.actions;
 
 export default hotBarsSlice;

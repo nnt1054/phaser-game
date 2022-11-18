@@ -5,6 +5,8 @@ import useDrag from '../hooks/useDrag';
 import useHover from '../hooks/useHover';
 import {
     setPosition,
+    setSlot,
+    setDragging,
 } from '../store/hotBars';
 import { calculatePosition } from './utils.js';
 
@@ -15,8 +17,8 @@ const HotBarItem = (props) => {
     const ref = useRef();
     const dispatch = useDispatch();
 
+    const dragging = useSelector(state => state.hotBars.dragging)
     const cooldowns = useSelector(state => state.playerState.cooldowns)
-
     const compositeStates = useSelector(state => state.aniEditor.compositeStates);
     const slot = props.slot;
     const tile = reducerMap[slot.name];
@@ -46,7 +48,11 @@ const HotBarItem = (props) => {
         useStyle = activeButtonStyle;
     }
 
-    const timer = cooldowns[slot.name] ? (cooldowns[slot.name] / 1000).toFixed(1) : 0;
+    let timer = 0;
+    if (cooldowns[slot.name]) {
+        let cooldown = cooldowns[slot.name] / 1000
+        timer = (cooldown > 10) ? cooldown.toFixed(0) : cooldown.toFixed(1);
+    }
 
     if (tile.icon) {
         if (isHovering || timer > 0) {
@@ -81,7 +87,7 @@ const HotBarItem = (props) => {
     const timerStyle = {
         fontSize: `14pt`,
         display: slot.charges ?? 'none',
-        color: slot.active ? 'white' : 'black',
+        color: 'white',
     }
 
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
@@ -91,6 +97,9 @@ const HotBarItem = (props) => {
                 x: translate.x + event.movementX,
                 y: translate.y + event.movementY,
             });
+            dispatch(setDragging({
+                name: slot.name,
+            }));
         },
         event => {
             setTranslate({ x: 0, y: 0 });
@@ -99,18 +108,26 @@ const HotBarItem = (props) => {
     useStyle.transform = `translateX(${ translate.x }px) translateY(${ translate.y }px)`;
     useStyle.zIndex = isDragging ? 100 : 0;
 
+    const handleMouseUp = event => {
+        if (dragging) {
+            dispatch(setSlot({
+                key: props.hotbar,
+                index: props.index,
+                name: dragging,
+            }))
+        }
+    }
+
     return (
         <button
             ref={ ref }
             style={ useStyle }
             className={ styles.KeyBind }
             onClick={() => dispatch(tile.action)}
+            onMouseUp={ handleMouseUp }
         >
-            {/*<span style={ keybindStyle }> { slot.keybind } </span>*/}
-            {/*<span style={ chargesStyle }> { slot.charges } </span>*/}
             <span style={ timerStyle }> { timer ? `${ timer }s` : '' } </span>
         </button>
-        // > { !tile.icon ?? tile.label } </button>
     )
 }
 
@@ -164,6 +181,8 @@ const HotBar = (props) => {
                     return <HotBarItem
                         key={ i }
                         slot={ slot }
+                        hotbar={ props.index }
+                        index={ i }
                         active={ slot.name == frameIndexString }
                     />
                 })
