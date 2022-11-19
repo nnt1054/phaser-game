@@ -19,6 +19,7 @@ import HotBar from './ui/HotBar';
 import InputManager from './ui/InputManager';
 import CharacterMenu from './ui/CharacterMenu';
 
+
 var config = {
     type: Phaser.AUTO,
     scale: {
@@ -44,6 +45,7 @@ var config = {
 };
 
 const App = () => {
+
     useEffect(() => {
         const game = new Phaser.Game(config)
     }, [])
@@ -61,14 +63,7 @@ const App = () => {
             <div
                 id="ui-container"
             >
-                <div
-                    className={ styles.Trash }
-                    onDragOver={ event => {
-                        event.preventDefault();
-                    }}
-                />
                 <InputManager />
-
                 {/*<HotBar index='1' />*/}
                 {/*<HotBar index='2' />*/}
                 <HotBar index='3' />

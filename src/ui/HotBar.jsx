@@ -7,6 +7,7 @@ import {
     setPosition,
     setSlot,
     setDragging,
+    clearDragging,
 } from '../store/hotBars';
 import { calculatePosition } from './utils.js';
 
@@ -22,8 +23,26 @@ const HotBarItem = (props) => {
     const compositeStates = useSelector(state => state.aniEditor.compositeStates);
     const slot = props.slot;
     const tile = reducerMap[slot.name];
+    const empty = (slot.name === 'empty');
 
     const isHovering = useHover(ref);
+
+    useEffect(() => {
+        const element = ref.current;
+
+        const handlePointerUp = event => {
+            dispatch(setSlot({
+                key: props.hotbar,
+                index: props.index,
+                name: dragging,
+            }))
+        }
+        element.addEventListener('pointerup', handlePointerUp);
+
+        return () => {
+            element.removeEventListener('pointerup', handlePointerUp);
+        }
+    }, [])
 
     // anieditor styles
     const activeButtonStyle = {
@@ -86,36 +105,40 @@ const HotBarItem = (props) => {
 
     const timerStyle = {
         fontSize: `14pt`,
-        display: slot.charges ?? 'none',
+        display: timer ?? 'none',
         color: 'white',
     }
 
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const isDragging = useDrag(ref,
         event => {
+            if (empty) return;
             setTranslate({
                 x: translate.x + event.movementX,
                 y: translate.y + event.movementY,
             });
             dispatch(setDragging({
                 name: slot.name,
+                hotbar: props.hotbar,
+                index: props.index,
             }));
+            document.body.style.cursor = "grabbing";
         },
         event => {
             setTranslate({ x: 0, y: 0 });
+            dispatch(clearDragging());
+            document.body.style.cursor = "unset";
         }
     );
     useStyle.transform = `translateX(${ translate.x }px) translateY(${ translate.y }px)`;
-    useStyle.zIndex = isDragging ? 100 : 0;
+    useStyle.zIndex = isDragging ? 10 : 0;
 
-    const handleMouseUp = event => {
-        if (dragging) {
-            dispatch(setSlot({
-                key: props.hotbar,
-                index: props.index,
-                name: dragging,
-            }))
-        }
+    if (isDragging && (translate.x || translate.y)) {
+        useStyle.opacity = '0.9';
+        useStyle.pointerEvents = 'none';
+    } else {
+        useStyle.opacity = '1';
+        useStyle.pointerEvents = 'auto';
     }
 
     return (
@@ -124,7 +147,6 @@ const HotBarItem = (props) => {
             style={ useStyle }
             className={ styles.KeyBind }
             onClick={() => dispatch(tile.action)}
-            onMouseUp={ handleMouseUp }
         >
             <span style={ timerStyle }> { timer ? `${ timer }s` : '' } </span>
         </button>

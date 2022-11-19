@@ -3,6 +3,10 @@ body {
 	user-select: none;
 }
 
+button {
+	cursor: inherit;
+}
+
 .HotBar {
 	position: absolute;
 	flex-direction: row;

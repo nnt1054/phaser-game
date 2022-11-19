@@ -7,6 +7,10 @@ const hotBarsSlice = createSlice({
   name: 'hotBars',
   initialState: {
     dragging: null,
+    draggingSource: {
+        hotbar: null,
+        index: null,
+    },
     1: {
         visible: animationToggle,
         left: 50,
@@ -78,7 +82,7 @@ const hotBarsSlice = createSlice({
         left: 50,
         bottom: 13,
         slots: [
-            { name: 'empty', active: false, },
+            { name: 'floss', active: false, keybind: 'Q', charges: 1, timer: 10},
             { name: 'empty', active: false, },
             { name: 'empty', active: false, },
             { name: 'empty', active: false, },
@@ -100,12 +104,33 @@ const hotBarsSlice = createSlice({
     },
     setDragging: (state, action) => {
         state.dragging = action.payload.name;
+        state.draggingSource.hotbar = action.payload.hotbar;
+        state.draggingSource.index = action.payload.index;
+    },
+    clearDragging: (state) => {
+        state.dragging = null;
+        state.draggingSource.hotbar = null;
+        state.draggingSource.index = null;
     },
     setSlot: (state, action) => {
+        if (!state.dragging) return;
         const hotbar = state[action.payload.key];
         const slot = hotbar.slots[action.payload.index];
-        slot.name = action.payload.name;
+        const targetName = slot.name;
+        slot.name = state.dragging;
+
+        const sourceHotbarKey = state.draggingSource.hotbar;
+        const sourceIndex = state.draggingSource.index;
+
+        if (sourceHotbarKey !== null && sourceIndex !== null) {
+            const sourceHotbar = state[sourceHotbarKey];
+            const sourceSlot = sourceHotbar.slots[sourceIndex];
+            sourceSlot.name = targetName;
+        }
+
         state.dragging = null;
+        state.draggingSource.hotbar = null;
+        state.draggingSource.index = null;
     },
   }
 })
@@ -116,6 +141,7 @@ export const {
     setSlotActive,
     setSlot,
     setDragging,
+    clearDragging,
 } = hotBarsSlice.actions;
 
 export default hotBarsSlice;

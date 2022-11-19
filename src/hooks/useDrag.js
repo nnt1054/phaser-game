@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
 
 const useDrag = (ref, onDrag, onRelease) => {
@@ -9,13 +10,15 @@ const useDrag = (ref, onDrag, onRelease) => {
 
         const downHandler = event => {
             setIsDragging(true);
+            element.style.zIndex = 10;
         };
 
         const upHandler = event => {
             if (isDragging) {
-                setIsDragging(false);
                 onRelease(event);
+                setIsDragging(false);
             }
+            element.style.zIndex = 1;
         };
 
         const moveHandler = event => {
