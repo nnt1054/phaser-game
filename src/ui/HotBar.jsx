@@ -14,103 +14,40 @@ import { calculatePosition } from './utils.js';
 import * as styles from '../App.module.css';
 import CONSTANTS from '../constants';
 
+import vercure_icon from '../assets/icons/vercure.png';
+
+const ICONS = {
+    vercure: vercure_icon,
+}
+
+
 const HotBarItem = (props) => {
     const ref = useRef();
+    const imageRef = useRef();
     const dispatch = useDispatch();
 
     const dragging = useSelector(state => state.hotBars.dragging)
-    const cooldowns = useSelector(state => state.playerState.cooldowns)
     const compositeStates = useSelector(state => state.aniEditor.compositeStates);
     const slot = props.slot;
     const tile = reducerMap[slot.name];
     const empty = (slot.name === 'empty');
 
-    const isHovering = useHover(ref);
-
-    useEffect(() => {
-        const element = ref.current;
-
-        const handlePointerUp = event => {
-            dispatch(setSlot({
-                key: props.hotbar,
-                index: props.index,
-                name: dragging,
-            }))
-        }
-        element.addEventListener('pointerup', handlePointerUp);
-
-        return () => {
-            element.removeEventListener('pointerup', handlePointerUp);
-        }
-    }, [])
-
-    // anieditor styles
-    const activeButtonStyle = {
-        color: 'black',
-        backgroundColor: 'white',
-    };
-
-    // button styles
-    const onHoverStyle = {
-        color: 'black',
-        background: 'white',
-    };
-    const defaultStyle = {
-        color: 'white',
-        background: 'rgba(0, 0, 0, .8)',
-    };
-
-    let useStyle = defaultStyle;
-    if (isHovering) {
-        useStyle = onHoverStyle;
-    } else if (CONSTANTS.animationToggle && (compositeStates[slot.name] || props.active)) {
-        useStyle = activeButtonStyle;
-    }
-
     let timer = 0;
+    const cooldowns = useSelector(state => state.playerState.cooldowns)
     if (cooldowns[slot.name]) {
         let cooldown = cooldowns[slot.name] / 1000
         timer = (cooldown > 10) ? cooldown.toFixed(0) : cooldown.toFixed(1);
     }
 
-    if (tile.icon) {
-        if (isHovering || timer > 0) {
-            useStyle.background = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../assets/icons/${ tile.icon }') center`;
-        } else {
-            useStyle.background = `url('../assets/icons/${ tile.icon }') center`;
-        }
-    }
+    // Animation Editor Styles
+    const frameIndex = useSelector(state => state.aniEditor.frameIndex);
+    const frameIndexString = `frameIndex${frameIndex}`;
+    const frameActive = (slot.name === frameIndexString);
 
-    if (slot.active) {
-        useStyle.border = `4px solid white`;
-    } else {
-        useStyle.border = `4px solid black`;
-    }
 
-    const keybindStyle = {
-        display: slot.keybind ?? 'none',
-        color: slot.active ? 'white' : 'black',
-        position: 'absolute',
-        left: 2,
-        top: 2,
-    };
-
-    const chargesStyle = {
-        display: slot.charges ?? 'none',
-        color: slot.active ? 'white' : 'black',
-        position: 'absolute',
-        right: 2,
-        bottom: 2, 
-    }
-
-    const timerStyle = {
-        fontSize: `14pt`,
-        display: timer ?? 'none',
-        color: 'white',
-    }
-
+    const isHovering = useHover(ref);
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
-    const isDragging = useDrag(ref,
+    const isDragging = useDrag(imageRef,
         event => {
             if (empty) return;
             setTranslate({
@@ -130,25 +67,88 @@ const HotBarItem = (props) => {
             document.body.style.cursor = "unset";
         }
     );
-    useStyle.transform = `translateX(${ translate.x }px) translateY(${ translate.y }px)`;
-    useStyle.zIndex = isDragging ? 10 : 0;
 
-    if (isDragging && (translate.x || translate.y)) {
-        useStyle.opacity = '0.9';
-        useStyle.pointerEvents = 'none';
-    } else {
-        useStyle.opacity = '1';
-        useStyle.pointerEvents = 'auto';
+    useEffect(() => {
+        const element = ref.current;
+
+        const handlePointerUp = event => {
+            dispatch(setSlot({
+                key: props.hotbar,
+                index: props.index,
+                name: dragging,
+            }))
+        }
+        element.addEventListener('pointerup', handlePointerUp);
+
+        return () => {
+            element.removeEventListener('pointerup', handlePointerUp);
+        }
+    }, [])
+
+
+    const icon = ICONS[tile.icon];
+    // const animationActiveToggle = CONSTANTS.animationToggle && (compositeStates[slot.name] || frameActive)
+    const animationActiveToggle = (compositeStates[slot.name] || frameActive);
+    const dragStarted = (isDragging && (translate.x || translate.y));
+    const droppable = (dragging && !icon && isHovering);
+
+    const buttonStyle = {
+        color: 'black',
+        backgroundColor: (animationActiveToggle || droppable) ? 'white' : 'rgba(0, 0, 0, .8)',
+        opacity: dragStarted ? '0.9': '1',
+        pointerEvents: dragStarted ? 'none': 'auto',
+        overflow: dragStarted ? 'visible': 'hidden',
+        zIndex: isDragging ? 10 : 1,
+        border: slot.active ? `4px solid white` : `4px solid black`,
+    }
+
+    const hotbarIconStyle = {
+        display: icon ? `block` : `none`,
+        width: `48px`,
+        height: `48px`,
+        borderRadius: `12px`,
+        position: `absolute`,
+        filter: (isHovering || timer > 0) ? `brightness(50%)` : `brightness(100%)`,
+        transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
+        pointerEvents: dragStarted ? `none` : `auto`,
+        zIndex: 2,
+    }
+
+    const timerStyle = {
+        position: `absolute`,
+        fontSize: `14pt`,
+        display: (timer && !dragStarted) ? 'block' : 'none',
+        color: 'white',
+        zIndex: 3,
+        pointerEvents: 'none',
+    }
+
+    // TODO: deprecate old styles once all abilities have an icon
+    const labelStyle = {
+        position: 'absolute',
+        display: !tile.icon ? 'block' : 'none',
+        color: animationActiveToggle ? 'black': 'white',
+        zIndex: 3,
+    }
+    const labelButtonStyle = {
+        backgroundColor: animationActiveToggle ? 'white' : 'rgba(0, 0, 0, .8)',
+        opacity: dragStarted ? '0.9': '1',
+        pointerEvents: dragStarted ? 'none': 'auto',
+        overflow: dragStarted ? 'visible': 'hidden',
+        zIndex: isDragging ? 10 : 1,
+        border: (slot.active || isHovering) ? `4px solid white` : `4px solid black`,
     }
 
     return (
         <button
             ref={ ref }
-            style={ useStyle }
+            style={ tile.icon ? buttonStyle : labelButtonStyle }
             className={ styles.KeyBind }
             onClick={() => dispatch(tile.action)}
         >
+            <span style={ labelStyle }> { tile.label ?? 'none' } </span>
             <span style={ timerStyle }> { timer ? `${ timer }s` : '' } </span>
+            <img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>
         </button>
     )
 }

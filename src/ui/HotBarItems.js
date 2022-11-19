@@ -189,7 +189,7 @@ const reducerMap = {
     'floss': {
         label: 'flss',
         action: setQueuedAbility('floss'),
-        icon: 'vercure.png',
+        icon: 'vercure',
     }
 }
 

@@ -64,8 +64,8 @@ const App = () => {
                 id="ui-container"
             >
                 <InputManager />
-                {/*<HotBar index='1' />*/}
-                {/*<HotBar index='2' />*/}
+                <HotBar index='1' />
+                <HotBar index='2' />
                 <HotBar index='3' />
                 <HotBar index='4' />
                 <div className={ styles.PlayerBars }>
