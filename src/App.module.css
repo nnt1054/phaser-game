@@ -109,9 +109,6 @@ button {
 	height: 100vh;
 }
 
-.SlotOverlay {
-	animation: roll 1s forwards linear infinite;
-}
 
 @keyframes roll {
   0% {

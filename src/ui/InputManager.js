@@ -79,14 +79,15 @@ const InputManager = () => {
       return keymap[input.key]
     }
 
-    const setHotbarSlotState = (input, active) => {
+    const setHotbarSlotState = (input) => {
       const keybind = getKeybindFromInput(input);
       if (!keybind) return;
+
       if (keybind.type === 'hotbar') {
         dispatch(setSlotActive({
           key: keybind.hotbar,
           index: keybind.slot,
-          active: active,
+          active: true,
         }))
       }
     }
@@ -134,8 +135,17 @@ const InputManager = () => {
 
     const releaseKeyPress = (input, keymap) => {
       const keybind = keymap[input.key]
-      if (!keybind || keybind.type !== 'cursor') return;
+      if (!keybind) return;
+      if (keybind.type === 'hotbar') {
+        dispatch(setSlotActive({
+          key: keybind.hotbar,
+          index: keybind.slot,
+          active: false,
+        }))
+      }
 
+      // cursor logic
+      if (keybind.type !== 'cursor') return;
       let cursorKey = keybind.cursor
       if (!cursorKey) return;
 
@@ -156,9 +166,7 @@ const InputManager = () => {
             break;
 
           case 'keyup':
-            setHotbarSlotState(input, false);
-
-            // release all modifiers
+            // release all modified versions of input
             releaseKeyPress(input, inputManager.shiftKeymap);
             releaseKeyPress(input, inputManager.ctrlKeymap);
             releaseKeyPress(input, inputManager.altKeymap);

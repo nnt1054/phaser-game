@@ -149,6 +149,8 @@ const HotBarItem = (props) => {
         backgroundColor: 'rgba(0, 0, 0, .8)',
         zIndex: 3,
         pointerEvents: 'none',
+        display: slot.active ? 'block' : 'none',
+        animation: slot.active ? `${ styles.roll } 1s forwards linear` : 'none',
     }
 
     return (
@@ -160,7 +162,7 @@ const HotBarItem = (props) => {
         >
             <span style={ labelStyle }> { tile.label ?? 'none' } </span>
             <span style={ timerStyle }> { timer ? `${ timer }s` : '' } </span>
-            <div class={ styles.SlotOverlay } style={ overlayStyle }/>
+            <div className={ styles.SlotOverlay } style={ overlayStyle }/>
             <img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>
         </button>
     )
