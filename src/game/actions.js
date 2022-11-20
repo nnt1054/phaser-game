@@ -111,12 +111,12 @@ const floss = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
-    cooldown: 0,
+    cooldown: 1000,
     execute: (player) => {
-        const cooldown = player.cooldownManager.getTimer('floss');
+        const [cooldown, duration] = player.cooldownManager.getTimer('floss');
         if (cooldown == 0 && player.body.onFloor()) {
             player.doEmote('floss');
-            player.cooldownManager.startTimer('floss', 120000);
+            player.cooldownManager.startTimer('floss', 12000);
         }
     },
 }

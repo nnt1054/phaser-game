@@ -15,9 +15,13 @@ import { calculatePosition } from './utils.js';
 import * as styles from '../App.module.css';
 import CONSTANTS from '../constants';
 
+// import acceleration_icon from '../assets/icons/acceleration.png';
+// import jolt_icon from '../assets/icons/jolt.png';
 import vercure_icon from '../assets/icons/vercure.png';
 
 const ICONS = {
+    acceleration: vercure_icon,
+    jolt: vercure_icon,
     vercure: vercure_icon,
 }
 
@@ -27,17 +31,21 @@ const HotBarItem = (props) => {
     const imageRef = useRef();
     const dispatch = useDispatch();
 
+    const gcd = useSelector(state => state.playerState.gcd);
     const dragging = useSelector(state => state.hotBars.dragging)
     const compositeStates = useSelector(state => state.aniEditor.compositeStates);
     const slot = props.slot;
     const tile = reducerMap[slot.name];
     const empty = (slot.name === 'empty');
 
-    let timer = 0;
+    let timer, current, cooldown, duration;
+    let useCooldown = false;
     const cooldowns = useSelector(state => state.playerState.cooldowns)
     if (cooldowns[slot.name]) {
-        let cooldown = cooldowns[slot.name] / 1000
-        timer = (cooldown > 10) ? cooldown.toFixed(0) : cooldown.toFixed(1);
+        [current, duration] = cooldowns[slot.name];
+        if (current > 0) useCooldown = true;
+        let cooldown = current / 1000
+        timer = cooldown.toFixed(0);
     }
 
     // Animation Editor Styles
@@ -97,7 +105,7 @@ const HotBarItem = (props) => {
 
     const buttonStyle = {
         color: 'black',
-        backgroundColor: (animationActiveToggle || droppable) ? 'white' : 'rgba(0, 0, 0, .8)',
+        backgroundColor: (animationActiveToggle || droppable) ? 'white' : 'rgba(0, 0, 0, 0.8)',
         opacity: dragStarted ? '0.9': '1',
         pointerEvents: dragStarted ? 'none': 'auto',
         overflow: dragStarted ? 'visible': 'hidden',
@@ -120,10 +128,31 @@ const HotBarItem = (props) => {
     const timerStyle = {
         position: `absolute`,
         fontSize: `14pt`,
-        display: (timer && !dragStarted) ? 'block' : 'none',
+        display: (timer > 0 && !dragStarted) ? 'block' : 'none',
         color: 'white',
         zIndex: 4,
         pointerEvents: 'none',
+    }
+
+    const cooldownOverlay = {
+        position: 'absolute',
+        width: `48px`,
+        height: `48px`,
+        backgroundColor: 'rgba(0, 0, 0, .8)',
+        zIndex: 3,
+        pointerEvents: 'none',
+        display: timer > 0 ? 'block' : 'none',
+        animation: timer > 0 ? `${ styles.roll } ${ duration / 1000 }s infinite linear` : 'none',
+    }
+    const gcdOverlay = {
+        position: 'absolute',
+        width: `48px`,
+        height: `48px`,
+        backgroundColor: 'rgba(0, 0, 0, .8)',
+        zIndex: 3,
+        pointerEvents: 'none',
+        display: gcd ? 'block' : 'none',
+        animation: gcd ? `${ styles.roll } ${ gcd / 1000 }s infinite linear` : 'none',
     }
 
     // TODO: deprecate old styles once all abilities have an icon
@@ -142,17 +171,6 @@ const HotBarItem = (props) => {
         border: (slot.active || isHovering) ? `4px solid white` : `4px solid black`,
     }
 
-    const overlayStyle = {
-        position: 'absolute',
-        width: `48px`,
-        height: `48px`,
-        backgroundColor: 'rgba(0, 0, 0, .8)',
-        zIndex: 3,
-        pointerEvents: 'none',
-        display: slot.active ? 'block' : 'none',
-        animation: slot.active ? `${ styles.roll } 1s forwards linear` : 'none',
-    }
-
     return (
         <button
             ref={ ref }
@@ -161,8 +179,9 @@ const HotBarItem = (props) => {
             onClick={() => dispatch(tile.action)}
         >
             <span style={ labelStyle }> { tile.label ?? 'none' } </span>
-            <span style={ timerStyle }> { timer ? `${ timer }s` : '' } </span>
-            <div className={ styles.SlotOverlay } style={ overlayStyle }/>
+            <span style={ timerStyle }> { timer ? `${ timer }` : '' } </span>
+            <div className={ styles.SlotOverlay } style={ cooldownOverlay }/>
+            <div key={ gcd } className={ styles.SlotOverlay } style={ gcdOverlay }/>
             <img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>
         </button>
     )

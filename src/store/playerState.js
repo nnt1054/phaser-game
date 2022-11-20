@@ -21,9 +21,8 @@ const playerStateSlice = createSlice({
     // 7. easy and epic
     jump: 0,
 
-    cooldowns: {
-        'floss': 99,
-    },
+    gcd: 0,
+    cooldowns: {},
   },
   reducers: {
     setQueuedAbility: (state, action) => {
@@ -50,7 +49,10 @@ const playerStateSlice = createSlice({
     },
     setCooldowns: (state, action) => {
         state.cooldowns = action.payload;
-    }
+    },
+    setGCD: (state, action) => {
+        state.gcd = action.payload;
+    },
   }
 })
 
@@ -61,6 +63,7 @@ export const {
     clearInputQueues,
     setCursorState,
     setCooldowns,
+    setGCD,
 } = playerStateSlice.actions;
 
 export default playerStateSlice;

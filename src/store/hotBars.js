@@ -71,7 +71,7 @@ const hotBarsSlice = createSlice({
         bottom: 8,
         slots: [
             { name: 'floss', active: false, keybind: 'Q', timer: 10},
-            { name: 'empty', active: false, },
+            { name: 'heal', active: false, },
             { name: 'empty', active: false, },
             { name: 'empty', active: false, },
             { name: 'empty', active: false, },

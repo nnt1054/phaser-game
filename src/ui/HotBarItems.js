@@ -189,7 +189,12 @@ const reducerMap = {
     'floss': {
         label: 'flss',
         action: setQueuedAbility('floss'),
-        icon: 'vercure',
+        icon: 'acceleration',
+    },
+    'heal': {
+        label: 'heal',
+        action: setQueuedAbility('heal'),
+        icon: 'vercure',   
     }
 }
 

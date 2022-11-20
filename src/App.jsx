@@ -41,13 +41,13 @@ var config = {
             plugin: FrameAnimator,
             start: true
         }]
-    }
+    },
 };
 
 const App = () => {
 
     useEffect(() => {
-        const game = new Phaser.Game(config)
+        const game = new Phaser.Game(config);
     }, [])
 
     const phaserReference = useRef(null);

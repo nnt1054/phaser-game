@@ -11,6 +11,7 @@ import {
     clearInputQueues,
     clearQueuedAbility,
     setCooldowns,
+    setGCD,
 } from '../store/playerState';
 import {
     incrementHealth,
@@ -37,21 +38,21 @@ function observeStore(store, select, onChange) {
 class CooldownManager {
     constructor() {
         this._cooldowns = new Map();
+        this.cooldown_updater = setInterval(this.updateStore.bind(this), 50);
     }
 
     getTimer(key) {
-        return this._cooldowns.get(key) || 0;
+        return this._cooldowns.get(key) || [0, 0];
     }
 
     startTimer(key, time) {
-        this._cooldowns.set(key, time);
+        this._cooldowns.set(key, [time, time]);
     }
 
     update(delta) {
         for (var [key, value] of this._cooldowns.entries()) {
-            this._cooldowns.set(key, Math.max(0, value - delta));
+            this._cooldowns.set(key, [Math.max(0, value[0] - delta), value[1]]);
         }
-        this.updateStore();
     }
 
     updateStore() {
@@ -302,12 +303,18 @@ export class Player extends ArcadeContainer {
     }
 
     updateAbilityState(delta) {
-        this.gcdTimer = Math.max(0, this.gcdTimer - delta)
+        const previousGCD = this.gcdTimer;
+        this.gcdTimer = Math.max(0, this.gcdTimer - delta);
+        if (previousGCD && this.gcdTimer == 0) {
+            store.dispatch(setGCD(0));
+        }
         if (this.gcdQueue && this.gcdTimer == 0) {
             const ability = this.gcdQueue;
             ability.execute(this);
             this.gcdTimer += ability.cooldown;
             this.gcdQueue = null;
+            store.dispatch(setGCD(ability.cooldown));
+            this.cooldownManager.updateStore();
         }
     }
 
@@ -319,11 +326,11 @@ export class Player extends ArcadeContainer {
         }
 
         // test regen
-        this.regenTimer -= delta;
-        if (this.regenTimer <= 0) {
-            store.dispatch(incrementHealth(10));
-            this.regenTimer += 3000;
-        }
+        // this.regenTimer -= delta;
+        // if (this.regenTimer <= 0) {
+        //     store.dispatch(incrementHealth(10));
+        //     this.regenTimer += 3000;
+        // }
 
         this.updateMovement(delta);
         this.updateAbilityState(delta);
