@@ -3,28 +3,49 @@ import { useSelector, useDispatch } from 'react-redux';
 
 
 const useDrag = (ref, onDrag, onRelease) => {
-    const [isDragging, setIsDragging] = useState(false);
+    const [dragState, setDragState] = useState({
+        isDragging: false,
+        isPointerDown: false,
+    });
 
     useEffect(() => {
         const element = ref.current;
 
         const downHandler = event => {
-            setIsDragging(true);
-            element.style.zIndex = 10;
+            setDragState({
+                isDragging: false,
+                isPointerDown: true,
+            });
+            element.style.zIndex = 2;
+
+            // stop propogation for stacked draggable elements
+            // might remove depending on design
+            // event.stopPropagation()
         };
 
         const upHandler = event => {
-            if (isDragging) {
+            if (dragState.isPointerDown) {
                 onRelease(event);
-                setIsDragging(false);
-            }
+                setDragState({
+                    isDragging: false,
+                    isPointerDown: false,
+                });
+            };
             element.style.zIndex = 1;
+            // event.stopPropagation()
         };
 
         const moveHandler = event => {
-            if (isDragging) {
+            if (dragState.isPointerDown) {
                 onDrag(event);
+                if (!dragState.isDragging) {
+                    setDragState({
+                        isDragging: true,
+                        isPointerDown: true,
+                    });
+                }
             };
+            // event.stopPropagation()
         };
 
         element.addEventListener('pointerdown', downHandler);
@@ -38,7 +59,7 @@ const useDrag = (ref, onDrag, onRelease) => {
         };
     });
 
-    return isDragging;
+    return dragState;
 }
 
 export default useDrag;

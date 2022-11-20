@@ -71,8 +71,8 @@ const hotBarsSlice = createSlice({
         bottom: 8,
         slots: [
             { name: 'floss', active: false, keybind: 'Q', timer: 10},
-            { name: 'frameIndex0', active: false, },
-            { name: 'frameIndex1', active: false, },
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
             { name: 'empty', active: false, },
             { name: 'empty', active: false, },
         ]
@@ -83,10 +83,10 @@ const hotBarsSlice = createSlice({
         bottom: 13,
         slots: [
             { name: 'floss', active: false, keybind: 'Q', timer: 10},
-            { name: 'decrementHP10', active: false, },
-            { name: 'pause', active: false, },
-            { name: 'resume', active: false, },
-            { name: 'composite_head', active: false, },
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
+            { name: 'empty', active: false, },
         ]
     },
   },
@@ -103,11 +103,21 @@ const hotBarsSlice = createSlice({
         slot.active = action.payload.active;
     },
     setDragging: (state, action) => {
+        // const hotbarKey = action.payload.hotbar;
+        // const hotbar = state[hotbarKey];
+        // const index = action.payload.index
+        // const slot = hotbar.slots[index]
+        // slot.active = true;
         state.dragging = action.payload.name;
         state.draggingSource.hotbar = action.payload.hotbar;
         state.draggingSource.index = action.payload.index;
     },
     clearDragging: (state) => {
+        // if (state.draggingSource.hotbar !== null && state.draggingSource.index !== null) {
+        //     const hotbar = state[state.draggingSource.hotbar];
+        //     const slot = hotbar.slots[state.draggingSource.index];
+        //     slot.active = false;
+        // }
         state.dragging = null;
         state.draggingSource.hotbar = null;
         state.draggingSource.index = null;
@@ -126,6 +136,7 @@ const hotBarsSlice = createSlice({
             const sourceHotbar = state[sourceHotbarKey];
             const sourceSlot = sourceHotbar.slots[sourceIndex];
             sourceSlot.name = targetName;
+            // sourceSlot.active = false;
         }
 
         state.dragging = null;

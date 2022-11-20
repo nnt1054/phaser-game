@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import reducerMap from './HotBarItems';
 import useDrag from '../hooks/useDrag';
 import useHover from '../hooks/useHover';
+import usePointerDown from '../hooks/usePointerDown';
 import {
     setPosition,
     setSlot,
@@ -47,7 +48,7 @@ const HotBarItem = (props) => {
 
     const isHovering = useHover(ref);
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
-    const isDragging = useDrag(imageRef,
+    const dragState = useDrag(imageRef,
         event => {
             if (empty) return;
             setTranslate({
@@ -65,8 +66,10 @@ const HotBarItem = (props) => {
             setTranslate({ x: 0, y: 0 });
             dispatch(clearDragging());
             document.body.style.cursor = "unset";
-        }
+        },
     );
+    const isDragging = dragState.isDragging;
+    const isPointerDown = dragState.isPointerDown;
 
     useEffect(() => {
         const element = ref.current;
@@ -99,7 +102,7 @@ const HotBarItem = (props) => {
         pointerEvents: dragStarted ? 'none': 'auto',
         overflow: dragStarted ? 'visible': 'hidden',
         zIndex: isDragging ? 10 : 1,
-        border: slot.active ? `4px solid white` : `4px solid black`,
+        border: (slot.active || (isHovering && dragging)) ? `4px solid white` : `4px solid black`,
     }
 
     const hotbarIconStyle = {
@@ -108,7 +111,7 @@ const HotBarItem = (props) => {
         height: `48px`,
         borderRadius: `12px`,
         position: `absolute`,
-        filter: (isHovering || timer > 0) ? `brightness(50%)` : `brightness(100%)`,
+        filter: (isPointerDown) ? `brightness(50%)` : (isHovering || timer > 0) ? `brightness(75%)` : `brightness(100%)`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
         pointerEvents: dragStarted ? `none` : `auto`,
         zIndex: 2,
@@ -119,7 +122,7 @@ const HotBarItem = (props) => {
         fontSize: `14pt`,
         display: (timer && !dragStarted) ? 'block' : 'none',
         color: 'white',
-        zIndex: 3,
+        zIndex: 4,
         pointerEvents: 'none',
     }
 
@@ -139,6 +142,15 @@ const HotBarItem = (props) => {
         border: (slot.active || isHovering) ? `4px solid white` : `4px solid black`,
     }
 
+    const overlayStyle = {
+        position: 'absolute',
+        width: `48px`,
+        height: `48px`,
+        backgroundColor: 'rgba(0, 0, 0, .8)',
+        zIndex: 3,
+        pointerEvents: 'none',
+    }
+
     return (
         <button
             ref={ ref }
@@ -148,6 +160,7 @@ const HotBarItem = (props) => {
         >
             <span style={ labelStyle }> { tile.label ?? 'none' } </span>
             <span style={ timerStyle }> { timer ? `${ timer }s` : '' } </span>
+            <div class={ styles.SlotOverlay } style={ overlayStyle }/>
             <img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>
         </button>
     )
@@ -163,7 +176,7 @@ const HotBar = (props) => {
 
     const dragEnabled = CONSTANTS.dragEnabled;
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
-    const releaseDrag = useDrag(ref,
+    const dragState = useDrag(ref,
         event => {
             if (!dragEnabled) return;
             setTranslate({

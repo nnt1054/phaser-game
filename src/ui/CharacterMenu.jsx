@@ -151,7 +151,7 @@ const CharacterMenu = () => {
     const height = 512;
 
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
-    const releaseDrag = useDrag(ref,
+    const dragState = useDrag(ref,
         event => {
             setTranslate({
                 x: translate.x + event.movementX,
