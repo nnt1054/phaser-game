@@ -189,13 +189,63 @@ const reducerMap = {
     'floss': {
         label: 'flss',
         action: setQueuedAbility('floss'),
-        icon: 'acceleration',
+        icon: 'embolden',
     },
     'heal': {
         label: 'heal',
         action: setQueuedAbility('heal'),
         icon: 'vercure',   
-    }
+    },
+    'melee1': {
+        label: 'melee1',
+        action: setQueuedAbility('melee'),
+        icon: 'melee1',
+    },
+    'melee2': {
+        label: 'melee2',
+        action: setQueuedAbility('melee'),
+        icon: 'melee2',
+    },
+    'melee3': {
+        label: 'melee3',
+        action: setQueuedAbility('melee'),
+        icon: 'melee3',
+    },
+    'fleche': {
+        label: 'fleche',
+        action: setQueuedAbility('fleche'),
+        icon: 'fleche',
+    },
+    'embolden': {
+        label: 'embolden',
+        action: setQueuedAbility('embolden'),
+        icon: 'embolden',
+    },
+    'manafication': {
+        label: 'manafication',
+        action: setQueuedAbility('manafication'),
+        icon: 'manafication',
+    },
+    'jolt': {
+        label: 'jolt',
+        action: setQueuedAbility('jolt'),
+        icon: 'jolt',
+    },
+    'verraise': {
+        label: 'jolt',
+        action: setQueuedAbility('verraise'),
+        icon: 'verraise',
+    },
+    'verthunder': {
+        label: 'jolt',
+        action: setQueuedAbility('jolt'),
+        icon: 'verthunder',
+    },
+    'verflare': {
+        label: 'jolt',
+        action: setQueuedAbility('jolt'),
+        icon: 'verflare',
+    },
 }
 
 for (var i = 0; i <= 12; i++) {

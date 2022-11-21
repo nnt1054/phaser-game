@@ -33,31 +33,56 @@ const movementOnly = {
       key: 'characterMenu',
     },
 
-    // keybinds
-    [KeyCodes.Q]: {
+    // basic keybinds
+    [KeyCodes.ONE]: {
       type: 'hotbar',
       hotbar: 3,
       slot: 0,
     },
-    [KeyCodes.E]: {
+    [KeyCodes.TWO]: {
       type: 'hotbar',
       hotbar: 3,
       slot: 1,
     },
-    [KeyCodes.R]: {
+    [KeyCodes.THREE]: {
       type: 'hotbar',
       hotbar: 3,
       slot: 2,
     },
-    [KeyCodes.F]: {
+    [KeyCodes.FOUR]: {
       type: 'hotbar',
       hotbar: 3,
       slot: 3,
     },
-    [KeyCodes.G]: {
+    [KeyCodes.FIVE]: {
       type: 'hotbar',
       hotbar: 3,
       slot: 4,
+    },
+    [KeyCodes.Q]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 5,
+    },
+    [KeyCodes.E]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 6,
+    },
+    [KeyCodes.R]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 7,
+    },
+    [KeyCodes.F]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 8,
+    },
+    [KeyCodes.G]: {
+      type: 'hotbar',
+      hotbar: 3,
+      slot: 9,
     },
 }
 
@@ -74,31 +99,56 @@ const inputManagerSlice = createSlice({
 
     keymap: movementOnly,
     shiftKeymap: {
-      [KeyCodes.Q]: {
+      [KeyCodes.ONE]: {
         type: 'hotbar',
         hotbar: 4,
         slot: 0,
       },
-      [KeyCodes.E]: {
+      [KeyCodes.TWO]: {
         type: 'hotbar',
         hotbar: 4,
         slot: 1,
       },
-      [KeyCodes.R]: {
+      [KeyCodes.THREE]: {
         type: 'hotbar',
         hotbar: 4,
         slot: 2,
       },
-      [KeyCodes.F]: {
+      [KeyCodes.FOUR]: {
         type: 'hotbar',
         hotbar: 4,
         slot: 3,
       },
-      [KeyCodes.G]: {
+      [KeyCodes.FIVE]: {
         type: 'hotbar',
         hotbar: 4,
         slot: 4,
-    },
+      },
+      [KeyCodes.Q]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 5,
+      },
+      [KeyCodes.E]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 6,
+      },
+      [KeyCodes.R]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 7,
+      },
+      [KeyCodes.F]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 8,
+      },
+      [KeyCodes.G]: {
+        type: 'hotbar',
+        hotbar: 4,
+        slot: 9,
+      },
     },
     ctrlKeymap: {},
     altKeymap: {},

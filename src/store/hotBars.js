@@ -68,25 +68,35 @@ const hotBarsSlice = createSlice({
     3: {
         visible: !animationToggle,
         left: 50,
-        bottom: 8,
+        bottom: 9,
         slots: [
-            { name: 'floss', active: false, keybind: 'Q', timer: 10},
-            { name: 'heal', active: false, },
-            { name: 'empty', active: false, },
-            { name: 'empty', active: false, },
-            { name: 'empty', active: false, },
+            { name: 'melee1', active: false, keybind: '1'},
+            { name: 'melee2', active: false, keybind: '2'},
+            { name: 'melee3', active: false, keybind: '3'},
+            { name: 'empty', active: false, keybind: '4'},
+            { name: 'empty', active: false, keybind: '5'},
+            { name: 'jolt', active: false, keybind: 'Q'},
+            { name: 'verthunder', active: false, keybind: 'E'},
+            { name: 'verflare', active: false, keybind: 'R'},
+            { name: 'verraise', active: false, keybind: 'F'},
+            { name: 'fleche', active: false, keybind: 'G'},
         ]
     },
     4: {
         visible: !animationToggle,
         left: 50,
-        bottom: 13,
+        bottom: 15,
         slots: [
-            { name: 'floss', active: false, keybind: 'Q', timer: 10},
-            { name: 'empty', active: false, },
-            { name: 'empty', active: false, },
-            { name: 'empty', active: false, },
-            { name: 'empty', active: false, },
+            { name: 'empty', active: false, keybind: '↑1'},
+            { name: 'empty', active: false, keybind: '↑2'},
+            { name: 'empty', active: false, keybind: '↑3'},
+            { name: 'empty', active: false, keybind: '↑4'},
+            { name: 'empty', active: false, keybind: '↑5'},
+            { name: 'heal', active: false, keybind: '↑Q'},
+            { name: 'embolden', active: false, keybind: '↑E'},
+            { name: 'manafication', active: false, keybind: '↑R'},
+            { name: 'empty', active: false, keybind: '↑F'},
+            { name: 'empty', active: false, keybind: '↑G'},
         ]
     },
   },
@@ -103,21 +113,11 @@ const hotBarsSlice = createSlice({
         slot.active = action.payload.active;
     },
     setDragging: (state, action) => {
-        // const hotbarKey = action.payload.hotbar;
-        // const hotbar = state[hotbarKey];
-        // const index = action.payload.index
-        // const slot = hotbar.slots[index]
-        // slot.active = true;
         state.dragging = action.payload.name;
         state.draggingSource.hotbar = action.payload.hotbar;
         state.draggingSource.index = action.payload.index;
     },
     clearDragging: (state) => {
-        // if (state.draggingSource.hotbar !== null && state.draggingSource.index !== null) {
-        //     const hotbar = state[state.draggingSource.hotbar];
-        //     const slot = hotbar.slots[state.draggingSource.index];
-        //     slot.active = false;
-        // }
         state.dragging = null;
         state.draggingSource.hotbar = null;
         state.draggingSource.index = null;
@@ -136,7 +136,6 @@ const hotBarsSlice = createSlice({
             const sourceHotbar = state[sourceHotbarKey];
             const sourceSlot = sourceHotbar.slots[sourceIndex];
             sourceSlot.name = targetName;
-            // sourceSlot.active = false;
         }
 
         state.dragging = null;

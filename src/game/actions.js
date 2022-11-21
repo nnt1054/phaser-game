@@ -3,6 +3,11 @@ import {
     incrementHealth,
 } from '../store/playerHealth';
 import {
+    incrementMana,
+    decrementMana,
+    setPlayerCurrentMana,
+} from '../store/playerMana';
+import {
     setFrameIndex,
 } from '../store/aniEditor';
 
@@ -30,7 +35,7 @@ const basicHeal = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
-    cooldown: 2500,
+    cooldown: 2000,
     execute: (player) => {
         store.dispatch(incrementHealth());
     },
@@ -112,12 +117,93 @@ const floss = {
     charges: -1,
     cost: -1,
     cooldown: 1000,
-    execute: (player) => {
+    canExecute: (player) => {
         const [cooldown, duration] = player.cooldownManager.getTimer('floss');
-        if (cooldown == 0 && player.body.onFloor()) {
-            player.doEmote('floss');
-            player.cooldownManager.startTimer('floss', 12000);
-        }
+        return (cooldown == 0 && player.body.onFloor());
+    },
+    execute: (player) => {
+        player.doEmote('floss');
+        player.cooldownManager.startTimer('floss', 12000);
+    },
+}
+
+const basicMelee = {
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    cooldown: 800,
+    execute: (player) => {
+        // store.dispatch(incrementMana());
+    },
+}
+
+const fleche = {
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    cooldown: 1000,
+    canExecute: (player) => {
+        const [cooldown, duration] = player.cooldownManager.getTimer('fleche');
+        return (cooldown == 0);
+    },
+    execute: (player) => {
+        player.cooldownManager.startTimer('fleche', 12000);
+    },
+}
+
+const manafication = {
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    cooldown: 1000,
+    canExecute: (player) => {
+        const [cooldown, duration] = player.cooldownManager.getTimer('manafication');
+        return (cooldown == 0);
+    },
+    execute: (player) => {
+        player.cooldownManager.startTimer('manafication', 60000);
+        store.dispatch(setPlayerCurrentMana(100));
+    },
+}
+
+const embolden = {
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    cooldown: 1000,
+    canExecute: (player) => {
+        const [cooldown, duration] = player.cooldownManager.getTimer('embolden');
+        return (cooldown == 0);
+    },
+    execute: (player) => {
+        player.cooldownManager.startTimer('embolden', 60000);
+    },
+}
+
+const jolt = {
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    cooldown: 2000,
+    canExecute: (player) => {
+        return true;
+    },
+    execute: (player) => {
+        store.dispatch(decrementMana());
+    },
+}
+
+const verraise = {
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    cooldown: 4000,
+    canExecute: (player) => {
+        return true;
+    },
+    execute: (player) => {
+        store.dispatch(decrementMana());
+        store.dispatch(setPlayerCurrentMana(0));
     },
 }
 
@@ -149,6 +235,12 @@ const actionMap = {
     'incrementFrameKey': updateFrameKey(1),
     'decrementFrameKey': updateFrameKey(-1),
     'floss': floss,
+    'melee': basicMelee,
+    'fleche': fleche,
+    'manafication': manafication,
+    'embolden': embolden,
+    'jolt': jolt,
+    'verraise': verraise,
 }
 
 export default actionMap;

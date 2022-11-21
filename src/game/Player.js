@@ -310,11 +310,13 @@ export class Player extends ArcadeContainer {
         }
         if (this.gcdQueue && this.gcdTimer == 0) {
             const ability = this.gcdQueue;
-            ability.execute(this);
-            this.gcdTimer += ability.cooldown;
+            if (!(ability.canExecute && !ability.canExecute(this))) {
+                ability.execute(this);
+                this.gcdTimer += ability.cooldown;
+                store.dispatch(setGCD(ability.cooldown));
+                this.cooldownManager.updateStore();
+            } 
             this.gcdQueue = null;
-            store.dispatch(setGCD(ability.cooldown));
-            this.cooldownManager.updateStore();
         }
     }
 

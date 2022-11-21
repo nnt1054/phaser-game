@@ -13,7 +13,7 @@ button {
 	justify-content: space-between;
 }
 
-.KeyBind {
+.HotbarSlot {
 	width: 48px;
 	height: 48px;
 
@@ -23,13 +23,12 @@ button {
 	font-family: 'Comfortaa';
 	font-weight: bold;
 
-	position: relative;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
 
-.KeyBind:focus {
+.HotbarSlot:focus {
 	outline: none;
 }
 

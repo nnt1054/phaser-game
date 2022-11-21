@@ -15,14 +15,37 @@ import { calculatePosition } from './utils.js';
 import * as styles from '../App.module.css';
 import CONSTANTS from '../constants';
 
-// import acceleration_icon from '../assets/icons/acceleration.png';
-// import jolt_icon from '../assets/icons/jolt.png';
+import acceleration_icon from '../assets/icons/acceleration.png';
+import jolt_icon from '../assets/icons/jolt_ii.png';
 import vercure_icon from '../assets/icons/vercure.png';
+import embolden_icon from '../assets/icons/embolden.png';
+import fleche_icon from '../assets/icons/fleche.png';
+import manafication_icon from '../assets/icons/manafication.png';
+import verraise_icon from '../assets/icons/verraise.png';
+
+import verthunder_icon from '../assets/icons/verthunder.png';
+import verflare_icon from '../assets/icons/verflare.png';
+
+import melee1_icon from '../assets/icons/riposte.png';
+import melee2_icon from '../assets/icons/zwerchhau.png';
+import melee3_icon from '../assets/icons/redoublement.png';
+// import melee1_icon from '../assets/icons/enchanted_riposte.png';
+// import melee2_icon from '../assets/icons/enchanted_zwerchhau.png';
+// import melee3_icon from '../assets/icons/enchanted_redoublement.png';
 
 const ICONS = {
-    acceleration: vercure_icon,
-    jolt: vercure_icon,
+    acceleration: acceleration_icon,
+    jolt: jolt_icon,
     vercure: vercure_icon,
+    melee1: melee1_icon,
+    melee2: melee2_icon,
+    melee3: melee3_icon,
+    embolden: embolden_icon,
+    manafication: manafication_icon,
+    fleche: fleche_icon,
+    verraise: verraise_icon,
+    verthunder: verthunder_icon,
+    verflare: verflare_icon,
 }
 
 
@@ -52,7 +75,6 @@ const HotBarItem = (props) => {
     const frameIndex = useSelector(state => state.aniEditor.frameIndex);
     const frameIndexString = `frameIndex${frameIndex}`;
     const frameActive = (slot.name === frameIndexString);
-
 
     const isHovering = useHover(ref);
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
@@ -104,6 +126,7 @@ const HotBarItem = (props) => {
     const droppable = (dragging && !icon && isHovering);
 
     const buttonStyle = {
+        position: 'absolute',
         color: 'black',
         backgroundColor: (animationActiveToggle || droppable) ? 'white' : 'rgba(0, 0, 0, 0.8)',
         opacity: dragStarted ? '0.9': '1',
@@ -111,6 +134,7 @@ const HotBarItem = (props) => {
         overflow: dragStarted ? 'visible': 'hidden',
         zIndex: isDragging ? 10 : 1,
         border: (slot.active || (isHovering && dragging)) ? `4px solid white` : `4px solid black`,
+        visibility: (dragging || !empty) ? 'visible' : 'hidden',
     }
 
     const hotbarIconStyle = {
@@ -134,20 +158,36 @@ const HotBarItem = (props) => {
         pointerEvents: 'none',
     }
 
+    const keybindStyle = {
+        position: `absolute`,
+        fontSize: `10pt`,
+        fontWeight: 'bold',
+        borderRadius: '2px',
+        color: 'white',
+        zIndex: 4,
+        pointerEvents: 'none',
+        bottom: '-6px',
+        visibility: (dragging || !empty) ? 'visible' : 'hidden',
+    }
+
+    // TODO: fix bug where overlay animation resets on dragging to another hotbar slot
     const cooldownOverlay = {
         position: 'absolute',
         width: `48px`,
         height: `48px`,
+        borderRadius: `12px`,
         backgroundColor: 'rgba(0, 0, 0, .8)',
         zIndex: 3,
         pointerEvents: 'none',
         display: timer > 0 ? 'block' : 'none',
         animation: timer > 0 ? `${ styles.roll } ${ duration / 1000 }s infinite linear` : 'none',
     }
+
     const gcdOverlay = {
         position: 'absolute',
         width: `48px`,
         height: `48px`,
+        borderRadius: `12px`,
         backgroundColor: 'rgba(0, 0, 0, .8)',
         zIndex: 3,
         pointerEvents: 'none',
@@ -163,27 +203,42 @@ const HotBarItem = (props) => {
         zIndex: 3,
     }
     const labelButtonStyle = {
+        position: 'absolute',
         backgroundColor: animationActiveToggle ? 'white' : 'rgba(0, 0, 0, .8)',
         opacity: dragStarted ? '0.9': '1',
         pointerEvents: dragStarted ? 'none': 'auto',
         overflow: dragStarted ? 'visible': 'hidden',
         zIndex: isDragging ? 10 : 1,
         border: (slot.active || isHovering) ? `4px solid white` : `4px solid black`,
+        visibility: (dragging || !empty) ? 'visible' : 'hidden',
+    }
+
+    const slotContainerStyle = {
+        position: 'relative',
+        width: `48px`,
+        height: `48px`,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
     }
 
     return (
-        <button
-            ref={ ref }
-            style={ tile.icon ? buttonStyle : labelButtonStyle }
-            className={ styles.KeyBind }
-            onClick={() => dispatch(tile.action)}
-        >
-            <span style={ labelStyle }> { tile.label ?? 'none' } </span>
-            <span style={ timerStyle }> { timer ? `${ timer }` : '' } </span>
-            <div className={ styles.SlotOverlay } style={ cooldownOverlay }/>
-            <div key={ gcd } className={ styles.SlotOverlay } style={ gcdOverlay }/>
-            <img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>
-        </button>
+        <div style={ slotContainerStyle } >
+            <span style={ keybindStyle}> { slot.keybind } </span>
+            <button
+                ref={ ref }
+                style={ tile.icon ? buttonStyle : labelButtonStyle }
+                className={ styles.HotbarSlot }
+                onClick={() => dispatch(tile.action)}
+            >
+                <span style={ labelStyle }> { tile.label ?? 'none' } </span>
+                <span style={ timerStyle }> { timer ? `${ timer }` : '' } </span>
+                <div style={ cooldownOverlay }/>
+                <div key={ gcd } style={ gcdOverlay }/>
+                <img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>
+            </button>
+
+        </div>
     )
 }
 
