@@ -133,7 +133,8 @@ const HotBarItem = (props) => {
         pointerEvents: dragStarted ? 'none': 'auto',
         overflow: dragStarted ? 'visible': 'hidden',
         zIndex: isDragging ? 10 : 1,
-        border: (slot.active || (isHovering && dragging)) ? `4px solid white` : `4px solid black`,
+        // border: (slot.active || (isHovering && dragging)) ? `4px solid white` : `4px solid black`,
+        border: '4px solid black',
         visibility: (dragging || !empty) ? 'visible' : 'hidden',
     }
 
@@ -143,7 +144,7 @@ const HotBarItem = (props) => {
         height: `48px`,
         borderRadius: `12px`,
         position: `absolute`,
-        filter: (isPointerDown) ? `brightness(50%)` : (isHovering || timer > 0) ? `brightness(75%)` : `brightness(100%)`,
+        filter: (slot.active || isPointerDown) ? `brightness(50%)` : (isHovering || timer > 0) ? `brightness(75%)` : `brightness(100%)`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
         pointerEvents: dragStarted ? `none` : `auto`,
         zIndex: 2,
@@ -191,7 +192,7 @@ const HotBarItem = (props) => {
         backgroundColor: 'rgba(0, 0, 0, .8)',
         zIndex: 3,
         pointerEvents: 'none',
-        display: gcd ? 'block' : 'none',
+        display: (tile.gcd && gcd) ? 'block' : 'none',
         animation: gcd ? `${ styles.roll } ${ gcd / 1000 }s infinite linear` : 'none',
     }
 

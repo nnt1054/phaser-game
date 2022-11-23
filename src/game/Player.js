@@ -137,6 +137,7 @@ export class Player extends ArcadeContainer {
 
         this.gcdQueue = null;
         this.gcdTimer = 0;
+        this.abilityTimer = 0;
 
         this.isAttacking = false;
         this.paused = false;
@@ -209,7 +210,7 @@ export class Player extends ArcadeContainer {
         if (!ability) return;
 
         if (this.gcdQueue) return;
-        if (this.gcdTimer > 1000) return;
+        if (ability.gcd && this.gcdTimer > 1000) return;
         this.gcdQueue = ability;
     }
 
@@ -305,18 +306,31 @@ export class Player extends ArcadeContainer {
     updateAbilityState(delta) {
         const previousGCD = this.gcdTimer;
         this.gcdTimer = Math.max(0, this.gcdTimer - delta);
+        this.abilityTimer = Math.max(0, this.abilityTimer - delta);
         if (previousGCD && this.gcdTimer == 0) {
             store.dispatch(setGCD(0));
         }
-        if (this.gcdQueue && this.gcdTimer == 0) {
-            const ability = this.gcdQueue;
-            if (!(ability.canExecute && !ability.canExecute(this))) {
-                ability.execute(this);
-                this.gcdTimer += ability.cooldown;
-                store.dispatch(setGCD(ability.cooldown));
-                this.cooldownManager.updateStore();
-            } 
-            this.gcdQueue = null;
+        const ability = this.gcdQueue;
+        if (ability && this.abilityTimer == 0) {
+            if (ability.gcd) {
+                if (this.gcdTimer == 0) {
+                    if (!(ability.canExecute && !ability.canExecute(this))) {
+                        ability.execute(this);
+                        this.gcdTimer += ability.cooldown;
+                        this.abilityTimer += 500;
+                        store.dispatch(setGCD(ability.cooldown));
+                        this.cooldownManager.updateStore();
+                    } 
+                    this.gcdQueue = null;
+                }
+            } else {
+                if (!(ability.canExecute && !ability.canExecute(this))) {
+                    ability.execute(this);
+                    this.abilityTimer += 750;
+                    this.cooldownManager.updateStore();
+                }
+                this.gcdQueue = null;
+            }
         }
     }
 

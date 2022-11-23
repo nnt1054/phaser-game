@@ -190,26 +190,31 @@ const reducerMap = {
         label: 'flss',
         action: setQueuedAbility('floss'),
         icon: 'embolden',
+        gcd: true,
     },
     'heal': {
         label: 'heal',
         action: setQueuedAbility('heal'),
-        icon: 'vercure',   
+        icon: 'vercure',
+        gcd: true,
     },
     'melee1': {
         label: 'melee1',
         action: setQueuedAbility('melee'),
         icon: 'melee1',
+        gcd: true,
     },
     'melee2': {
         label: 'melee2',
         action: setQueuedAbility('melee'),
         icon: 'melee2',
+        gcd: true,
     },
     'melee3': {
         label: 'melee3',
         action: setQueuedAbility('melee'),
         icon: 'melee3',
+        gcd: true,
     },
     'fleche': {
         label: 'fleche',
@@ -230,21 +235,25 @@ const reducerMap = {
         label: 'jolt',
         action: setQueuedAbility('jolt'),
         icon: 'jolt',
+        gcd: true,
     },
     'verraise': {
         label: 'jolt',
         action: setQueuedAbility('verraise'),
         icon: 'verraise',
+        gcd: true,
     },
     'verthunder': {
         label: 'jolt',
         action: setQueuedAbility('jolt'),
         icon: 'verthunder',
+        gcd: true,
     },
     'verflare': {
         label: 'jolt',
         action: setQueuedAbility('jolt'),
         icon: 'verflare',
+        gcd: true,
     },
 }
 

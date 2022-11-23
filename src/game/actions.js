@@ -35,6 +35,7 @@ const basicHeal = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
+    gcd: true,
     cooldown: 2000,
     execute: (player) => {
         store.dispatch(incrementHealth());
@@ -116,6 +117,7 @@ const floss = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
+    gcd: true,
     cooldown: 1000,
     canExecute: (player) => {
         const [cooldown, duration] = player.cooldownManager.getTimer('floss');
@@ -131,6 +133,7 @@ const basicMelee = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
+    gcd: true,
     cooldown: 800,
     execute: (player) => {
         // store.dispatch(incrementMana());
@@ -141,6 +144,7 @@ const fleche = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
+    gcd: false,
     cooldown: 1000,
     canExecute: (player) => {
         const [cooldown, duration] = player.cooldownManager.getTimer('fleche');
@@ -155,13 +159,14 @@ const manafication = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
+    gcd: false,
     cooldown: 1000,
     canExecute: (player) => {
         const [cooldown, duration] = player.cooldownManager.getTimer('manafication');
         return (cooldown == 0);
     },
     execute: (player) => {
-        player.cooldownManager.startTimer('manafication', 60000);
+        player.cooldownManager.startTimer('manafication', 30000);
         store.dispatch(setPlayerCurrentMana(100));
     },
 }
@@ -171,12 +176,13 @@ const embolden = {
     charges: -1,
     cost: -1,
     cooldown: 1000,
+    gcd: false,
     canExecute: (player) => {
         const [cooldown, duration] = player.cooldownManager.getTimer('embolden');
         return (cooldown == 0);
     },
     execute: (player) => {
-        player.cooldownManager.startTimer('embolden', 60000);
+        player.cooldownManager.startTimer('embolden', 30000);
     },
 }
 
@@ -184,7 +190,8 @@ const jolt = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
-    cooldown: 2000,
+    gcd: true,
+    cooldown: 2500,
     canExecute: (player) => {
         return true;
     },
@@ -197,6 +204,7 @@ const verraise = {
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
+    gcd: true,
     cooldown: 4000,
     canExecute: (player) => {
         return true;
