@@ -9,6 +9,7 @@ import {
     setSlot,
     setDragging,
     clearDragging,
+    setHoverKey,
 } from '../store/hotBars';
 import { calculatePosition } from './utils.js';
 
@@ -76,7 +77,14 @@ const HotBarItem = (props) => {
     const frameIndexString = `frameIndex${frameIndex}`;
     const frameActive = (slot.name === frameIndexString);
 
-    const isHovering = useHover(ref);
+    const isHovering = useHover(ref,
+        event => {
+            dispatch(setHoverKey(slot.name));
+        },
+        event => {
+            dispatch(setHoverKey(null));
+        }
+    );
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const dragState = useDrag(imageRef,
         event => {

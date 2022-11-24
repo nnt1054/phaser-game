@@ -173,7 +173,6 @@ const CharacterMenu = () => {
         bottom: `${ position.bottom }vh`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
         flexDirection: `column`,
-
     };
 
     const labelStyle = {

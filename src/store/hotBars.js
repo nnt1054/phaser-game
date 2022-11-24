@@ -11,6 +11,7 @@ const hotBarsSlice = createSlice({
         hotbar: null,
         index: null,
     },
+    hoverKey: null,
     1: {
         visible: animationToggle,
         left: 50,
@@ -142,6 +143,9 @@ const hotBarsSlice = createSlice({
         state.draggingSource.hotbar = null;
         state.draggingSource.index = null;
     },
+    setHoverKey: (state, action) => {
+        state.hoverKey = action.payload;
+    }
   }
 })
 
@@ -152,6 +156,7 @@ export const {
     setSlot,
     setDragging,
     clearDragging,
+    setHoverKey,
 } = hotBarsSlice.actions;
 
 export default hotBarsSlice;

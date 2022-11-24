@@ -13,10 +13,8 @@ const playerStateSlice = createSlice({
     jump: 0,
 
     gcd: 0,
-    cast: {
-        label: '',
-        duration: 0,
-    },
+    castKey: '',
+    castDuration: 0,
     cooldowns: {},
   },
   reducers: {
@@ -49,7 +47,8 @@ const playerStateSlice = createSlice({
         state.gcd = action.payload;
     },
     setCast: (state, action) => {
-        state.cast = action.payload;
+        state.castKey = action.payload.key;
+        state.castDuration = action.payload.duration;
     }
   }
 })

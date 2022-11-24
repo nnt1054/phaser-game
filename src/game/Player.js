@@ -222,7 +222,7 @@ export class Player extends ArcadeContainer {
         this.casting = ability;
         this.castingTimer = ability.castTime;
         store.dispatch(setCast({
-            label: ability.name,
+            key: ability.name,
             duration: ability.castTime,
         }));
     }
@@ -231,7 +231,7 @@ export class Player extends ArcadeContainer {
         this.casting = null;
         this.castingTimer = 0;
         store.dispatch(setCast({
-            label: '',
+            key: '',
             duration: 0,
         }));
 
@@ -377,7 +377,7 @@ export class Player extends ArcadeContainer {
             this.cooldownManager.updateStore();
             this.casting = null;
             store.dispatch(setCast({
-                label: '',
+                key: '',
                 duration: 0,
             }));
         }

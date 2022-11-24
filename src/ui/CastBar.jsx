@@ -4,10 +4,10 @@ import { ICONS } from './HotBar';
 import * as styles from './../App.module.css';
 
 const CastBar = () => {
-    const {label, duration} = useSelector(state => state.playerState.cast);
-    // const label = 'heal';
-    // const duration = 2000;
-    const ability = reducerMap[label];
+    const abilityKey = useSelector(state => state.playerState.castKey);
+    const duration = useSelector(state => state.playerState.castDuration)
+    const ability = reducerMap[abilityKey];
+
     const icon = ability ? ICONS[ability.icon] : null;
 
     const dispatch = useDispatch();
@@ -15,8 +15,8 @@ const CastBar = () => {
     const castBarContainerStyles = {
         visibility: duration ? 'visible': 'hidden',
         position: 'absolute',
-        left: '70vw',
-        bottom: '12vh',
+        left: '50vw',
+        bottom: '50vh',
         display: 'flex',
         flexDirection: 'row',
     }
