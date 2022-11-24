@@ -12,6 +12,7 @@ import {
     clearQueuedAbility,
     setCooldowns,
     setGCD,
+    setCast,
 } from '../store/playerState';
 import {
     incrementHealth,
@@ -139,7 +140,9 @@ export class Player extends ArcadeContainer {
         this.gcdTimer = 0;
         this.abilityTimer = 0;
 
-        this.isAttacking = false;
+        this.casting = null;
+        this.castingTimer = 0;
+
         this.paused = false;
 
         this.reduxCursors = {
@@ -211,7 +214,29 @@ export class Player extends ArcadeContainer {
 
         if (this.gcdQueue) return;
         if (ability.gcd && this.gcdTimer > 1000) return;
+        if (this.casting && this.castingTimer > 1000) return;
         this.gcdQueue = ability;
+    }
+
+    startCast(ability) {
+        this.casting = ability;
+        this.castingTimer = ability.castTime;
+        store.dispatch(setCast({
+            label: ability.name,
+            duration: ability.castTime,
+        }));
+    }
+
+    cancelCast() {
+        this.casting = null;
+        this.castingTimer = 0;
+        store.dispatch(setCast({
+            label: '',
+            duration: 0,
+        }));
+
+        this.gcdTimer = 0
+        store.dispatch(setGCD(0));
     }
 
     updateMovement(delta) {
@@ -252,6 +277,11 @@ export class Player extends ArcadeContainer {
             this.setGravityY(800);
         } else {
             this.setGravityY(1600);
+        }
+
+        const moving = (this.body.velocity.y || this.body.velocity.x)
+        if (moving && this.casting && this.castingTimer > 750) {
+            this.cancelCast();
         }
     }
 
@@ -311,13 +341,17 @@ export class Player extends ArcadeContainer {
             store.dispatch(setGCD(0));
         }
         const ability = this.gcdQueue;
-        if (ability && this.abilityTimer == 0) {
+        if (ability && this.abilityTimer == 0 && this.castingTimer == 0) {
             if (ability.gcd) {
                 if (this.gcdTimer == 0) {
                     if (!(ability.canExecute && !ability.canExecute(this))) {
-                        ability.execute(this);
+                        if (ability.castTime) {
+                            this.startCast(ability);
+                        } else {
+                            ability.execute(this);
+                            this.abilityTimer += 500;
+                        }
                         this.gcdTimer += ability.cooldown;
-                        this.abilityTimer += 500;
                         store.dispatch(setGCD(ability.cooldown));
                         this.cooldownManager.updateStore();
                     } 
@@ -331,6 +365,21 @@ export class Player extends ArcadeContainer {
                 }
                 this.gcdQueue = null;
             }
+        }
+    }
+
+    updateCast(delta) {
+        this.castingTimer = Math.max(0, this.castingTimer - delta);
+        if (this.casting && this.castingTimer === 0) {
+            const ability = this.casting;
+            ability.execute(this);
+            this.abilityTimer += 500;
+            this.cooldownManager.updateStore();
+            this.casting = null;
+            store.dispatch(setCast({
+                label: '',
+                duration: 0,
+            }));
         }
     }
 
@@ -349,6 +398,7 @@ export class Player extends ArcadeContainer {
         // }
 
         this.updateMovement(delta);
+        this.updateCast(delta);
         this.updateAbilityState(delta);
         const anim = this.calculateAnimationState();
         if (!this.paused) {

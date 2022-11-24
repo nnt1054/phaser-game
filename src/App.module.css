@@ -67,7 +67,7 @@ button {
 .ManaBarPrimary {
 	height: 24px;
 	background-color: blue;
-    transition: width 0.2s;
+	transition: width 0.2s;
 }
 
 .BarText {

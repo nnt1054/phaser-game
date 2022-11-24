@@ -18,6 +18,7 @@ import ManaBar from './ui/ManaBar';
 import HotBar from './ui/HotBar';
 import InputManager from './ui/InputManager';
 import CharacterMenu from './ui/CharacterMenu';
+import CastBar from './ui/CastBar';
 
 
 var config = {
@@ -74,6 +75,7 @@ const App = () => {
                 </div>
                 {/* menus */}
                 {/*<CharacterMenu />*/}
+                <CastBar />
             </div>
         </div>
     )

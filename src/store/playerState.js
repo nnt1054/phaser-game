@@ -10,18 +10,13 @@ const playerStateSlice = createSlice({
     down: 0,
     left: 0,
     right: 0,
-
-    // how does jumping work?
-    // 1. detect onclick and dispatches jump=True
-    // 2. observeStore listens for change
-    // 3. observeStore sets player.jumpOnNextUpdate=True
-    // 4. observeStore dispatches jump=False
-    // 5. next update loop we check for player.jumpOnNextUpdate
-    // 6. player executes jump logic and sets jumpOnNextUpdate=False
-    // 7. easy and epic
     jump: 0,
 
     gcd: 0,
+    cast: {
+        label: '',
+        duration: 0,
+    },
     cooldowns: {},
   },
   reducers: {
@@ -53,6 +48,9 @@ const playerStateSlice = createSlice({
     setGCD: (state, action) => {
         state.gcd = action.payload;
     },
+    setCast: (state, action) => {
+        state.cast = action.payload;
+    }
   }
 })
 
@@ -64,6 +62,7 @@ export const {
     setCursorState,
     setCooldowns,
     setGCD,
+    setCast,
 } = playerStateSlice.actions;
 
 export default playerStateSlice;

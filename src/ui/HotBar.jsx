@@ -304,3 +304,5 @@ const HotBar = (props) => {
 }
 
 export default HotBar;
+
+export { ICONS }

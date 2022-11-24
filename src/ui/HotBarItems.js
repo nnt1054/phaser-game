@@ -193,7 +193,7 @@ const reducerMap = {
         gcd: true,
     },
     'heal': {
-        label: 'heal',
+        label: 'vercure',
         action: setQueuedAbility('heal'),
         icon: 'vercure',
         gcd: true,
@@ -244,14 +244,14 @@ const reducerMap = {
         gcd: true,
     },
     'verthunder': {
-        label: 'jolt',
-        action: setQueuedAbility('jolt'),
+        label: 'verthunder',
+        action: setQueuedAbility('verthunder'),
         icon: 'verthunder',
         gcd: true,
     },
     'verflare': {
-        label: 'jolt',
-        action: setQueuedAbility('jolt'),
+        label: 'verflare',
+        action: setQueuedAbility('verflare'),
         icon: 'verflare',
         gcd: true,
     },

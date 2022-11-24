@@ -32,11 +32,13 @@ const basicAttack = {
 }
 
 const basicHeal = {
+    name: 'heal',
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
     gcd: true,
-    cooldown: 2000,
+    castTime: 2000,
+    cooldown: 2500,
     execute: (player) => {
         store.dispatch(incrementHealth());
     },
@@ -187,6 +189,38 @@ const embolden = {
 }
 
 const jolt = {
+    name: 'jolt',
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    gcd: true,
+    castTime: 2000,
+    cooldown: 2500,
+    canExecute: (player) => {
+        return true;
+    },
+    execute: (player) => {
+        store.dispatch(decrementMana());
+    },
+}
+
+const verthunder = {
+    name: 'verthunder',
+    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    charges: -1,
+    cost: -1,
+    gcd: true,
+    cooldown: 2500,
+    canExecute: (player) => {
+        return true;
+    },
+    execute: (player) => {
+        store.dispatch(decrementMana());
+    },
+}
+
+const verflare = {
+    name: 'verflare',
     type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
     charges: -1,
     cost: -1,
@@ -248,6 +282,8 @@ const actionMap = {
     'manafication': manafication,
     'embolden': embolden,
     'jolt': jolt,
+    'verthunder': verthunder,
+    'verflare': verflare,
     'verraise': verraise,
 }
 
