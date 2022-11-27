@@ -16,7 +16,7 @@ const hotBarsSlice = createSlice({
         visible: animationToggle,
         left: 50,
         bottom: 8,
-        slots: [
+        slots: animationToggle ? [
             { name: 'frameIndex0', active: false, },
             { name: 'frameIndex1', active: false, },
             { name: 'frameIndex2', active: false, },
@@ -37,13 +37,13 @@ const hotBarsSlice = createSlice({
             { name: 'incrementTranslateX', active: false, },
             { name: 'decrementFrameKey', active: false, },
             { name: 'empty', active: false, },
-        ],
+        ] : [],
     },
     2: {
         visible: animationToggle,
         left: 50,
         bottom: 13,
-        slots: [
+        slots: animationToggle ? [
             { name: 'composite_hair_back', active: false, },
             { name: 'composite_legs', active: false, },
             { name: 'composite_arm_back', active: false, },
@@ -64,7 +64,7 @@ const hotBarsSlice = createSlice({
             { name: 'incrementRotate', active: false, },
             { name: 'incrementFrameKey', active: false, },
             { name: 'empty', active: false, },
-        ]
+        ] : [],
     },
     3: {
         visible: !animationToggle,
@@ -74,7 +74,7 @@ const hotBarsSlice = createSlice({
             { name: 'melee1', active: false, keybind: '1'},
             { name: 'melee2', active: false, keybind: '2'},
             { name: 'melee3', active: false, keybind: '3'},
-            { name: 'empty', active: false, keybind: '4'},
+            { name: 'potion', active: false, keybind: '4'},
             { name: 'empty', active: false, keybind: '5'},
             { name: 'jolt', active: false, keybind: 'Q'},
             { name: 'verthunder', active: false, keybind: 'E'},

@@ -192,6 +192,7 @@ export class Player extends ArcadeContainer {
 
         this.cooldownManager = new CooldownManager();
         this.inventory = new Map();
+        this.inventory.set('potion', 2);
     }
 
     addPlatforms(platforms) {
@@ -214,8 +215,8 @@ export class Player extends ArcadeContainer {
         if (!ability) return;
 
         if (this.gcdQueue) return;
-        if (ability.gcd && this.gcdTimer > 1000) return;
-        if (this.casting && this.castingTimer > 1000) return;
+        if (ability.gcd && this.gcdTimer > 500) return;
+        if (this.casting && this.castingTimer > 500) return;
         this.gcdQueue = ability;
     }
 

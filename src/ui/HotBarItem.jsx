@@ -31,6 +31,12 @@ const HotBarItem = (props) => {
     const tile = actionMap[slot.name];
     const empty = (slot.name === 'empty');
 
+    const isItem = (tile.type === 'item');
+    const items = useSelector(state => state.inventory.items);
+    const itemCount = items.filter(item => item.name === slot.name).reduce((sum, item) => {
+        return sum + item.count;
+    }, 0)
+
     let timer, current, cooldown, duration;
     let useCooldown = false;
     const cooldowns = useSelector(state => state.playerState.cooldowns)
@@ -95,7 +101,6 @@ const HotBarItem = (props) => {
         }
     }, [])
 
-
     const icon = icons[tile.icon];
     // const animationActiveToggle = CONSTANTS.animationToggle && (compositeStates[slot.name] || frameActive)
     const animationActiveToggle = (compositeStates[slot.name] || frameActive);
@@ -121,7 +126,7 @@ const HotBarItem = (props) => {
         height: `48px`,
         borderRadius: `12px`,
         position: `absolute`,
-        filter: (slot.active || isPointerDown) ? `brightness(50%)` : (isHovering || timer > 0) ? `brightness(75%)` : `brightness(100%)`,
+        filter: (slot.active || isPointerDown) ? `brightness(50%)` : (isHovering || timer > 0 || (isItem && itemCount === 0)) ? `brightness(75%)` : `brightness(100%)`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
         pointerEvents: dragStarted ? `none` : `auto`,
         zIndex: 2,
@@ -146,6 +151,23 @@ const HotBarItem = (props) => {
         pointerEvents: 'none',
         bottom: '-6px',
         visibility: (dragging || !empty) ? 'visible' : 'hidden',
+        left: 0,
+        bottom: 0,
+    }
+
+    const itemCountStyle = {
+        display: (isItem) ? 'block' : 'none',
+        position: `absolute`,
+        fontSize: `10pt`,
+        fontWeight: 'bold',
+        borderRadius: '2px',
+        color: itemCount > 0 ? 'white' : 'red',
+        zIndex: 4,
+        pointerEvents: 'none',
+        bottom: '-6px',
+        visibility: (dragging || !empty) ? 'visible' : 'hidden',
+        right: 0,
+        bottom: 0,
     }
 
     // TODO: fix bug where overlay animation resets on dragging to another hotbar slot
@@ -202,7 +224,8 @@ const HotBarItem = (props) => {
 
     return (
         <div style={ slotContainerStyle } >
-            <span style={ keybindStyle}> { slot.keybind } </span>
+            <span style={ keybindStyle }> { slot.keybind } </span>
+            <span style={ itemCountStyle }> { itemCount } </span>
             <button
                 ref={ ref }
                 style={ tile.icon ? buttonStyle : labelButtonStyle }

@@ -4,15 +4,22 @@ const inventorySlice = createSlice({
   name: 'inventory',
   initialState: {
     items: [
-      { name: 'jolt', count: 1 },
+      { name: 'potion', count: 2 },
       { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
+      { name: 'potion', count: 0 },
       { name: 'empty', count: 0 },
       { name: 'empty', count: 0 },
     ],
   },
-  reducers: {}
+  reducers: {
+    setItemCount: (state, action) => {
+      const item = state.items.find(item => item.name === action.payload.name);
+      item.count = action.payload.count;
+    }
+  }
 })
 
-export const {} = inventorySlice.actions;
+export const {
+  setItemCount,
+} = inventorySlice.actions;
 export default inventorySlice;

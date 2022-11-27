@@ -1,15 +1,19 @@
 import store from '../store/store';
 import {
     incrementHealth,
+    setPlayerCurrentHealth,
 } from '../store/playerHealth';
 import {
     incrementMana,
     decrementMana,
     setPlayerCurrentMana,
 } from '../store/playerMana';
+import {
+    setItemCount
+} from '../store/inventory';
 
 const basicAbility = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     cooldown: 2500,
@@ -17,7 +21,7 @@ const basicAbility = {
 }
 
 const basicAttack = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     cooldown: 1000,
@@ -30,7 +34,7 @@ const basicAttack = {
 
 const basicHeal = {
     name: 'heal',
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     gcd: true,
@@ -42,7 +46,7 @@ const basicHeal = {
 }
 
 const floss = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     gcd: true,
@@ -58,18 +62,18 @@ const floss = {
 }
 
 const basicMelee = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     gcd: true,
-    cooldown: 800,
+    cooldown: 1500,
     execute: (player) => {
         // store.dispatch(incrementMana());
     },
 }
 
 const fleche = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     gcd: false,
@@ -84,7 +88,7 @@ const fleche = {
 }
 
 const manafication = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     gcd: false,
@@ -100,7 +104,7 @@ const manafication = {
 }
 
 const embolden = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     cooldown: 1000,
@@ -116,7 +120,7 @@ const embolden = {
 
 const jolt = {
     name: 'jolt',
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     gcd: true,
@@ -132,7 +136,7 @@ const jolt = {
 
 const verthunder = {
     name: 'verthunder',
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     gcd: true,
@@ -147,7 +151,7 @@ const verthunder = {
 
 const verflare = {
     name: 'verflare',
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     gcd: true,
@@ -161,7 +165,7 @@ const verflare = {
 }
 
 const verraise = {
-    type: 'Ability || Weaponskill || Spell || Emote || Macro || Minion || Mount || etc',
+    type: 'ability',
     charges: -1,
     cost: -1,
     gcd: true,
@@ -172,6 +176,29 @@ const verraise = {
     execute: (player) => {
         store.dispatch(decrementMana());
         store.dispatch(setPlayerCurrentMana(0));
+    },
+}
+
+const potion = {
+    type: 'item',
+    charges: -1,
+    cost: -1,
+    cooldown: 1000,
+    gcd: false,
+    canExecute: (player) => {
+        const [cooldown, duration] = player.cooldownManager.getTimer('potion');
+        const itemCount = player.inventory.get('potion') || 0;
+        return (cooldown == 0 && itemCount > 0);
+    },
+    execute: (player) => {
+        const itemCount = player.inventory.get('potion') || 0;
+        player.inventory.set('potion', itemCount - 1);
+        store.dispatch(setItemCount({
+            name: 'potion',
+            count: player.inventory.get('potion'),
+        }))
+        store.dispatch(setPlayerCurrentHealth(100));
+        player.cooldownManager.startTimer('potion', 8000);
     },
 }
 
@@ -187,6 +214,9 @@ const actionMap = {
     'verthunder': verthunder,
     'verflare': verflare,
     'verraise': verraise,
+
+    // items
+    'potion': potion,
 }
 
 export default actionMap;
