@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
-import reducerMap from './HotBarItems';
-import { ICONS } from './HotBar';
+import actionMap from './actions';
+import icons from './icons';
 import * as styles from './../App.module.css';
 
 const flexRow = {
@@ -15,12 +15,14 @@ const flexColumn = {
 
 const Tooltip = () => {
     const abilityKey = useSelector(state => state.hotBars.hoverKey);
-    const ability = reducerMap[abilityKey];
-    const icon = ability ? ICONS[ability.icon] : null;
+    const ability = actionMap[abilityKey];
+    const icon = ability  ? icons[ability.icon] : null;
+    const dragging = useSelector(state => state.hotBars.dragging)
+    const empty = (abilityKey === 'empty');
 
     const castBarContainerStyles = {
         visibility: ability ? 'visible' : 'hidden',
-        display: 'flex',
+        display: (dragging || empty) ? 'none' : 'flex',
         flexDirection: 'column',
         position: 'absolute',
         right: '0vw',

@@ -191,6 +191,7 @@ export class Player extends ArcadeContainer {
         })
 
         this.cooldownManager = new CooldownManager();
+        this.inventory = new Map();
     }
 
     addPlatforms(platforms) {
@@ -304,6 +305,7 @@ export class Player extends ArcadeContainer {
 
     calculateAnimationState() {
         let anim = this.current_anim ?? 'idle';
+        if (this.casting) anim = 'crouch';
 
         const speedX = Math.abs(this.body.velocity.x);
         if (speedX > 100) {

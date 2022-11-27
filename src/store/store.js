@@ -8,6 +8,7 @@ import aniEditorSlice from './aniEditor';
 import inputManagerSlice from './inputManager';
 import menuStatesSlice from './menuStates';
 import characterPreviewSlice from './characterPreview';
+import inventorySlice from './inventory';
 
 export default configureStore({
     reducer: {
@@ -19,5 +20,6 @@ export default configureStore({
         inputManager: inputManagerSlice.reducer,
         menuStates: menuStatesSlice.reducer,
         characterPreview: characterPreviewSlice.reducer,
+        inventory: inventorySlice.reducer,
     }
 })

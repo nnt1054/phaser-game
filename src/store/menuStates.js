@@ -8,6 +8,11 @@ const menuStatesSlice = createSlice({
         left: 50,
         bottom: 25,
     },
+    inventory: {
+        visible: true,
+        left: 50,
+        bottom: 25,
+    }
   },
   reducers: {
     toggleMenuVisible: (state, action) => {

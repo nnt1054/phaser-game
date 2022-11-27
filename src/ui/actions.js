@@ -186,6 +186,10 @@ const reducerMap = {
         label: 'menu',
         action: toggleMenuVisible('character'),
     },
+    'inventoryMenu': {
+        label: 'inventory',
+        action: toggleMenuVisible('inventory'),
+    },
     'floss': {
         label: 'flss',
         action: setQueuedAbility('floss'),

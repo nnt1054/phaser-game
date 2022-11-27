@@ -32,6 +32,10 @@ const movementOnly = {
       type: 'simple',
       key: 'characterMenu',
     },
+    [KeyCodes.I]: {
+      type: 'simple',
+      key: 'inventoryMenu',
+    },
 
     // basic keybinds
     [KeyCodes.ONE]: {

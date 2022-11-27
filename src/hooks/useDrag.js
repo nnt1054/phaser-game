@@ -19,8 +19,7 @@ const useDrag = (ref, onDrag, onRelease) => {
             element.style.zIndex = 2;
 
             // stop propogation for stacked draggable elements
-            // might remove depending on design
-            // event.stopPropagation()
+            event.stopPropagation()
         };
 
         const upHandler = event => {
@@ -32,7 +31,7 @@ const useDrag = (ref, onDrag, onRelease) => {
                 });
             };
             element.style.zIndex = 1;
-            // event.stopPropagation()
+            event.stopPropagation()
         };
 
         const moveHandler = event => {
@@ -45,7 +44,7 @@ const useDrag = (ref, onDrag, onRelease) => {
                     });
                 }
             };
-            // event.stopPropagation()
+            event.stopPropagation()
         };
 
         element.addEventListener('pointerdown', downHandler);

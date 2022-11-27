@@ -32,6 +32,10 @@ button {
 	outline: none;
 }
 
+.ItemSlot:focus {
+	outline: none;
+}
+
 .PlayerBars {
 	position: absolute;
 	display: flex;

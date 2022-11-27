@@ -18,6 +18,7 @@ import ManaBar from './ui/ManaBar';
 import HotBar from './ui/HotBar';
 import InputManager from './ui/InputManager';
 import CharacterMenu from './ui/CharacterMenu';
+import InventoryMenu from './ui/InventoryMenu';
 import CastBar from './ui/CastBar';
 import Tooltip from './ui/Tooltip';
 
@@ -74,8 +75,11 @@ const App = () => {
                     <HealthBar />
                     <ManaBar />
                 </div>
+
                 {/* menus */}
-                <CharacterMenu />
+                {/*<CharacterMenu />*/}
+                <InventoryMenu />
+
                 <CastBar />
                 <Tooltip />
             </div>

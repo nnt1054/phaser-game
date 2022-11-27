@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
-import reducerMap from './HotBarItems';
+import actionMap from './actions';
 import {
     setSlotActive,
 } from '../store/hotBars';
@@ -108,7 +108,7 @@ const InputManager = () => {
           actionKey = slot.name;
           if (!actionKey) return;
 
-          action = reducerMap[actionKey];
+          action = actionMap[actionKey];
           if (!action) return;
 
           return action;
@@ -117,7 +117,7 @@ const InputManager = () => {
           let cursorKey = keybind.cursor
           if (!cursorKey) return;
 
-          let cursor = reducerMap[cursorKey];
+          let cursor = actionMap[cursorKey];
           if (!cursor) return;
 
           return cursor;
@@ -126,7 +126,7 @@ const InputManager = () => {
           actionKey = keybind.key;
           if (!actionKey) return;
 
-          action = reducerMap[actionKey];
+          action = actionMap[actionKey];
           if (!action) return;
 
           return action
@@ -149,7 +149,7 @@ const InputManager = () => {
       let cursorKey = keybind.cursor
       if (!cursorKey) return;
 
-      let cursor = reducerMap[cursorKey];
+      let cursor = actionMap[cursorKey];
       if (!cursor) return;
 
       if (cursor && cursor.upAction) dispatch(cursor.upAction);

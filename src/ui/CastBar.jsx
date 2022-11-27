@@ -1,14 +1,14 @@
 import { useSelector, useDispatch } from 'react-redux';
-import reducerMap from './HotBarItems';
-import { ICONS } from './HotBar';
+import actionMap from './actions';
+import icons from './icons';
 import * as styles from './../App.module.css';
 
 const CastBar = () => {
     const abilityKey = useSelector(state => state.playerState.castKey);
     const duration = useSelector(state => state.playerState.castDuration)
-    const ability = reducerMap[abilityKey];
+    const ability = actionMap[abilityKey];
 
-    const icon = ability ? ICONS[ability.icon] : null;
+    const icon = ability ? icons[ability.icon] : null;
 
     const dispatch = useDispatch();
 
