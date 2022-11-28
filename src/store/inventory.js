@@ -17,6 +17,7 @@ const _subractItemCount = (state, name, value) => {
 const inventorySlice = createSlice({
   name: 'inventory',
   initialState: {
+    draggingIndex: null,
     items: [
       { name: 'potion', count: 1 },
       { name: 'empty', count: 0 },
@@ -59,18 +60,43 @@ const inventorySlice = createSlice({
       const value = action.payload.value;
       _subractItemCount(state, name, value);
     },
+    addItemCount: (state, action) => {
+      console.log('huh');
+      const name = action.payload.name;
+      const value = action.payload.value;
+      let item = state.items.find(item => item.name === name);
+      if (item) {
+        item.count += value;
+      } else {
+        item = state.items.find(item => item.name === 'empty');
+        item.name = name;
+        item.count = value;
+      }
+    },
     moveItem: (state, action) => {
-        const name = action.payload.name;
-        if (!name) return;
+      if (state.draggingIndex === null) return;
+      if (state.draggingIndex === action.payload.index) return;
+      const sourceItem = state.items[state.draggingIndex];
+      const targetItem = state.items[action.payload.index];
 
-        const sourceItem = state.items[action.payload.sourceIndex];
-        const targetItem = state.items[action.payload.index];
+      const targetName = targetItem.name;
+      const targetCount = targetItem.count;
 
-        const targetName = sourceItem.name;
-        const targetCount = sourceItem.count;
+      if (sourceItem.name == targetItem.name) {
+        targetItem.count += sourceItem.count;
+        sourceItem.name = 'empty';
+        sourceItem.count = 0;
+      } else {
+        targetItem.name = sourceItem.name;
+        targetItem.count = sourceItem.count;
 
-        targetItem.name = sourceItem.name
-        targetItem.count = sourceItem.count
+        sourceItem.name = targetName;
+        sourceItem.count = targetCount;
+      }
+      state.draggingIndex = null;
+    },
+    setDraggingIndex: (state, action) => {
+      state.draggingIndex = action.payload;
     }
   }
 })
@@ -78,6 +104,9 @@ const inventorySlice = createSlice({
 export const {
   setItemCount,
   subractItemCount,
+  addItemCount,
   moveItem,
+  setItemDragging,
+  setDraggingIndex,
 } = inventorySlice.actions;
 export default inventorySlice;

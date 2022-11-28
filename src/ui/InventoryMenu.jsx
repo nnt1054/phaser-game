@@ -16,6 +16,7 @@ import {
 } from '../store/hotBars';
 import {
     moveItem,
+    setDraggingIndex,
 } from '../store/inventory';
 
 import * as styles from './../App.module.css';
@@ -59,13 +60,15 @@ const InventoryItem = (props) => {
                 name: item.name,
                 type: 'inventory',
                 hotbar: null,
-                index: props.index,
+                index: null,
             }));
+            dispatch(setDraggingIndex(props.index));
             document.body.style.cursor = "grabbing";
         },
         event => {
             setTranslate({ x: 0, y: 0 });
-            // dispatch(clearDragging());
+            dispatch(clearDragging());
+            dispatch(setDraggingIndex(null));
             document.body.style.cursor = "unset";
         },
     );
@@ -79,10 +82,9 @@ const InventoryItem = (props) => {
 
         const handlePointerUp = event => {
             dispatch(moveItem({
-                name: true,
+                name: dragging,
                 index: props.index,
-                sourceIndex: draggingSource.index,
-            }))
+            }));
         }
         element.addEventListener('pointerup', handlePointerUp);
 
@@ -116,6 +118,7 @@ const InventoryItem = (props) => {
 
     const itemCountStyles = {
         display: item.count > 0 ? 'block' : 'none',
+        visibility: dragStarted ? 'hidden' : 'visible',
         position: `absolute`,
         fontSize: `10pt`,
         fontWeight: 'bold',

@@ -18,6 +18,9 @@ import {
     incrementHealth,
     setPlayerCurrentHealth
 } from '../store/playerHealth';
+import {
+    addItemCount
+} from '../store/inventory';
 
 function observeStore(store, select, onChange) {
   let currentState;
@@ -398,6 +401,7 @@ export class Player extends ArcadeContainer {
         // if (this.regenTimer <= 0) {
         //     store.dispatch(incrementHealth(10));
         //     this.regenTimer += 3000;
+        //     this.addItem('potion', 1);
         // }
 
         this.updateMovement(delta);
@@ -418,5 +422,14 @@ export class Player extends ArcadeContainer {
     doEmote(emote) {
         this.current_anim = emote;
         this.character.play(emote);
+    }
+
+    addItem(name, count) {
+        const currentCount = this.inventory.get(name) || 0;
+        this.inventory.set(name, currentCount + count);
+        store.dispatch(addItemCount({
+            name: name,
+            value: count,
+        }))
     }
 }

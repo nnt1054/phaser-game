@@ -271,6 +271,9 @@ const reducerMap = {
         icon: 'vercure',
         gcd: false,
         type: 'item',
+        description: `
+            THIS IS AN ITEM NOT AN ABILITY !!!! Restores self HP by 100. Press "I" to open your inventory.
+        `
     },
 }
 

@@ -9,7 +9,7 @@ const menuStatesSlice = createSlice({
         bottom: 25,
     },
     inventory: {
-        visible: true,
+        visible: false,
         left: 50,
         bottom: 25,
     }
