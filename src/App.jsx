@@ -78,7 +78,7 @@ const App = () => {
 
                 {/* menus */}
                 {/*<CharacterMenu />*/}
-                {/*<InventoryMenu />*/}
+                <InventoryMenu />
 
                 <CastBar />
                 <Tooltip />

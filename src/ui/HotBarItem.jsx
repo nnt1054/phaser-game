@@ -102,8 +102,7 @@ const HotBarItem = (props) => {
     }, [])
 
     const icon = icons[tile.icon];
-    // const animationActiveToggle = CONSTANTS.animationToggle && (compositeStates[slot.name] || frameActive)
-    const animationActiveToggle = (compositeStates[slot.name] || frameActive);
+    const animationActiveToggle = CONSTANTS.animationToggle && (compositeStates[slot.name] || frameActive)
     const dragStarted = (isDragging && (translate.x || translate.y));
     const droppable = (dragging && !icon && isHovering);
 
@@ -115,7 +114,6 @@ const HotBarItem = (props) => {
         pointerEvents: dragStarted ? 'none': 'auto',
         overflow: dragStarted ? 'visible': 'hidden',
         zIndex: isDragging ? 10 : 1,
-        // border: (slot.active || (isHovering && dragging)) ? `4px solid white` : `4px solid black`,
         border: '4px solid black',
         visibility: (dragging || !empty) ? 'visible' : 'hidden',
     }

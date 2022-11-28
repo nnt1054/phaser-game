@@ -8,6 +8,7 @@ const hotBarsSlice = createSlice({
   initialState: {
     dragging: null,
     draggingSource: {
+        type: null,
         hotbar: null,
         index: null,
     },
@@ -115,11 +116,13 @@ const hotBarsSlice = createSlice({
     },
     setDragging: (state, action) => {
         state.dragging = action.payload.name;
+        state.draggingSource.type = action.payload.type;
         state.draggingSource.hotbar = action.payload.hotbar;
         state.draggingSource.index = action.payload.index;
     },
     clearDragging: (state) => {
         state.dragging = null;
+        state.draggingSource.type = null;
         state.draggingSource.hotbar = null;
         state.draggingSource.index = null;
     },

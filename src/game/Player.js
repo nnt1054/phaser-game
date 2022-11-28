@@ -192,7 +192,7 @@ export class Player extends ArcadeContainer {
 
         this.cooldownManager = new CooldownManager();
         this.inventory = new Map();
-        this.inventory.set('potion', 2);
+        this.inventory.set('potion', 3);
     }
 
     addPlatforms(platforms) {

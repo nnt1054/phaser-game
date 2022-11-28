@@ -9,7 +9,8 @@ import {
     setPlayerCurrentMana,
 } from '../store/playerMana';
 import {
-    setItemCount
+    setItemCount,
+    subractItemCount,
 } from '../store/inventory';
 
 const basicAbility = {
@@ -193,9 +194,9 @@ const potion = {
     execute: (player) => {
         const itemCount = player.inventory.get('potion') || 0;
         player.inventory.set('potion', itemCount - 1);
-        store.dispatch(setItemCount({
+        store.dispatch(subractItemCount({
             name: 'potion',
-            count: player.inventory.get('potion'),
+            value: 1,
         }))
         store.dispatch(setPlayerCurrentHealth(100));
         player.cooldownManager.startTimer('potion', 8000);
