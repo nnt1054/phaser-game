@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import useDrag from '../hooks/useDrag';
 import {
     setMenuPosition,
+    incrementZIndex,
+    pushToFront,
 } from '../store/menuStates';
 import { calculatePosition } from './utils.js';
 import store from '../store/store';
@@ -150,6 +152,9 @@ const CharacterMenu = () => {
     const width = 512;
     const height = 512;
 
+    const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
+
+    const [zIndex, setZIndex] = useState(1);
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const dragState = useDrag(ref,
         event => {
@@ -162,6 +167,9 @@ const CharacterMenu = () => {
             const data = calculatePosition('character', ref);
             dispatch(setMenuPosition(data));
             setTranslate({ x: 0, y: 0 });
+        },
+        event => {
+            dispatch(pushToFront('character'));
         }
     );
 
@@ -173,6 +181,7 @@ const CharacterMenu = () => {
         bottom: `${ position.bottom }vh`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
         flexDirection: `column`,
+        zIndex: position.zIndex,
     };
 
     const labelStyle = {

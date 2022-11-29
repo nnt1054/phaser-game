@@ -5,6 +5,9 @@ import useDrag from '../hooks/useDrag';
 import useHover from '../hooks/useHover';
 import usePointerDown from '../hooks/usePointerDown';
 import {
+    incrementZIndex
+} from '../store/menuStates';
+import {
     setPosition,
     setSlot,
     setDragging,
@@ -28,6 +31,9 @@ const HotBar = (props) => {
     const frameIndexString = `frameIndex${frameIndex}`;
 
     const dragEnabled = CONSTANTS.dragEnabled;
+    const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
+
+    const [zIndex, setZIndex] = useState(1);
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const dragState = useDrag(ref,
         event => {
@@ -42,7 +48,11 @@ const HotBar = (props) => {
             const data = calculatePosition(props.index, ref);
             dispatch(setPosition(data));
             setTranslate({ x: 0, y: 0 });
-        }
+        },
+        event => {
+            setZIndex(globalZIndex);
+            dispatch(incrementZIndex());
+        },
     );
 
     const num_slots = position.slots.length;
@@ -56,6 +66,7 @@ const HotBar = (props) => {
         bottom: `${ position.bottom }vh`,
         flexDirection: props.vertical ? `column` : `row`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
+        zIndex: zIndex,
     };
 
     return (
@@ -72,6 +83,7 @@ const HotBar = (props) => {
                         hotbar={ props.index }
                         index={ i }
                         active={ slot.name == frameIndexString }
+                        setZIndex={ setZIndex }
                     />
                 })
             }

@@ -29,6 +29,7 @@ import {
 
 import {
     toggleMenuVisible,
+    closeMenus,
 } from '../store/menuStates';
 
 import * as styles from '../App.module.css';
@@ -190,6 +191,11 @@ const reducerMap = {
         label: 'inventory',
         action: toggleMenuVisible('inventory'),
     },
+    'closeMenu': {
+        label: 'close',
+        action: closeMenus(),
+    },
+
     'floss': {
         label: 'flss',
         action: setQueuedAbility('floss'),

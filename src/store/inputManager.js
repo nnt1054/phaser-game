@@ -36,6 +36,10 @@ const movementOnly = {
       type: 'simple',
       key: 'inventoryMenu',
     },
+    [KeyCodes.ESC]: {
+      type: 'simple',
+      key: 'closeMenu',
+    },
 
     // basic keybinds
     [KeyCodes.ONE]: {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 
-const useDrag = (ref, onDrag, onRelease) => {
+const useDrag = (ref, onDrag, onRelease, onDown) => {
     const [dragState, setDragState] = useState({
         isDragging: false,
         isPointerDown: false,
@@ -16,8 +16,7 @@ const useDrag = (ref, onDrag, onRelease) => {
                 isDragging: false,
                 isPointerDown: true,
             });
-            element.style.zIndex = 2;
-
+            if (onDown) onDown(event);
             // stop propogation for stacked draggable elements
             event.stopPropagation()
         };
@@ -30,7 +29,7 @@ const useDrag = (ref, onDrag, onRelease) => {
                     isPointerDown: false,
                 });
             };
-            element.style.zIndex = 1;
+
             event.stopPropagation()
         };
 

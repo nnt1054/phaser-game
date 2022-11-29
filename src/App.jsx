@@ -55,6 +55,10 @@ const App = () => {
 
     const phaserReference = useRef(null);
 
+    const uiContainerStyles = {
+        overflow: 'hidden',
+    }
+
     return (
         <div
             id="game-container"
@@ -65,6 +69,7 @@ const App = () => {
             />
             <div
                 id="ui-container"
+                style={ uiContainerStyles }
             >
                 <InputManager />
                 <HotBar index='1' />
@@ -77,7 +82,7 @@ const App = () => {
                 </div>
 
                 {/* menus */}
-                {/*<CharacterMenu />*/}
+                <CharacterMenu />
                 <InventoryMenu />
 
                 <CastBar />

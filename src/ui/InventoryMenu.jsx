@@ -4,6 +4,8 @@ import useDrag from '../hooks/useDrag';
 import useHover from '../hooks/useHover';
 import {
     setMenuPosition,
+    incrementZIndex,
+    pushToFront,
 } from '../store/menuStates';
 import { calculatePosition } from './utils.js';
 import store from '../store/store';
@@ -71,6 +73,9 @@ const InventoryItem = (props) => {
             dispatch(setDraggingIndex(null));
             document.body.style.cursor = "unset";
         },
+        event => {
+            dispatch(pushToFront('inventory'));
+        }
     );
     const isDragging = dragState.isDragging;
     const isPointerDown = dragState.isPointerDown;
@@ -154,17 +159,18 @@ const InventoryItem = (props) => {
 
 const InventoryMenu = () => {
     const ref = useRef();
-    const characterPreviewRef = useRef();
 
     const position = useSelector(state => state.menuStates.inventory);
     const dispatch = useDispatch();
 
-    const width = 512;
+    // const width = 512;
+    const width = 5 * 60;
     const height = 512;
 
     const slotCount = 35;
 
     const inventory = useSelector(state => state.inventory.items);
+    const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
 
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const dragState = useDrag(ref,
@@ -178,17 +184,21 @@ const InventoryMenu = () => {
             const data = calculatePosition('inventory', ref);
             dispatch(setMenuPosition(data));
             setTranslate({ x: 0, y: 0 });
+        },
+        event => {
+            dispatch(pushToFront('inventory'));
         }
     );
 
-    const characterMenuStyles = {
+    const inventoryMenuStyles = {
         display: position.visible ? 'block' : 'none',
-        width: `${ 5 * 60 }px`,
+        width: `${ width }px`,
         height: `${ height }px`,
         left: `calc(${ position.left }vw - ${ width / 2 }px)`,
         bottom: `${ position.bottom }vh`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
         flexDirection: `column`,
+        zIndex: position.zIndex,
     };
 
     const inventoryStyles = {
@@ -199,12 +209,12 @@ const InventoryMenu = () => {
         justifyContent: 'space-around',
         gap: '4px',
         padding: '0px 8px',
-    }
+    };
 
     return (
         <div
             ref={ ref }
-            style={ characterMenuStyles }
+            style={ inventoryMenuStyles }
             className={ styles.CharacterMenu }>
             <h3 style={ labelStyle }> Inventory </h3>
             <div style={ inventoryStyles }>

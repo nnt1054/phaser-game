@@ -61,7 +61,6 @@ const inventorySlice = createSlice({
       _subractItemCount(state, name, value);
     },
     addItemCount: (state, action) => {
-      console.log('huh');
       const name = action.payload.name;
       const value = action.payload.value;
       let item = state.items.find(item => item.name === name);

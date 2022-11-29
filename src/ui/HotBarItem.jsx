@@ -5,6 +5,9 @@ import useDrag from '../hooks/useDrag';
 import useHover from '../hooks/useHover';
 import usePointerDown from '../hooks/usePointerDown';
 import {
+    incrementZIndex
+} from '../store/menuStates';
+import {
     setPosition,
     setSlot,
     setDragging,
@@ -23,6 +26,7 @@ const HotBarItem = (props) => {
     const ref = useRef();
     const imageRef = useRef();
     const dispatch = useDispatch();
+    const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
 
     const gcd = useSelector(state => state.playerState.gcd);
     const dragging = useSelector(state => state.hotBars.dragging)
@@ -79,6 +83,10 @@ const HotBarItem = (props) => {
             setTranslate({ x: 0, y: 0 });
             dispatch(clearDragging());
             document.body.style.cursor = "unset";
+        },
+        event => {
+            props.setZIndex(globalZIndex);
+            dispatch(incrementZIndex());
         },
     );
     const isDragging = dragState.isDragging;
