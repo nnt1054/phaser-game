@@ -42,7 +42,7 @@ const basicHeal = {
     castTime: 2000,
     cooldown: 2500,
     execute: (player) => {
-        store.dispatch(incrementHealth());
+        player.increaseHealth(20);
     },
 }
 
@@ -198,7 +198,7 @@ const potion = {
             name: 'potion',
             value: 1,
         }))
-        store.dispatch(setPlayerCurrentHealth(100));
+        player.setCurrentHealth(100);
         player.cooldownManager.startTimer('potion', 8000);
     },
 }

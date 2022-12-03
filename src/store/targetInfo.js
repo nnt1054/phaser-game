@@ -22,16 +22,16 @@ const targetInfoSlice = createSlice({
   reducers: {
     setTargetCurrentHealth: (state, action) => {
         state.currentHealth = action.payload;
-        _calculatePlayerHealthState(state);
+        _calculateTargetHealthState(state);
     },
     setTargetMaxHealth: (state, action) => {
         state.maxHealth = action.payload;
-        _calculatePlayerHealthState(state);
+        _calculateTargetHealthState(state);
     },
     setTargetHealth: (state, action) => {
         state.currentHealth = action.payload.currentHealth;
         state.maxHealth = action.payload.maxHealth;
-        _calculatePlayerHealthState(state);
+        _calculateTargetHealthState(state);
     },
   }
 })

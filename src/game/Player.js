@@ -19,6 +19,9 @@ import {
     setPlayerCurrentHealth
 } from '../store/playerHealth';
 import {
+    setTargetCurrentHealth,
+} from '../store/targetInfo';
+import {
     addItemCount
 } from '../store/inventory';
 
@@ -69,13 +72,63 @@ class CooldownManager {
 }
 
 
+const HealthMixin = {
+
+    health: 50,
+    maxHealth: 100,
+
+    setCurrentHealth: function(value) {
+        let health = Math.max(value, 0);
+        health = Math.min(health, this.maxHealth);
+        this.health = health;
+        this.updateStore();
+    },
+
+    increaseHealth: function(value) {
+        this.health = Math.min(this.health + value, this.maxHealth);
+        this.updateStore();
+    },
+
+    reduceHealth: function(value) {
+        this.health = Math.max(this.health - value, 0);
+        this.updateStore();
+    },
+
+    updateStore: function() {
+        if (this.isPlayer) {
+            store.dispatch(
+                setPlayerCurrentHealth(this.health)
+            )
+        }
+
+        if (this.isTargetted) {
+            store.dispatch(
+                setTargetCurrentHealth(this.health)
+            )
+        }
+    },
+}
+
+const TargetMixin = {
+
+}
+
 export class Player extends ArcadeContainer {
+
+    mixins = [
+        HealthMixin,
+    ]
 
     constructor(scene, x, y, children) {
         super(scene, x, y, children);
+        this.mixins.forEach(mixin => {
+            Object.assign(this, mixin);
+        })
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
+
+        this.isPlayer = true;
 
         this.setSize(32, 48);
         this.setMaxVelocity(800);
@@ -438,7 +491,7 @@ export class Player extends ArcadeContainer {
 
         // test fall damage
         if (this.body.onFloor() && this.previousVelocityY >= 800) {
-            store.dispatch(setPlayerCurrentHealth(1));
+            this.setCurrentHealth(1);
         }
 
         // test regen

@@ -83,12 +83,12 @@ const App = () => {
                 </div>
 
                 {/* menus */}
-                <CharacterMenu />
-                <InventoryMenu />
+                {/*<CharacterMenu />*/}
+                {/*<InventoryMenu />*/}
 
-                <CastBar />
-                {/*<TargetInfo />*/}
-                <Tooltip />
+                {/*<CastBar />*/}
+                <TargetInfo />
+                {/*<Tooltip />*/}
             </div>
         </div>
     )
