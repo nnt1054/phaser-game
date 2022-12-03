@@ -112,6 +112,20 @@ button {
 	height: 100vh;
 }
 
+.TargetText {
+	position: absolute;
+	margin-top: -12px;
+	padding-left: 12px;
+
+	width: 256px;
+
+	font-size: 12pt;
+	font-family: 'Comfortaa';
+	font-weight: bold;
+
+	display: flex;
+}
+
 
 @keyframes roll {
   0% {

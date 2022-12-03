@@ -260,3 +260,38 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
         return res;
     }
 }
+
+export class StaticCompositeSprite extends Phaser.GameObjects.Container {
+    constructor(scene, x, y, textureMap) {
+        super(scene, x, y)
+        this.scene = scene;
+        this.textureMap = textureMap;
+        this.composition = {};
+
+        Object.entries(this.textureMap).forEach(([key, texture]) => {
+            this.composition[key] = scene.add.sprite(0, 0, texture);
+            this.composition[key].setOrigin(0.5, 1);
+            this.add(this.composition[key]);
+        })
+        scene.add.existing(this);
+    }
+
+    _getFrameNumber(texture, index, frame) {
+        const columns = texture.customData.columns;
+        const frameNumber = (index * columns) + frame;
+        return frameNumber;
+    }
+
+    setState(state) {
+        const indexes = state.indexes;
+        const frames = state.frames;
+        Object.entries(this.composition).forEach(([key, sprite]) => {
+            const frame = this._getFrameNumber(
+                sprite.texture,
+                indexes[key],
+                frames[key],
+            )
+            sprite.setFrame(frame);
+        })
+    }
+}

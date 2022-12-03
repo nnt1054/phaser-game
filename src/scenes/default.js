@@ -9,6 +9,7 @@ import {
 } from '../game/utils'
 
 import { Player } from '../game/Player';
+import { NPC } from '../game/NPC';
 
 import jumpquest_map from '../assets/tilemaps/jq_map.json';
 import jumpquest_bg from '../assets/jq.png';
@@ -67,9 +68,20 @@ class defaultScene extends Phaser.Scene {
         const map_bg = this.add.image(0, this.map.heightInPixels, 'jumpquest_bg');
         map_bg.setOrigin(0, 1);
 
-        this.player = new Player(this, 80, 1800);
-        this.player.setCollideWorldBounds(true);
+        const temp = this.add.rectangle(0, this.map.heightInPixels, this.map.widthInPixels, this.map.heightInPixels);
+        temp.setOrigin(0, 1);
+        temp.setInteractive();
+        temp.on('clicked', (object) => {
+            this.player.untargetObject();
+        })
 
+        // NPC
+        this.npc = new NPC(this, 950, 1872);
+
+        // Player
+        this.player = new Player(this, 80, 1800);
+
+        this.player.setCollideWorldBounds(true);
         this.player.addPlatforms([layer2]);
         this.player.addCollision([layer1]);
         // this.player.addCollision([layer1, spikes]);
@@ -88,6 +100,17 @@ class defaultScene extends Phaser.Scene {
         });
 
         this.autoZoomCamera();
+
+        this.mouse = null;
+        this.input.on('gameobjectdown', (pointer, gameObject) => {
+            this.mouse = gameObject;
+        }, this);
+        this.input.on('gameobjectup', (pointer, gameObject) => {
+            if (gameObject === this.mouse) {
+                gameObject.emit('clicked', gameObject);
+            }
+            this.mouse = null;
+        }, this);
     }
 
     update (time, delta) {
@@ -101,6 +124,7 @@ class defaultScene extends Phaser.Scene {
         this.zoom = Math.min(this.zoom, 6)
         this.cameras.main.setZoom(this.zoom);
         this.player.autoZoom(this.zoom);
+        this.npc.autoZoom(this.zoom);
     }
 }
 

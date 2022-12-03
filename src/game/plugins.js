@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 var GetValue = Phaser.Utils.Objects.GetValue;
 
-class FrameAnimator extends Phaser.Plugins.BasePlugin {
+export class FrameAnimator extends Phaser.Plugins.BasePlugin {
 
     constructor(pluginManager) {
         super(pluginManager);
@@ -90,4 +90,28 @@ class FrameAnimator extends Phaser.Plugins.BasePlugin {
     }
 }
 
-export default FrameAnimator;
+export class TextureAnnotator extends Phaser.Plugins.BasePlugin {
+    start() {
+        var eventEmitter = this.game.events;
+        this.game.textures.on(
+            Phaser.Textures.Events.ADD,
+            this.setCustomData,
+        )
+    }
+
+    setCustomData(key, texture) {
+        var width = texture.source[0].width;
+        var height = texture.source[0].height;
+
+        var margin = 0;
+        var spacing = 0;
+        var frameWidth = 512;
+        var frameHeight = 512;
+
+        var rows = Math.floor((height - margin + spacing) / (frameHeight + spacing));
+        var columns = Math.floor((width - margin + spacing) / (frameWidth + spacing));
+
+        texture.customData['rows'] = rows;
+        texture.customData['columns'] = columns;
+    }
+}

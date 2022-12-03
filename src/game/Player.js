@@ -196,6 +196,51 @@ export class Player extends ArcadeContainer {
         this.cooldownManager = new CooldownManager();
         this.inventory = new Map();
         this.inventory.set('potion', 3);
+
+        let padding = 24
+        this.setInteractive(
+            new Phaser.Geom.Rectangle(0 - (padding/2), 0 - padding, 32 + padding, 48 + padding),
+            Phaser.Geom.Rectangle.Contains
+        );
+        this.on('clicked', (object) => {
+            this.handleClick();
+        })
+
+        this.targetted = false;
+    }
+
+    handleClick() {
+        this.targetObject(this);
+    }
+
+    // update player to target gameObject
+    targetObject(gameObject) {
+        if (this.targetting) this.targetting.untarget();
+        this.targetting = gameObject;
+        gameObject.target();
+        // update store here later
+    }
+
+    // update player to untarget
+    untargetObject(gameObject) {
+        if (this.targetting) this.targetting.untarget();
+        this.targetting = null;
+    };
+
+    // update object display if targetted
+    target() {
+        this.targetted = true;
+        this.name.text = '> Player 1 <';
+        this.name.style.setFontSize('18px');
+        this.name.style.setFill('yellow');
+    }
+
+    // update object display is untargetted
+    untarget() {
+        this.targetted = false;
+        this.name.text = 'Player 1';
+        this.name.style.setFontSize('16px');
+        this.name.style.setFill('white');
     }
 
     addPlatforms(platforms) {

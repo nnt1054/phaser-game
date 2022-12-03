@@ -9,6 +9,7 @@ import inputManagerSlice from './inputManager';
 import menuStatesSlice from './menuStates';
 import characterPreviewSlice from './characterPreview';
 import inventorySlice from './inventory';
+import targetInfoSlice from './targetInfo';
 
 export default configureStore({
     reducer: {
@@ -21,5 +22,6 @@ export default configureStore({
         menuStates: menuStatesSlice.reducer,
         characterPreview: characterPreviewSlice.reducer,
         inventory: inventorySlice.reducer,
+        targetInfo: targetInfoSlice.reducer,
     }
 })

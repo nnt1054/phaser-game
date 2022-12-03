@@ -12,7 +12,7 @@ import animationLoader from './scenes/animationLoader';
 // CSS
 import * as styles from './App.module.css';
 
-import FrameAnimator from './game/plugins';
+import { FrameAnimator } from './game/plugins';
 import HealthBar from './ui/HealthBar';
 import ManaBar from './ui/ManaBar';
 import HotBar from './ui/HotBar';
@@ -21,6 +21,7 @@ import CharacterMenu from './ui/CharacterMenu';
 import InventoryMenu from './ui/InventoryMenu';
 import CastBar from './ui/CastBar';
 import Tooltip from './ui/Tooltip';
+import TargetInfo from './ui/TargetInfo';
 
 
 var config = {
@@ -86,6 +87,7 @@ const App = () => {
                 <InventoryMenu />
 
                 <CastBar />
+                {/*<TargetInfo />*/}
                 <Tooltip />
             </div>
         </div>

@@ -13,6 +13,8 @@ import * as styles from './../App.module.css';
 
 import Phaser from 'phaser';
 import { animationPreload, animationCreate } from '../animations';
+import { StaticCompositeSprite } from '../game/utils.js';
+import { TextureAnnotator } from '../game/plugins.js';
 
 function observeStore(store, select, onChange) {
   let currentState;
@@ -30,66 +32,6 @@ function observeStore(store, select, onChange) {
   return unsubscribe;
 }
 
-class TextureAnnotator extends Phaser.Plugins.BasePlugin {
-    start() {
-        var eventEmitter = this.game.events;
-        this.game.textures.on(
-            Phaser.Textures.Events.ADD,
-            this.setCustomData,
-        )
-    }
-
-    setCustomData(key, texture) {
-        var width = texture.source[0].width;
-        var height = texture.source[0].height;
-
-        var margin = 0;
-        var spacing = 0;
-        var frameWidth = 512;
-        var frameHeight = 512;
-
-        var rows = Math.floor((height - margin + spacing) / (frameHeight + spacing));
-        var columns = Math.floor((width - margin + spacing) / (frameWidth + spacing));
-
-        texture.customData['rows'] = rows;
-        texture.customData['columns'] = columns;
-    }
-}
-
-class StaticCompositeSprite extends Phaser.GameObjects.Container {
-    constructor(scene, x, y, textureMap) {
-        super(scene, x, y)
-        this.scene = scene;
-        this.textureMap = textureMap;
-        this.composition = {};
-
-        Object.entries(this.textureMap).forEach(([key, texture]) => {
-            this.composition[key] = scene.add.sprite(0, 0, texture);
-            this.composition[key].setOrigin(0.5, 1);
-            this.add(this.composition[key]);
-        })
-        scene.add.existing(this);
-    }
-
-    _getFrameNumber(texture, index, frame) {
-        const columns = texture.customData.columns;
-        const frameNumber = (index * columns) + frame;
-        return frameNumber;
-    }
-
-    setState(state) {
-        const indexes = state.indexes;
-        const frames = state.frames;
-        Object.entries(this.composition).forEach(([key, sprite]) => {
-            const frame = this._getFrameNumber(
-                sprite.texture,
-                indexes[key],
-                frames[key],
-            )
-            sprite.setFrame(frame);
-        })
-    }
-}
 
 class characterPreview extends Phaser.Scene {
     preload() {
