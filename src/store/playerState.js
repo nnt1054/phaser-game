@@ -1,9 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const TARGET_CONSTANTS = {
+    CURRENT_TARGET: 'CURRENT_TARGET',
+}
+
 const playerStateSlice = createSlice({
   name: 'playerState',
   initialState: {
     queuedAbility: null,
+
+    // 'currentTarget',
+    queuedTarget: null,
 
     // cursors
     up: 0,
@@ -21,6 +28,14 @@ const playerStateSlice = createSlice({
     setQueuedAbility: (state, action) => {
         if (!state.queuedAbility) {
             state.queuedAbility = action.payload;
+            state.queuedTarget = null;
+        }
+    },
+    setQueuedAbilityAndTarget: (state, action) => {
+        const { CURRENT_TARGET } = TARGET_CONSTANTS
+        if (!state.queuedAbility) {
+            state.queuedAbility = action.payload.ability;
+            state.queuedTarget = action.payload.target;
         }
     },
     setJump: (state) => {
@@ -55,6 +70,7 @@ const playerStateSlice = createSlice({
 
 export const {
     setQueuedAbility,
+    setQueuedAbilityAndTarget,
     setJump,
     clearQueuedAbility,
     clearInputQueues,

@@ -48,6 +48,7 @@ var config = {
     },
 };
 
+
 const App = () => {
 
     useEffect(() => {
@@ -83,12 +84,12 @@ const App = () => {
                 </div>
 
                 {/* menus */}
-                {/*<CharacterMenu />*/}
-                {/*<InventoryMenu />*/}
+                <CharacterMenu />
+                <InventoryMenu />
 
-                {/*<CastBar />*/}
+                <CastBar />
                 <TargetInfo />
-                {/*<Tooltip />*/}
+                <Tooltip />
             </div>
         </div>
     )

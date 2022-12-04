@@ -135,7 +135,10 @@ const CharacterMenu = () => {
         <div
             ref={ ref }
             style={ characterMenuStyles }
-            className={ styles.CharacterMenu }>
+            className={ styles.CharacterMenu }
+            onMouseDown={ e => e.stopPropagation() }
+            onMouseUp={ e => e.stopPropagation() }
+        >
             <h3 style={ labelStyle }> Character </h3>
 
             <div

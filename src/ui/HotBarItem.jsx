@@ -21,6 +21,9 @@ import CONSTANTS from '../constants';
 
 import icons from './icons';
 
+const TARGET_CONSTANTS = {
+    CURRENT_TARGET: 'CURRENT_TARGET',
+}
 
 const HotBarItem = (props) => {
     const ref = useRef();
@@ -50,6 +53,8 @@ const HotBarItem = (props) => {
         let cooldown = current / 1000
         timer = cooldown.toFixed(0);
     }
+
+    const targetName = useSelector(state => state.targetInfo.targetName);
 
     // Animation Editor Styles
     const frameIndex = useSelector(state => state.aniEditor.frameIndex);
@@ -135,7 +140,7 @@ const HotBarItem = (props) => {
         filter: (slot.active || isPointerDown) ? `brightness(50%)` : (isHovering || timer > 0 || (isItem && itemCount === 0)) ? `brightness(75%)` : `brightness(100%)`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
         pointerEvents: dragStarted ? `none` : `auto`,
-        zIndex: 2,
+        zIndex: isDragging ? 10 : 1,
     }
 
     const timerStyle = {
@@ -224,17 +229,30 @@ const HotBarItem = (props) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        zIndex: isDragging ? 10 : 1,
+    }
+
+    const onClick = (event) => {
+        if (targetName) {
+            tile.action(TARGET_CONSTANTS.CURRENT_TARGET);
+        } else {
+            tile.action();
+        }
     }
 
     return (
-        <div style={ slotContainerStyle } >
+        <div
+            style={ slotContainerStyle }
+            onMouseDown={ e => e.stopPropagation() }
+            onMouseUp={ e => e.stopPropagation() }
+        >
             <span style={ keybindStyle }> { slot.keybind } </span>
             <span style={ itemCountStyle }> { itemCount } </span>
             <button
                 ref={ ref }
                 style={ tile.icon ? buttonStyle : labelButtonStyle }
                 className={ styles.HotbarSlot }
-                onClick={() => dispatch(tile.action)}
+                onClick={ onClick }
             >
                 <span style={ labelStyle }> { tile.label ?? 'none' } </span>
                 <span style={ timerStyle }> { timer ? `${ timer }` : '' } </span>

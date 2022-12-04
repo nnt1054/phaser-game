@@ -215,7 +215,10 @@ const InventoryMenu = () => {
         <div
             ref={ ref }
             style={ inventoryMenuStyles }
-            className={ styles.CharacterMenu }>
+            className={ styles.CharacterMenu }
+            onMouseDown={ e => e.stopPropagation() }
+            onMouseUp={ e => e.stopPropagation() }
+        >
             <h3 style={ labelStyle }> Inventory </h3>
             <div style={ inventoryStyles }>
                 {

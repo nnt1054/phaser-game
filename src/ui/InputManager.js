@@ -9,6 +9,9 @@ import {
 import Phaser from 'phaser';
 const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
 
+const TARGET_CONSTANTS = {
+    CURRENT_TARGET: 'CURRENT_TARGET',
+}
 
 // Hook
 const useKeyPress = callback => {
@@ -60,6 +63,8 @@ const useKeyPress = callback => {
 
 
 const InputManager = () => {
+    const targetName = useSelector(state => state.targetInfo.targetName);
+
     const inputManager = useSelector(state => state.inputManager);
     const hotbars = useSelector(state => state.hotBars);
     const dispatch = useDispatch();
@@ -152,7 +157,9 @@ const InputManager = () => {
       let cursor = actionMap[cursorKey];
       if (!cursor) return;
 
-      if (cursor && cursor.upAction) dispatch(cursor.upAction);
+      if (cursor && cursor.upAction) {
+        cursor.upAction();
+      }
     }
 
     useKeyPress(
@@ -162,7 +169,13 @@ const InputManager = () => {
           case 'keydown':
             setHotbarSlotState(input, true);
             action = getActionFromInput(input);
-            if (action && action.action) dispatch(action.action);
+            if (action && action.action) {
+              if (targetName) {
+                action.action(TARGET_CONSTANTS.CURRENT_TARGET)
+              } else {
+                action.action();
+              }
+            }
             break;
 
           case 'keyup':

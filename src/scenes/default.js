@@ -76,10 +76,14 @@ class defaultScene extends Phaser.Scene {
         })
 
         // NPC
-        this.npc = new NPC(this, 950, 1872);
+        this.npc = new NPC(this, 975, 1872);
+        this.npc.character.scaleX = Math.abs(this.npc.character.scaleX);
 
         // Player
         this.player = new Player(this, 80, 1800);
+
+        this.npc2 = new NPC(this, 915, 1872);
+        this.npc2.targetObject(this.player);
 
         this.player.setCollideWorldBounds(true);
         this.player.addPlatforms([layer2]);
@@ -125,6 +129,7 @@ class defaultScene extends Phaser.Scene {
         this.cameras.main.setZoom(this.zoom);
         this.player.autoZoom(this.zoom);
         this.npc.autoZoom(this.zoom);
+        this.npc2.autoZoom(this.zoom);
     }
 }
 

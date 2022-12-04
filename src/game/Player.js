@@ -19,11 +19,21 @@ import {
     setPlayerCurrentHealth
 } from '../store/playerHealth';
 import {
+    setTarget,
+    removeTarget,
     setTargetCurrentHealth,
+    setCotarget,
+    removeCotarget,
+    setCotargetCurrentHealth,
 } from '../store/targetInfo';
 import {
     addItemCount
 } from '../store/inventory';
+import {
+    HealthMixin,
+    TargetMixin,
+} from './mixins';
+
 
 function observeStore(store, select, onChange) {
   let currentState;
@@ -41,6 +51,9 @@ function observeStore(store, select, onChange) {
   return unsubscribe;
 }
 
+const TARGET_CONSTANTS = {
+    CURRENT_TARGET: 'CURRENT_TARGET',
+}
 
 class CooldownManager {
     constructor() {
@@ -72,51 +85,11 @@ class CooldownManager {
 }
 
 
-const HealthMixin = {
-
-    health: 50,
-    maxHealth: 100,
-
-    setCurrentHealth: function(value) {
-        let health = Math.max(value, 0);
-        health = Math.min(health, this.maxHealth);
-        this.health = health;
-        this.updateStore();
-    },
-
-    increaseHealth: function(value) {
-        this.health = Math.min(this.health + value, this.maxHealth);
-        this.updateStore();
-    },
-
-    reduceHealth: function(value) {
-        this.health = Math.max(this.health - value, 0);
-        this.updateStore();
-    },
-
-    updateStore: function() {
-        if (this.isPlayer) {
-            store.dispatch(
-                setPlayerCurrentHealth(this.health)
-            )
-        }
-
-        if (this.isTargetted) {
-            store.dispatch(
-                setTargetCurrentHealth(this.health)
-            )
-        }
-    },
-}
-
-const TargetMixin = {
-
-}
-
 export class Player extends ArcadeContainer {
 
     mixins = [
         HealthMixin,
+        TargetMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -135,7 +108,9 @@ export class Player extends ArcadeContainer {
         this.ref_x = this.body.width / 2;
         this.ref_y = this.body.height;
 
-        this.name = scene.add.text(0, 0, 'Player 1', {
+        this.displayName = 'Player 1';
+
+        this.name = scene.add.text(0, 0, this.displayName, {
             fontFamily: 'Comic Sans MS',
             fontSize: '16px',
             fill: '#FFF',
@@ -193,10 +168,12 @@ export class Player extends ArcadeContainer {
         this.setGravityY(1600);
 
         this.gcdQueue = null;
+        this.gcdTarget = null;
         this.gcdTimer = 0;
         this.abilityTimer = 0;
 
         this.casting = null;
+        this.castTarget = null;
         this.castingTimer = 0;
 
         this.paused = false;
@@ -219,7 +196,10 @@ export class Player extends ArcadeContainer {
             let clearInputs = false;
 
             if (playerState.queuedAbility) {
-                this.queueAbility(playerState.queuedAbility);
+                this.queueAbility(
+                    playerState.queuedAbility,
+                    playerState.queuedTarget,
+                );
                 clearInputs = true;
             }
 
@@ -259,41 +239,10 @@ export class Player extends ArcadeContainer {
             this.handleClick();
         })
 
-        this.targetted = false;
     }
 
     handleClick() {
         this.targetObject(this);
-    }
-
-    // update player to target gameObject
-    targetObject(gameObject) {
-        if (this.targetting) this.targetting.untarget();
-        this.targetting = gameObject;
-        gameObject.target();
-        // update store here later
-    }
-
-    // update player to untarget
-    untargetObject(gameObject) {
-        if (this.targetting) this.targetting.untarget();
-        this.targetting = null;
-    };
-
-    // update object display if targetted
-    target() {
-        this.targetted = true;
-        this.name.text = '> Player 1 <';
-        this.name.style.setFontSize('18px');
-        this.name.style.setFill('yellow');
-    }
-
-    // update object display is untargetted
-    untarget() {
-        this.targetted = false;
-        this.name.text = 'Player 1';
-        this.name.style.setFontSize('16px');
-        this.name.style.setFill('white');
     }
 
     addPlatforms(platforms) {
@@ -309,7 +258,7 @@ export class Player extends ArcadeContainer {
         })
     }
 
-    queueAbility(abilityName) {
+    queueAbility(abilityName, target) {
         // need to import action Map here instead
         if (!abilityName) return;
         const ability = actionMap[abilityName];
@@ -318,11 +267,22 @@ export class Player extends ArcadeContainer {
         if (this.gcdQueue) return;
         if (ability.gcd && this.gcdTimer > 500) return;
         if (this.casting && this.castingTimer > 500) return;
+
         this.gcdQueue = ability;
+        switch(target) {
+            case TARGET_CONSTANTS.CURRENT_TARGET:
+                if (this.currentTarget) {
+                    this.gcdTarget = this.currentTarget;
+                    break;
+                }
+            default:
+                this.gcdTarget = this;
+        }
     }
 
-    startCast(ability) {
+    startCast(ability, target) {
         this.casting = ability;
+        this.castTarget = target;
         this.castingTimer = ability.castTime;
         store.dispatch(setCast({
             key: ability.name,
@@ -332,6 +292,7 @@ export class Player extends ArcadeContainer {
 
     cancelCast() {
         this.casting = null;
+        this.castTarget = null;
         this.castingTimer = 0;
         store.dispatch(setCast({
             key: '',
@@ -450,9 +411,9 @@ export class Player extends ArcadeContainer {
                 if (this.gcdTimer == 0) {
                     if (!(ability.canExecute && !ability.canExecute(this))) {
                         if (ability.castTime) {
-                            this.startCast(ability);
+                            this.startCast(ability, this.gcdTarget);
                         } else {
-                            ability.execute(this);
+                            ability.execute(this, this.gcdTarget);
                             this.abilityTimer += 500;
                         }
                         this.gcdTimer += ability.cooldown;
@@ -460,14 +421,16 @@ export class Player extends ArcadeContainer {
                         this.cooldownManager.updateStore();
                     } 
                     this.gcdQueue = null;
+                    this.gcdTarget = null;
                 }
             } else {
                 if (!(ability.canExecute && !ability.canExecute(this))) {
-                    ability.execute(this);
+                    ability.execute(this, this.gcdTarget);
                     this.abilityTimer += 750;
                     this.cooldownManager.updateStore();
                 }
                 this.gcdQueue = null;
+                this.gcdTarget = null;
             }
         }
     }
@@ -476,10 +439,11 @@ export class Player extends ArcadeContainer {
         this.castingTimer = Math.max(0, this.castingTimer - delta);
         if (this.casting && this.castingTimer === 0) {
             const ability = this.casting;
-            ability.execute(this);
+            ability.execute(this, this.castTarget);
             this.abilityTimer += 500;
             this.cooldownManager.updateStore();
             this.casting = null;
+            this.castTarget = null;
             store.dispatch(setCast({
                 key: '',
                 duration: 0,
@@ -529,5 +493,42 @@ export class Player extends ArcadeContainer {
             name: name,
             value: count,
         }))
+    }
+
+    targetObject(gameObject) {
+        if (gameObject.isTargetable) {
+            if (this.currentTarget) this.currentTarget.untarget();
+            this.currentTarget = gameObject;
+            gameObject.target();
+
+            if ('health' in gameObject) {
+                store.dispatch(
+                    setTarget({
+                        targetName: gameObject.displayName,
+                        currentHealth: gameObject.health,
+                        maxHealth: gameObject.maxHealth,
+                    })
+                )
+
+                const cotarget = gameObject.currentTarget;
+                if (cotarget && 'health' in cotarget) {
+                    store.dispatch(
+                        setCotarget({
+                            targetName: cotarget.displayName,
+                            currentHealth: cotarget.health,
+                            maxHealth: cotarget.maxHealth,
+                        })
+                    )
+                }
+            }
+        }
+    }
+
+    untargetObject(gameObject) {
+        if (this.currentTarget) this.currentTarget.untarget();
+        this.currentTarget = null;
+        store.dispatch(
+            removeTarget()
+        )
     }
 }

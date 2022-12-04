@@ -29,7 +29,6 @@ const useDrag = (ref, onDrag, onRelease, onDown) => {
                     isPointerDown: false,
                 });
             };
-
             event.stopPropagation()
         };
 

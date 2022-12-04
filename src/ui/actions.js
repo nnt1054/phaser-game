@@ -1,3 +1,5 @@
+import store from '../store/store';
+
 import {
     incrementMana,
     decrementMana,
@@ -12,6 +14,7 @@ import {
 
 import {
     setQueuedAbility,
+    setQueuedAbilityAndTarget,
     setCursorState,
     setJump,
 } from '../store/playerState';
@@ -38,173 +41,201 @@ import * as styles from '../App.module.css';
 const reducerMap = {
     'jump': {
         label: 'jump',
-        action: setJump(),
+        action: () => {
+            setJump()
+        },
     },
     'jumpCursor': {
         label: 'jump',
-        action: setCursorState({
-            cursor: 'jump',
-            value: 1,
-        }),
-        upAction: setCursorState({
-            cursor: 'jump',
-            value: 0,
-        }),
+        action: () => {
+            store.dispatch(setCursorState({
+                cursor: 'jump',
+                value: 1,
+            }))
+        },
+        upAction: () => {
+            store.dispatch(setCursorState({
+                cursor: 'jump',
+                value: 0,
+            }))
+        },
     },
     'left': {
         label: 'left',
-        action: setCursorState({
-            cursor: 'left',
-            value: 1,
-        }),
-        upAction: setCursorState({
-            cursor: 'left',
-            value: 0,
-        }),
+        action: () => {
+            store.dispatch(setCursorState({
+                cursor: 'left',
+                value: 1,
+            }))
+        },
+        upAction: () => {
+            store.dispatch(setCursorState({
+                cursor: 'left',
+                value: 0,
+            }))
+        },
     },
     'right': {
         label: 'right',
-        action: setCursorState({
-            cursor: 'right',
-            value: 1,
-        }),
-        upAction: setCursorState({
-            cursor: 'right',
-            value: 0,
-        }),
+        action: () => {
+            store.dispatch(setCursorState({
+                cursor: 'right',
+                value: 1,
+            }))
+        },
+        upAction: () => {
+            store.dispatch(setCursorState({
+                cursor: 'right',
+                value: 0,
+            }))
+        },
     },
     'up': {
         label: 'up',
-        action: setCursorState({
-            cursor: 'up',
-            value: 1,
-        }),
-        upAction: setCursorState({
-            cursor: 'up',
-            value: 0,
-        }),
+        action: () => {
+            store.dispatch(setCursorState({
+                cursor: 'up',
+                value: 1,
+            }))
+        },
+        upAction: () => {
+            store.dispatch(setCursorState({
+                cursor: 'up',
+                value: 0,
+            }))
+        },
     },
     'down': {
         label: 'down',
-        action: setCursorState({
-            cursor: 'down',
-            value: 1,
-        }),
-        upAction: setCursorState({
-            cursor: 'down',
-            value: 0,
-        }),
+        action: () => {
+            store.dispatch(setCursorState({
+                cursor: 'down',
+                value: 1,
+            }))
+        },
+        upAction: () => {
+            store.dispatch(setCursorState({
+                cursor: 'down',
+                value: 0,
+            }))
+        },
     },
     'decrementHP10': {
         label: '-10 HP',
-        action: decrementHealth(),
+        action: () => { store.dispatch(decrementHealth()) },
     },
     'incrementHP10': {
         label: '+10 HP',
-        action: incrementHealth(),
+        action: () => { store.dispatch(incrementHealth()) },
     },
     'HP0': {
         label: '0% HP',
-        action: setPlayerCurrentHealth(0),
+        action: () => { store.dispatch(setPlayerCurrentHealth(0)) },
     },
     'HP100': {
         label: '100% HP',
-        action: setPlayerCurrentHealth(100),
+        action: () => { store.dispatch(setPlayerCurrentHealth(100)) },
     },
     'decrementMP10': {
         label: '-10 MP',
-        action: decrementMana(),
+        action: () => { store.dispatch(decrementMana()) },
     },
     'incrementMP10': {
         label: '+10 MP',
-        action: incrementMana(),
+        action: () => { store.dispatch(incrementMana()) },
     },
     'MP0': {
         label: '0% MP',
-        action: setPlayerCurrentMana(0),
+        action: () => { store.dispatch(setPlayerCurrentMana(0)) },
     },
     'MP100': {
         label: '100% MP',
-        action: setPlayerCurrentMana(100),
+        action: () => { store.dispatch(setPlayerCurrentMana(100)) },
     },
     'empty': {
         label: '',
-        action: doNothing(),
+        action: () => {},
     },
     'pause': {
         label: 'Stop',
-        action: setQueuedAbility('pause'),
+        action: () => { store.dispatch(setQueuedAbility('pause')) },
     },
     'resume': {
         label: 'Play',
-        action: setQueuedAbility('resume'),
+        action: () => { store.dispatch(setQueuedAbility('resume')) },
     },
     'select_all_composite_state': {
         label: 'All',
-        action: clearCompositeStates(true),
+        action: () => { store.dispatch(clearCompositeStates(true)) },
     },
     'unselect_all_composite_state': {
         label: 'Rst',
-        action: clearCompositeStates(false),
+        action: () => { store.dispatch(clearCompositeStates(false)) },
     },
     'copy_anim_to_clipboard': {
         label: 'Cpy',
-        action: setQueuedAbility('copyAnim'),
+        action: () => { store.dispatch(setQueuedAbility('copyAnim')) },
     },
     'incrementTranslateX': {
         label: '→',
-        action: setQueuedAbility('incrementTranslateX'),
+        action: () => { store.dispatch(setQueuedAbility('incrementTranslateX')) },
     },
     'decrementTranslateX': {
         label: '←',
-        action: setQueuedAbility('decrementTranslateX'),
+        action: () => { store.dispatch(setQueuedAbility('decrementTranslateX')) },
     },
     'incrementTranslateY': {
         label: '↑',
-        action: setQueuedAbility('incrementTranslateY'),
+        action: () => { store.dispatch(setQueuedAbility('incrementTranslateY')) },
     },
     'decrementTranslateY': {
         label: '↓',
-        action: setQueuedAbility('decrementTranslateY'),
+        action: () => { store.dispatch(setQueuedAbility('decrementTranslateY')) },
     },
     'incrementRotate': {
         label: '↷',
-        action: setQueuedAbility('incrementRotate'),
+        action: () => { store.dispatch(setQueuedAbility('incrementRotate')) },
     },
     'decrementRotate': {
         label: '↶',
-        action: setQueuedAbility('decrementRotate'),
+        action: () => { store.dispatch(setQueuedAbility('decrementRotate')) },
     },
     'incrementFrameKey': {
         label: '↟',
-        action: setQueuedAbility('incrementFrameKey'),
+        action: () => { store.dispatch(setQueuedAbility('incrementFrameKey')) },
     },
     'decrementFrameKey': {
         label: '↡',
-        action: setQueuedAbility('decrementFrameKey'),
+        action: () => { store.dispatch(setQueuedAbility('decrementFrameKey')) },
     },
     'characterMenu': {
         label: 'menu',
-        action: toggleMenuVisible('character'),
+        action: () => { store.dispatch(toggleMenuVisible('character')) },
     },
     'inventoryMenu': {
         label: 'inventory',
-        action: toggleMenuVisible('inventory'),
+        action: () => { store.dispatch(toggleMenuVisible('inventory')) },
     },
     'closeMenu': {
         label: 'close',
-        action: closeMenus(),
+        action: () => { store.dispatch(closeMenus()) },
     },
-
     'floss': {
         label: 'flss',
-        action: setQueuedAbility('floss'),
+        action: () => { store.dispatch(setQueuedAbility('floss')) },
         icon: 'embolden',
         gcd: true,
     },
     'heal': {
         label: 'vercure',
-        action: setQueuedAbility('heal'),
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'heal',
+                    target: target ?? null,
+                })
+            );
+        },
         icon: 'vercure',
         gcd: true,
         description: `
@@ -214,58 +245,58 @@ const reducerMap = {
     },
     'melee1': {
         label: 'melee1',
-        action: setQueuedAbility('melee'),
+        action: () => { store.dispatch(setQueuedAbility('melee')) },
         icon: 'melee1',
         gcd: true,
     },
     'melee2': {
         label: 'melee2',
-        action: setQueuedAbility('melee'),
+        action: () => { store.dispatch(setQueuedAbility('melee')) },
         icon: 'melee2',
         gcd: true,
     },
     'melee3': {
         label: 'melee3',
-        action: setQueuedAbility('melee'),
+        action: () => { store.dispatch(setQueuedAbility('melee')) },
         icon: 'melee3',
         gcd: true,
     },
     'fleche': {
         label: 'fleche',
-        action: setQueuedAbility('fleche'),
+        action: () => { store.dispatch(setQueuedAbility('fleche')) },
         icon: 'fleche',
     },
     'embolden': {
         label: 'embolden',
-        action: setQueuedAbility('embolden'),
+        action: () => { store.dispatch(setQueuedAbility('embolden')) },
         icon: 'embolden',
     },
     'manafication': {
         label: 'manafication',
-        action: setQueuedAbility('manafication'),
+        action: () => { store.dispatch(setQueuedAbility('manafication')) },
         icon: 'manafication',
     },
     'jolt': {
         label: 'jolt',
-        action: setQueuedAbility('jolt'),
+        action: () => { store.dispatch(setQueuedAbility('jolt')) },
         icon: 'jolt',
         gcd: true,
     },
     'verraise': {
         label: 'jolt',
-        action: setQueuedAbility('verraise'),
+        action: () => { store.dispatch(setQueuedAbility('verraise')) },
         icon: 'verraise',
         gcd: true,
     },
     'verthunder': {
         label: 'verthunder',
-        action: setQueuedAbility('verthunder'),
+        action: () => { store.dispatch(setQueuedAbility('verthunder')) },
         icon: 'verthunder',
         gcd: true,
     },
     'verflare': {
         label: 'verflare',
-        action: setQueuedAbility('verflare'),
+        action: () => { store.dispatch(setQueuedAbility('verflare')) },
         icon: 'verflare',
         gcd: true,
     },
@@ -273,7 +304,7 @@ const reducerMap = {
     // items
     'potion': {
         label: 'potion',
-        action: setQueuedAbility('potion'),
+        action: () => { store.dispatch(setQueuedAbility('potion')) },
         icon: 'vercure',
         gcd: false,
         type: 'item',

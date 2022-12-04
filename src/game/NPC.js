@@ -1,7 +1,10 @@
 import {
     StaticCompositeSprite,
 } from './utils';
-
+import {
+    HealthMixin,
+    TargetMixin,
+} from './mixins';
 
 // redux imports
 import store from '../store/store';
@@ -24,13 +27,19 @@ function observeStore(store, select, onChange) {
 
 export class NPC extends Phaser.GameObjects.Container {
 
-    mixins = []
+    mixins = [
+        HealthMixin,
+        TargetMixin,
+    ]
 
     constructor(scene, x, y, children) {
         super(scene, x, y, children);
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
         })
+
+        this.displayName = 'Lamb Seel';
+
         scene.add.existing(this);
         let textureMap = {
             hair_back: 'hair',
