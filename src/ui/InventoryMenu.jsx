@@ -110,6 +110,7 @@ const InventoryItem = (props) => {
         position: 'relative',
         marginRight: '4px',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: isDragging ? 10 : 1,
     }
 
     const iconStyle = {
@@ -128,7 +129,7 @@ const InventoryItem = (props) => {
         fontSize: `10pt`,
         fontWeight: 'bold',
         borderRadius: '2px',
-        zIndex: 4,
+        zIndex: isDragging ? 11 : 2,
         pointerEvents: 'none',
         bottom: 0,
         right: 0,
