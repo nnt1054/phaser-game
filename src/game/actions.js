@@ -41,6 +41,12 @@ const basicHeal = {
     gcd: true,
     castTime: 2000,
     cooldown: 2500,
+    canExecute: (player, target) => {
+        if (target && 'health' in target) {
+            return true;
+        }
+        return false;
+    },
     execute: (player, target) => {
         store.dispatch(decrementMana());
         target.increaseHealth(20);

@@ -43,7 +43,9 @@ const targetInfoSlice = createSlice({
         state.targetName = action.payload.targetName;
         state.currentHealth = action.payload.currentHealth;
         state.maxHealth = action.payload.maxHealth;
-        _calculateTargetHealthState(state);
+        if (state.currentHealth && state.maxHealth) {
+            _calculateTargetHealthState(state);
+        }
         state.increasing = null;
 
         // cotarget state

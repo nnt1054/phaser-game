@@ -28,7 +28,7 @@ function observeStore(store, select, onChange) {
 export class NPC extends Phaser.GameObjects.Container {
 
     mixins = [
-        HealthMixin,
+        // HealthMixin,
         TargetMixin,
     ]
 

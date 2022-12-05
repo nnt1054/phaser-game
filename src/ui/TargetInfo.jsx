@@ -42,6 +42,7 @@ const TargetInfo = () => {
     };
 
     const healthBarStyles = {
+        display: (currentHealth == null) ? 'none' : 'block',
         position: 'relative',
         height: '12px',
         width: '512px',
@@ -77,8 +78,13 @@ const TargetInfo = () => {
         backgroundColor: 'white',
     };
 
+    const percentHealthStyle = {
+        display: (currentHealth == null) ? 'none' : 'block',
+        marginRight: '8px',
+    }
+
     const textStyle = {
-        marginLeft: '8px',
+        // marginLeft: '8px',
     };
 
     const arrowStyle = {
@@ -88,18 +94,29 @@ const TargetInfo = () => {
 
     const targetContainerStyles = {
         display: 'flex',
+        alignItems: 'center',
     };
 
     const cotargetContainerStyles = {
         display: cotargetDisplay ? 'flex' : 'none',
     };
 
+    const greenLine = {
+        display: (currentHealth == null) ? 'block' : 'none',
+        position: 'relative',
+        height: '1px',
+        width: '518px',
+        border: '1px solid green',
+        borderRadius: '12px',
+        backgroundColor: 'green',
+    };
 
     return (
         <div
             style={ targetInfoContainerStyles }
         >
             <div style={ targetContainerStyles }>
+                <div style={ greenLine } />
                 <div style={ healthBarStyles }>
                     <div
                         style={ underlayBarStyles }
@@ -111,7 +128,7 @@ const TargetInfo = () => {
                     />
                 </div>
                 <div className={ styles.TargetText }>
-                    <span> { currentHealth }% </span>
+                    <span style={ percentHealthStyle }> { currentHealth }% </span>
                     <span style={ textStyle }> { targetName } </span>
                 </div>
             </div>

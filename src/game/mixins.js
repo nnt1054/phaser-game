@@ -94,6 +94,7 @@ export const TargetMixin = {
                 if (this.currentTarget) this.currentTarget.untarget();
                 this.currentTarget = gameObject;
                 gameObject.target();
+
                 if ('health' in gameObject) {
                     store.dispatch(
                         setTarget({
@@ -102,9 +103,19 @@ export const TargetMixin = {
                             maxHealth: gameObject.maxHealth,
                         })
                     )
+                } else {
+                    store.dispatch(
+                        setTarget({
+                            targetName: gameObject.displayName,
+                            currentHealth: null,
+                            maxHealth: null,
+                        })
+                    )
+                }
 
-                    const cotarget = gameObject.currentTarget;
-                    if (cotarget && 'health' in cotarget) {
+                const cotarget = gameObject.currentTarget;
+                if (cotarget) {
+                    if ('health' in cotarget) {
                         store.dispatch(
                             setCotarget({
                                 targetName: cotarget.displayName,
@@ -112,8 +123,17 @@ export const TargetMixin = {
                                 maxHealth: cotarget.maxHealth,
                             })
                         )
+                    } else {
+                        store.dispatch(
+                            setCotarget({
+                                targetName: cotarget.displayName,
+                                currentHealth: null,
+                                maxHealth: null,
+                            })
+                        )
                     }
                 }
+
             } else {
                 this.currentTarget = gameObject;
             }

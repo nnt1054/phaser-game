@@ -409,7 +409,7 @@ export class Player extends ArcadeContainer {
         if (ability && this.abilityTimer == 0 && this.castingTimer == 0) {
             if (ability.gcd) {
                 if (this.gcdTimer == 0) {
-                    if (!(ability.canExecute && !ability.canExecute(this))) {
+                    if (!(ability.canExecute && !ability.canExecute(this, this.gcdTarget))) {
                         if (ability.castTime) {
                             this.startCast(ability, this.gcdTarget);
                         } else {
@@ -424,7 +424,7 @@ export class Player extends ArcadeContainer {
                     this.gcdTarget = null;
                 }
             } else {
-                if (!(ability.canExecute && !ability.canExecute(this))) {
+                if (!(ability.canExecute && !ability.canExecute(this, this.gcdTarget))) {
                     ability.execute(this, this.gcdTarget);
                     this.abilityTimer += 750;
                     this.cooldownManager.updateStore();
