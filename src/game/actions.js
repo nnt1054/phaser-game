@@ -210,6 +210,19 @@ const potion = {
     },
 }
 
+const untarget = {
+    type: 'system',
+    execute: (player) => {
+        player.untargetObject();
+    },
+}
+const confirm = {
+    type: 'system',
+    execute: (player) => {
+        console.log('confirm');
+    },
+}
+
 const actionMap = {
     'attack': basicAttack,
     'heal': basicHeal,
@@ -225,6 +238,10 @@ const actionMap = {
 
     // items
     'potion': potion,
+
+    // sys actions
+    'untarget': untarget,
+    'confirm': confirm,
 }
 
 export default actionMap;

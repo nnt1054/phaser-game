@@ -13,6 +13,7 @@ import {
     setCooldowns,
     setGCD,
     setCast,
+    clearSystemAction,
 } from '../store/playerState';
 import {
     incrementHealth,
@@ -190,21 +191,21 @@ export class Player extends ArcadeContainer {
         this.previousVelocityY = 0;
 
         this.current_anim = null;
+        this.systemAction = null;
 
         const getPlayerState = state => state.playerState;
         this.observer = observeStore(store, getPlayerState, (playerState) => {
-            let clearInputs = false;
-
             if (playerState.queuedAbility) {
                 this.queueAbility(
                     playerState.queuedAbility,
                     playerState.queuedTarget,
                 );
-                clearInputs = true;
+                store.dispatch(clearQueuedAbility());
             }
 
-            if (clearInputs) {
-                store.dispatch(clearQueuedAbility());
+            if (playerState.systemAction) {
+                this.queueSystemAction(playerState.systemAction)
+                store.dispatch(clearSystemAction());
             }
 
             this.reduxCursors = {
@@ -258,8 +259,15 @@ export class Player extends ArcadeContainer {
         })
     }
 
+    queueSystemAction(actionName) {
+        if (!actionName) return;
+        const action = actionMap[actionName];
+        if (!action) return;
+        if (this.systemAction) return;
+        this.systemAction = action;
+    }
+
     queueAbility(abilityName, target) {
-        // need to import action Map here instead
         if (!abilityName) return;
         const ability = actionMap[abilityName];
         if (!ability) return;
@@ -268,6 +276,12 @@ export class Player extends ArcadeContainer {
         if (ability.gcd && this.gcdTimer > 500) return;
         if (this.casting && this.castingTimer > 500) return;
 
+        // TODO: need way to check if applicable target before queueing;  3 behaviors
+        // * applicable target; continue
+        // * inapplicable target; target self instead
+        // * inapplicable target; cancel ability
+        // this data should be stored somewhere with the ability
+        // ill add this in when abilities get more fleshed out
         this.gcdQueue = ability;
         switch(target) {
             case TARGET_CONSTANTS.CURRENT_TARGET:
@@ -451,6 +465,13 @@ export class Player extends ArcadeContainer {
         }
     }
 
+    updateSystemAction(delta) {
+        if (this.systemAction) {
+            this.systemAction.execute(this);
+            this.systemAction = null;
+        }
+    }
+
     update(time, delta) {
 
         // test fall damage
@@ -469,6 +490,7 @@ export class Player extends ArcadeContainer {
         this.updateMovement(delta);
         this.updateCast(delta);
         this.updateAbilityState(delta);
+        this.updateSystemAction(delta);
         const anim = this.calculateAnimationState();
         if (!this.paused) {
             this.character.play(anim, true);

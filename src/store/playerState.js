@@ -23,6 +23,8 @@ const playerStateSlice = createSlice({
     castKey: '',
     castDuration: 0,
     cooldowns: {},
+
+    systemAction: null,
   },
   reducers: {
     setQueuedAbility: (state, action) => {
@@ -64,7 +66,15 @@ const playerStateSlice = createSlice({
     setCast: (state, action) => {
         state.castKey = action.payload.key;
         state.castDuration = action.payload.duration;
-    }
+    },
+    setSystemAction: (state, action) => {
+        if (!state.systemAction) {
+            state.systemAction = action.payload;
+        }
+    },
+    clearSystemAction: (state) => {
+        state.systemAction = null;
+    },
   }
 })
 
@@ -78,6 +88,8 @@ export const {
     setCooldowns,
     setGCD,
     setCast,
+    setSystemAction,
+    clearSystemAction,
 } = playerStateSlice.actions;
 
 export default playerStateSlice;

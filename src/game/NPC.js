@@ -38,7 +38,7 @@ export class NPC extends Phaser.GameObjects.Container {
             Object.assign(this, mixin);
         })
 
-        this.displayName = 'Lamb Seel';
+        this.displayName = 'Non-Player 1';
 
         scene.add.existing(this);
         let textureMap = {
@@ -92,7 +92,7 @@ export class NPC extends Phaser.GameObjects.Container {
         this.ref_x = width / 2;
         this.ref_y = height;
 
-        this.name = scene.add.text(0, 0, 'Lamb Seel', {
+        this.name = scene.add.text(0, 0, this.displayName, {
             fontFamily: 'Comic Sans MS',
             fontSize: '16px',
             fill: '#FFF',

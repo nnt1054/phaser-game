@@ -78,11 +78,13 @@ class defaultScene extends Phaser.Scene {
         // NPC
         this.npc = new NPC(this, 975, 1872);
         this.npc.character.scaleX = Math.abs(this.npc.character.scaleX);
+        this.npc2 = new NPC(this, 915, 1872);
 
         // Player
-        this.player = new Player(this, 80, 1800);
+        // this.player = new Player(this, 80, 1800);
+        this.player = new Player(this, 900, 1800);
 
-        this.npc2 = new NPC(this, 915, 1872);
+        this.npc.targetObject(this.npc2);
         this.npc2.targetObject(this.player);
 
         this.player.setCollideWorldBounds(true);

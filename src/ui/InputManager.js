@@ -36,6 +36,9 @@ const useKeyPress = callback => {
       if (event.keyCode == KeyCodes.SPACE) {
         event.preventDefault();
       }
+      if (event.keyCode == KeyCodes.ENTER) {
+        event.preventDefault();
+      }
     };
 
     const upHandler = event => {

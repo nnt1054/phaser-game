@@ -38,7 +38,12 @@ const movementOnly = {
     },
     [KeyCodes.ESC]: {
       type: 'simple',
-      key: 'closeMenu',
+      key: 'close',
+    },
+
+    [KeyCodes.ENTER]: {
+      type: 'simple',
+      key: 'confirm',
     },
 
     // basic keybinds

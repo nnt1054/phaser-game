@@ -39,6 +39,7 @@ const TargetInfo = () => {
         top: '5vh',
         display: 'flex',
         flexDirection: 'row',
+        alignItems: 'center',
     };
 
     const healthBarStyles = {
@@ -53,6 +54,7 @@ const TargetInfo = () => {
     };
 
     const cotargetHealthBarStyle = {
+        display: (cotargetCurrentHealth == null) ? 'none' : 'block',
         position: 'relative',
         height: '12px',
         width: '256px',
@@ -94,28 +96,54 @@ const TargetInfo = () => {
 
     const targetContainerStyles = {
         display: 'flex',
-        alignItems: 'center',
+        flexDirection: 'column',
     };
 
     const cotargetContainerStyles = {
         display: cotargetDisplay ? 'flex' : 'none',
+        flexDirection: 'column',
     };
 
     const greenLine = {
         display: (currentHealth == null) ? 'block' : 'none',
         position: 'relative',
-        height: '1px',
-        width: '518px',
-        border: '1px solid green',
+        height: '12px',
+        width: '512px',
+        border: '4px solid black',
         borderRadius: '12px',
-        backgroundColor: 'green',
+        backgroundColor: 'gray',
     };
+
+    const cotargetGreenLine = {
+        display: (cotargetCurrentHealth == null) ? 'block' : 'none',
+        position: 'relative',
+        height: '12px',
+        width: '256px',
+        border: '4px solid black',
+        borderRadius: '12px',
+        backgroundColor: 'gray',
+    };
+
+    const targetTextStyles = {
+        display: 'flex',
+        flexDirection: 'row',
+        marginLeft: '4px',
+        fontSize: '12pt',
+        fontFamily: 'Comfortaa',
+        fontWeight: 'bold',
+    }
 
     return (
         <div
             style={ targetInfoContainerStyles }
+            onMouseDown={ e => e.stopPropagation() }
+            onMouseUp={ e => e.stopPropagation() }
         >
             <div style={ targetContainerStyles }>
+                <div style={ targetTextStyles }>
+                    <span style={ percentHealthStyle }> { currentHealth }% </span>
+                    <span style={ textStyle }> { targetName } </span>
+                </div>
                 <div style={ greenLine } />
                 <div style={ healthBarStyles }>
                     <div
@@ -127,15 +155,17 @@ const TargetInfo = () => {
                         className={ styles.BarPrimary }
                     />
                 </div>
-                <div className={ styles.TargetText }>
-                    <span style={ percentHealthStyle }> { currentHealth }% </span>
-                    <span style={ textStyle }> { targetName } </span>
-                </div>
             </div>
 
             {/* cotarget display */}
             <span style={ arrowStyle }> → </span>
+
             <div style={ cotargetContainerStyles }>
+                <div style={ targetTextStyles }>
+                    <span style={ percentHealthStyle }> { currentHealth }% </span>
+                    <span style={ textStyle }> { targetName } </span>
+                </div>
+                <div style={ cotargetGreenLine }/>
                 <div style={ cotargetHealthBarStyle }>
                     <div
                         style={ cotargetUnderlayBarStyles }
@@ -145,10 +175,6 @@ const TargetInfo = () => {
                         style={ cotargetBarStyles }
                         className={ styles.BarPrimary }
                     />
-                </div>
-                <div className={ styles.TargetText }>
-                    <span> { cotargetCurrentHealth }% </span>
-                    <span style={ textStyle }> { cotargetName } </span>
                 </div>
             </div>
         </div>

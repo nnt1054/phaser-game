@@ -17,6 +17,7 @@ import {
     setQueuedAbilityAndTarget,
     setCursorState,
     setJump,
+    setSystemAction,
 } from '../store/playerState';
 
 import {
@@ -216,10 +217,6 @@ const reducerMap = {
         label: 'inventory',
         action: () => { store.dispatch(toggleMenuVisible('inventory')) },
     },
-    'closeMenu': {
-        label: 'close',
-        action: () => { store.dispatch(closeMenus()) },
-    },
     'floss': {
         label: 'flss',
         action: () => { store.dispatch(setQueuedAbility('floss')) },
@@ -312,6 +309,25 @@ const reducerMap = {
             THIS IS AN ITEM NOT AN ABILITY !!!! Restores self HP by 100. Press "I" to open your inventory.
         `
     },
+
+    // system actions
+    'close': {
+        label: 'close',
+        action: () => {
+            const state = store.getState();
+            if (state.menuStates.activeMenus.length) {
+                store.dispatch(closeMenus());
+            } else {
+                store.dispatch(setSystemAction('untarget'));
+            }
+        },
+    },
+    'confirm': {
+        label: 'confirm',
+        action: () => {
+            store.dispatch(setSystemAction('confirm'));
+        },
+    }
 }
 
 export default reducerMap;
