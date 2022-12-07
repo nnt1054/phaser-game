@@ -48,7 +48,7 @@ const TargetInfo = () => {
         height: '12px',
         width: '512px',
         border: '4px solid black',
-        borderRadius: '12px',
+        borderRadius: '4px',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         overflow: 'hidden',
     };
@@ -59,7 +59,7 @@ const TargetInfo = () => {
         height: '12px',
         width: '256px',
         border: '4px solid black',
-        borderRadius: '12px',
+        borderRadius: '4px',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         overflow: 'hidden',
     };
@@ -110,7 +110,7 @@ const TargetInfo = () => {
         height: '12px',
         width: '512px',
         border: '4px solid black',
-        borderRadius: '12px',
+        borderRadius: '4px',
         backgroundColor: 'gray',
     };
 
@@ -120,7 +120,7 @@ const TargetInfo = () => {
         height: '12px',
         width: '256px',
         border: '4px solid black',
-        borderRadius: '12px',
+        borderRadius: '4px',
         backgroundColor: 'gray',
     };
 

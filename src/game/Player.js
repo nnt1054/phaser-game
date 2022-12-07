@@ -553,4 +553,43 @@ export class Player extends ArcadeContainer {
             removeTarget()
         )
     }
+
+    cycleTargets() {
+        const camera = this.scene.cameras.main
+
+        const targets = []
+        for (const target of this.availableTargets) {
+            if (this.checkOverlap(camera.worldView, target.getBounds())) {
+                targets.push(target);
+            }
+        };
+
+        // if no currentTarget, get closest target
+        // if currentTarget, get closest to the right of currentTarget
+        // if currentTarget is the furthest target; get closest target
+
+        // TODO:
+        // * change cycle direction based on player's current direction
+        // * target closest target if currently targeting furthest target
+        const currentX = this.currentTarget ? this.currentTarget.getBounds().centerX : this.body.center.x;
+        let nextTarget = null;
+        for (const target of targets) {
+            const targetX = target.getBounds().centerX;
+            if (this.currentTarget != target) {
+                if (currentX < targetX) {
+                    if (!nextTarget || targetX < nextTarget.getBounds().centerX) {
+                        nextTarget = target;
+                    }
+                }
+            }
+        }
+        if (nextTarget && nextTarget != this.currentTarget) {
+            this.targetObject(nextTarget);
+        }
+    }
+
+    checkOverlap(objectA, objectB) {
+        return Phaser.Geom.Rectangle.Overlaps(objectA, objectB);
+    }
+
 }

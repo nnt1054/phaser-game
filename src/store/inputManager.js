@@ -40,10 +40,13 @@ const movementOnly = {
       type: 'simple',
       key: 'close',
     },
-
     [KeyCodes.ENTER]: {
       type: 'simple',
       key: 'confirm',
+    },
+    [KeyCodes.TAB]: {
+      type: 'simple',
+      key: 'cycleTarget',
     },
 
     // basic keybinds

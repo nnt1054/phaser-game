@@ -36,6 +36,10 @@ import {
     closeMenus,
 } from '../store/menuStates';
 
+import {
+    getNextMessage,
+} from '../store/dialogueBox';
+
 import * as styles from '../App.module.css';
 
 
@@ -280,7 +284,7 @@ const reducerMap = {
         gcd: true,
     },
     'verraise': {
-        label: 'jolt',
+        label: 'verraise',
         action: () => { store.dispatch(setQueuedAbility('verraise')) },
         icon: 'verraise',
         gcd: true,
@@ -325,9 +329,20 @@ const reducerMap = {
     'confirm': {
         label: 'confirm',
         action: () => {
-            store.dispatch(setSystemAction('confirm'));
+            const state = store.getState();
+            if (state.dialogueBox.display) {
+                store.dispatch(getNextMessage());
+            } else {
+                store.dispatch(setSystemAction('confirm'));
+            }
         },
-    }
+    },
+    'cycleTarget': {
+        label: 'cycleTarget',
+        action: () => {
+            store.dispatch(setSystemAction('cycleTarget'));
+        },
+    },
 }
 
 export default reducerMap;

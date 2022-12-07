@@ -30,6 +30,8 @@ const HotBar = (props) => {
     const frameIndex = useSelector(state => state.aniEditor.frameIndex);
     const frameIndexString = `frameIndex${frameIndex}`;
 
+    const dialogueDisplay = useSelector(state => state.dialogueBox.display);
+
     const dragEnabled = CONSTANTS.dragEnabled;
     const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
 
@@ -55,11 +57,12 @@ const HotBar = (props) => {
         },
     );
 
+    const isVisible = (position.visible && !dialogueDisplay);
     const num_slots = position.slots.length;
     const width = props.vertical ? 48: 52 * num_slots;
     const height = props.vertical ? 540 : 48;
     const hotBarStyles = {
-        display: position.visible ? 'flex' : 'none',
+        display: isVisible ? 'flex' : 'none',
         width: `${ width }px`,
         height: `${ height }px`,
         left: `calc(${ position.left }vw - ${ width / 2 }px)`,

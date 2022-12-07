@@ -22,6 +22,7 @@ import InventoryMenu from './ui/InventoryMenu';
 import CastBar from './ui/CastBar';
 import Tooltip from './ui/Tooltip';
 import TargetInfo from './ui/TargetInfo';
+import DialogueBox from './ui/DialogueBox';
 
 
 var config = {
@@ -87,6 +88,7 @@ const App = () => {
                 <CharacterMenu />
                 <InventoryMenu />
 
+                <DialogueBox />
                 <CastBar />
                 <TargetInfo />
                 <Tooltip />

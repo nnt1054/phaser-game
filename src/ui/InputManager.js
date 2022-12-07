@@ -39,6 +39,9 @@ const useKeyPress = callback => {
       if (event.keyCode == KeyCodes.ENTER) {
         event.preventDefault();
       }
+      if (event.keyCode == KeyCodes.TAB) {
+        event.preventDefault();
+      }
     };
 
     const upHandler = event => {

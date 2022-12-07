@@ -208,18 +208,30 @@ const potion = {
         player.setCurrentHealth(100);
         player.cooldownManager.startTimer('potion', 8000);
     },
-}
+};
 
 const untarget = {
     type: 'system',
     execute: (player) => {
         player.untargetObject();
     },
-}
+};
+
 const confirm = {
     type: 'system',
     execute: (player) => {
-        console.log('confirm');
+        if (player.currentTarget) {
+            if (player.currentTarget.handleConfirm) {
+                player.currentTarget.handleConfirm();
+            }
+        }
+    },
+};
+
+const cycleTarget = {
+    type: 'system',
+    execute: (player) => {
+        player.cycleTargets();
     },
 }
 
@@ -242,6 +254,7 @@ const actionMap = {
     // sys actions
     'untarget': untarget,
     'confirm': confirm,
+    'cycleTarget': cycleTarget,
 }
 
 export default actionMap;

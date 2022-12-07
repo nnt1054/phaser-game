@@ -82,7 +82,11 @@ class defaultScene extends Phaser.Scene {
 
         // Player
         // this.player = new Player(this, 80, 1800);
-        this.player = new Player(this, 900, 1800);
+        this.player = new Player(this, 850, 10);
+        this.player.availableTargets = [
+            this.npc,
+            this.npc2,
+        ]
 
         this.npc.targetObject(this.npc2);
         this.npc2.targetObject(this.player);

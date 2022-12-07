@@ -8,6 +8,9 @@ import {
 
 // redux imports
 import store from '../store/store';
+import {
+    setDialogue,
+} from '../store/dialogueBox';
 
 function observeStore(store, select, onChange) {
   let currentState;
@@ -125,31 +128,50 @@ export class NPC extends Phaser.GameObjects.Container {
             this.handleClick();
         });
 
-        this.targetted = false;
+        // this.targetted = false;
     }
 
     handleClick() {
-        if (this.targetted) {
-            // check distance and maybe start dialogue
-            console.log('hey');
+        if (this.isTargeted) {
+            store.dispatch(setDialogue({
+                name: this.displayName,
+                messages: [
+                    'hello!',
+                    'kdjflaskjf;alskjf;laskjf;lasf',
+                    'aslfjkaslkdfjaslkfjasdkljfasdkljlaskdjflkasjf',
+                    'goodbye',
+                ],
+            }))
         } else {
             this.scene.player.targetObject(this);
         }
     }
 
-    target() {
-        this.targetted = true;
-        this.name.text = '> Lamb Seel <';
-        this.name.style.setFontSize('18px');
-        this.name.style.setFill('yellow');
+    handleConfirm() {
+        store.dispatch(setDialogue({
+            name: this.displayName,
+            messages: [
+                'hello!',
+                'kdjflaskjf;alskjf;laskjf;lasf',
+                'aslfjkaslkdfjaslkfjasdkljfasdkljlaskdjflkasjf',
+                'goodbye',
+            ],
+        }))
     }
 
-    untarget() {
-        this.targetted = false;
-        this.name.text = 'Lamb Seel';
-        this.name.style.setFontSize('16px');
-        this.name.style.setFill('white');
-    }
+    // target() {
+    //     this.targetted = true;
+    //     this.name.text = '> Lamb Seel <';
+    //     this.name.style.setFontSize('18px');
+    //     this.name.style.setFill('yellow');
+    // }
+
+    // untarget() {
+    //     this.targetted = false;
+    //     this.name.text = 'Lamb Seel';
+    //     this.name.style.setFontSize('16px');
+    //     this.name.style.setFill('white');
+    // }
 
     autoZoom(zoom) {
         this.name.setScale(1 / zoom);

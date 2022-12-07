@@ -10,6 +10,7 @@ import menuStatesSlice from './menuStates';
 import characterPreviewSlice from './characterPreview';
 import inventorySlice from './inventory';
 import targetInfoSlice from './targetInfo';
+import dialogueBoxSlice from './dialogueBox';
 
 export default configureStore({
     reducer: {
@@ -23,5 +24,6 @@ export default configureStore({
         characterPreview: characterPreviewSlice.reducer,
         inventory: inventorySlice.reducer,
         targetInfo: targetInfoSlice.reducer,
+        dialogueBox: dialogueBoxSlice.reducer,
     }
 })
