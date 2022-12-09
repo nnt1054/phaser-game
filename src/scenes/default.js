@@ -9,7 +9,10 @@ import {
 } from '../game/utils'
 
 import { Player } from '../game/Player';
-import { NPC } from '../game/NPC';
+import {
+    NPC,
+    ENEMY,
+} from '../game/NPC';
 
 import jumpquest_map from '../assets/tilemaps/jq_map.json';
 import jumpquest_bg from '../assets/jq.png';
@@ -76,15 +79,15 @@ class defaultScene extends Phaser.Scene {
         })
 
         // NPC
-        this.npc = new NPC(this, 975, 1872);
-        this.npc2 = new NPC(this, 915, 1872);
-        this.npc3 = new NPC(this, 10, 1872);
-        this.npc4 = new NPC(this, 160, 1872);
-        this.npc5 = new NPC(this, 240, 1872);
-        this.npc6 = new NPC(this, 360, 1872);
+        this.npc1 = new NPC(this, 10, 1872, 'Non-Player 1');
+        this.npc2 = new NPC(this, 160, 1872, 'Non-Player 2');
+        this.npc3 = new ENEMY(this, 240, 1872, 'Enemy 1');
+        this.npc4 = new NPC(this, 360, 1872, 'Non-Player 3');
+        this.npc5 = new ENEMY(this, 915, 1872, 'Enemy 2');
+        this.npc6 = new NPC(this, 975, 1872, 'Non-Player 4');
 
         this.npcs = [
-            this.npc,
+            this.npc1,
             this.npc2,
             this.npc3,
             this.npc4,
@@ -97,9 +100,8 @@ class defaultScene extends Phaser.Scene {
         // this.player = new Player(this, 850, 10);
         this.player.availableTargets = this.npcs;
 
-        this.npc.character.scaleX = Math.abs(this.npc.character.scaleX);
-
-        this.npc.targetObject(this.npc2);
+        this.npc1.character.scaleX = Math.abs(this.npc1.character.scaleX);
+        this.npc1.targetObject(this.npc2);
         this.npc2.targetObject(this.player);
 
         this.player.setCollideWorldBounds(true);

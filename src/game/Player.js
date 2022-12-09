@@ -413,12 +413,6 @@ export class Player extends ArcadeContainer {
             this.character.scaleX = -Math.abs(this.character.scaleX);
         }
 
-        // if (this.body.velocity.x > 0) {
-        //     this.character.scaleX = Math.abs(this.character.scaleX);
-        // } else if (this.body.velocity.x < 0) {
-        //     this.character.scaleX = -Math.abs(this.character.scaleX);
-        // }
-
         if (anim !== this.current_anim) this.current_anim = null;
         return anim;
     }

@@ -1,6 +1,7 @@
 import {
     StaticCompositeSprite,
 } from './utils';
+
 import {
     HealthMixin,
     TargetMixin,
@@ -31,17 +32,17 @@ function observeStore(store, select, onChange) {
 export class NPC extends Phaser.GameObjects.Container {
 
     mixins = [
-        // HealthMixin,
+        HealthMixin,
         TargetMixin,
     ]
 
-    constructor(scene, x, y, children) {
-        super(scene, x, y, children);
+    constructor(scene, x, y, displayName='Non-Player') {
+        super(scene, x, y);
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
         })
 
-        this.displayName = 'Non-Player 1';
+        this.displayName = displayName;
 
         // this.isEnemy = true;
 
@@ -129,53 +130,50 @@ export class NPC extends Phaser.GameObjects.Container {
         this.on('clicked', (object) => {
             this.handleClick();
         });
+    }
 
-        // this.targetted = false;
+    startDialogue() {
+        const messages = [
+            'hello!',
+            '...',
+            '......',
+            '............',
+            'goodbye!',
+        ];
+
+        store.dispatch(setDialogue({
+            name: this.displayName,
+            messages: messages,
+        }))
     }
 
     handleClick() {
         if (this.isTargeted) {
-            store.dispatch(setDialogue({
-                name: this.displayName,
-                messages: [
-                    'hello!',
-                    'kdjflaskjf;alskjf;laskjf;lasf',
-                    'aslfjkaslkdfjaslkfjasdkljfasdkljlaskdjflkasjf',
-                    'goodbye',
-                ],
-            }))
+            this.startDialogue();
         } else {
             this.scene.player.targetObject(this);
         }
     }
 
     handleConfirm() {
-        store.dispatch(setDialogue({
-            name: this.displayName,
-            messages: [
-                'hello!',
-                'kdjflaskjf;alskjf;laskjf;lasf',
-                'aslfjkaslkdfjaslkfjasdkljfasdkljlaskdjflkasjf',
-                'goodbye',
-            ],
-        }))
+        this.startDialogue();
     }
-
-    // target() {
-    //     this.targetted = true;
-    //     this.name.text = '> Lamb Seel <';
-    //     this.name.style.setFontSize('18px');
-    //     this.name.style.setFill('yellow');
-    // }
-
-    // untarget() {
-    //     this.targetted = false;
-    //     this.name.text = 'Lamb Seel';
-    //     this.name.style.setFontSize('16px');
-    //     this.name.style.setFill('white');
-    // }
 
     autoZoom(zoom) {
         this.name.setScale(1 / zoom);
     }
+}
+
+export class ENEMY extends NPC {
+
+    mixins = [
+        HealthMixin,
+        TargetMixin,
+    ]
+
+    constructor(scene, x, y, displayName='Enemy') {
+        super(scene, x, y, displayName);
+        this.isEnemy = true;
+    }
+
 }

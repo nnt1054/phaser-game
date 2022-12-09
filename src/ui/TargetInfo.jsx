@@ -35,7 +35,7 @@ const TargetInfo = () => {
     const targetInfoContainerStyles = {
         visibility: display ? 'visible': 'hidden',
         position: 'absolute',
-        left: '25vw',
+        left: `calc(50vw - ${ 512 / 2 }px)`,
         top: '5vh',
         display: 'flex',
         flexDirection: 'row',
