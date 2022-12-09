@@ -165,6 +165,10 @@ const inputManagerSlice = createSlice({
         hotbar: 4,
         slot: 9,
       },
+      [KeyCodes.TAB]: {
+        type: 'simple',
+        key: 'cycleTargetReverse',
+      },
     },
     ctrlKeymap: {},
     altKeymap: {},

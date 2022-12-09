@@ -215,7 +215,10 @@ const reducerMap = {
     },
     'characterMenu': {
         label: 'menu',
-        action: () => { store.dispatch(toggleMenuVisible('character')) },
+        action: () => {
+            const state = store.getState();
+            store.dispatch(toggleMenuVisible('character'))
+        },
     },
     'inventoryMenu': {
         label: 'inventory',
@@ -341,6 +344,12 @@ const reducerMap = {
         label: 'cycleTarget',
         action: () => {
             store.dispatch(setSystemAction('cycleTarget'));
+        },
+    },
+    'cycleTargetReverse': {
+        label: 'cycleTarget',
+        action: () => {
+            store.dispatch(setSystemAction('cycleTargetReverse'));
         },
     },
 }

@@ -234,6 +234,12 @@ const cycleTarget = {
         player.cycleTargets();
     },
 }
+const cycleTargetReverse = {
+    type: 'system',
+    execute: (player) => {
+        player.cycleTargets(true);
+    },
+}
 
 const actionMap = {
     'attack': basicAttack,
@@ -255,6 +261,7 @@ const actionMap = {
     'untarget': untarget,
     'confirm': confirm,
     'cycleTarget': cycleTarget,
+    'cycleTargetReverse': cycleTargetReverse,
 }
 
 export default actionMap;

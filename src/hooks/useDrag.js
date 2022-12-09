@@ -34,7 +34,12 @@ const useDrag = (ref, onDrag, onRelease, onDown) => {
 
         const moveHandler = event => {
             if (dragState.isPointerDown) {
-                onDrag(event);
+                const zoom = window.outerWidth / window.innerWidth;
+                const pseudoEvent = {
+                    movementX: event.movementX / zoom,
+                    movementY: event.movementY / zoom,
+                };
+                onDrag(pseudoEvent);
                 if (!dragState.isDragging) {
                     setDragState({
                         isDragging: true,

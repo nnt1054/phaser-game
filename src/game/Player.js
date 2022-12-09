@@ -240,6 +240,7 @@ export class Player extends ArcadeContainer {
             this.handleClick();
         })
 
+        this.facingRight = true;
     }
 
     handleClick() {
@@ -281,7 +282,9 @@ export class Player extends ArcadeContainer {
         // * inapplicable target; target self instead
         // * inapplicable target; cancel ability
         // this data should be stored somewhere with the ability
-        // ill add this in when abilities get more fleshed out
+        // ill add this in when abilities get more fleshed out? or maybe when targets are fleshed out
+        // we should be able to prevent the inputManager from queueing with inapplicable targets
+        // but we should still be able to catch those here regardless
         this.gcdQueue = ability;
         switch(target) {
             case TARGET_CONSTANTS.CURRENT_TARGET:
@@ -325,12 +328,14 @@ export class Player extends ArcadeContainer {
             } else {
                 this.setVelocityX(-140);
             }
+            this.facingRight = false;
         } else if (this.reduxCursors.right) {
             if (this.reduxCursors.down) {
                 this.setVelocityX(80);
             } else {
                 this.setVelocityX(140);
             }
+            this.facingRight = true;
         } else {
             this.setVelocityX(0);
         }
@@ -402,11 +407,17 @@ export class Player extends ArcadeContainer {
             this.current_anim = null;
         }
 
-        if (this.body.velocity.x > 0) {
+        if (this.facingRight) {
             this.character.scaleX = Math.abs(this.character.scaleX);
-        } else if (this.body.velocity.x < 0) {
+        } else {
             this.character.scaleX = -Math.abs(this.character.scaleX);
         }
+
+        // if (this.body.velocity.x > 0) {
+        //     this.character.scaleX = Math.abs(this.character.scaleX);
+        // } else if (this.body.velocity.x < 0) {
+        //     this.character.scaleX = -Math.abs(this.character.scaleX);
+        // }
 
         if (anim !== this.current_anim) this.current_anim = null;
         return anim;
@@ -554,42 +565,109 @@ export class Player extends ArcadeContainer {
         )
     }
 
-    cycleTargets() {
-        const camera = this.scene.cameras.main
-
-        const targets = []
+    cycleTargets(isReverse=false) {
+        const camera = this.scene.cameras.main;
+        const targets = [];
         for (const target of this.availableTargets) {
-            if (this.checkOverlap(camera.worldView, target.getBounds())) {
+            if (Phaser.Geom.Rectangle.Overlaps(camera.worldView, target.getBounds())) {
                 targets.push(target);
             }
         };
 
-        // if no currentTarget, get closest target
-        // if currentTarget, get closest to the right of currentTarget
-        // if currentTarget is the furthest target; get closest target
+        const playerX = this.body.center.x;
+        let currentX = this.currentTarget ? this.currentTarget.getBounds().centerX : playerX;
+        if (this.facingRight) {
+            currentX = Math.max(playerX, currentX);
+        } else {
+            currentX = Math.min(playerX, currentX);
+        }
 
-        // TODO:
-        // * change cycle direction based on player's current direction
-        // * target closest target if currently targeting furthest target
-        const currentX = this.currentTarget ? this.currentTarget.getBounds().centerX : this.body.center.x;
+        let furthestTarget = null;
+        let closestTarget = null;
         let nextTarget = null;
-        for (const target of targets) {
-            const targetX = target.getBounds().centerX;
-            if (this.currentTarget != target) {
-                if (currentX < targetX) {
-                    if (!nextTarget || targetX < nextTarget.getBounds().centerX) {
-                        nextTarget = target;
+
+        if (this.facingRight) {
+            for (const target of targets) {
+                const targetX = target.getBounds().centerX;
+                if (isReverse) {
+                    if (playerX < targetX && targetX < currentX) {
+                        if (!nextTarget) {
+                            nextTarget = target;
+                        } else if (targetX > nextTarget.getBounds().centerX) {
+                            nextTarget = target;
+                        }
+                    }
+                } else {
+                    if (currentX < targetX) {
+                        // check if target is to the right of currentTarget
+                        if (!nextTarget) {
+                            nextTarget = target;
+                        } else if (targetX < nextTarget.getBounds().centerX) {
+                            nextTarget = target;
+                        }
+                    }
+                }
+
+                if (playerX < targetX) {
+                    if (!closestTarget) {
+                        closestTarget = target;
+                    } else if (targetX < closestTarget.getBounds().centerX) {
+                        closestTarget = target;
+                    }
+
+                    if (!furthestTarget) {
+                        furthestTarget = target;
+                    } else if (target > furthestTarget.getBounds().centerX) {
+                        furthestTarget = target;
+                    }
+                }
+            }
+        } else {
+            for (const target of targets) {
+                const targetX = target.getBounds().centerX;
+                if (isReverse) {
+                    if (currentX < targetX && targetX < playerX) {
+                        if (!nextTarget) {
+                            nextTarget = target;
+                        } else if (targetX < nextTarget.getBounds().centerX) {
+                            nextTarget = target;
+                        }
+                    }
+                } else {
+                    if (targetX < currentX) {
+                        // check if target is to the right of currentTarget
+                        if (!nextTarget) {
+                            nextTarget = target;
+                        } else if (nextTarget.getBounds().centerX < targetX) {
+                            // check if target is closer to the currentTarget than current next potential target
+                            nextTarget = target;
+                        }
+                    }
+                }
+
+               if (targetX < playerX) {
+                    if (!closestTarget) {
+                        closestTarget = target;
+                    } else if (closestTarget.getBounds().centerX < targetX) {
+                        closestTarget = target;
+                    }
+
+                    if (!furthestTarget) {
+                        furthestTarget = target;
+                    } else if (target < furthestTarget.getBounds().centerX) {
+                        furthestTarget = target;
                     }
                 }
             }
         }
+
         if (nextTarget && nextTarget != this.currentTarget) {
             this.targetObject(nextTarget);
+        } else if (isReverse && furthestTarget && furthestTarget != this.currentTarget) {
+            this.targetObject(furthestTarget);
+        } else if (!isReverse && closestTarget && closestTarget != this.currentTarget) {
+            this.targetObject(closestTarget);
         }
-    }
-
-    checkOverlap(objectA, objectB) {
-        return Phaser.Geom.Rectangle.Overlaps(objectA, objectB);
     }
 
 }

@@ -74,7 +74,13 @@ export const TargetMixin = {
         }
         this.name.text = `> ${ this.displayName } <`;
         this.name.style.setFontSize('18px');
-        this.name.style.setFill('yellow');
+        if (this.isPlayer) {
+            this.name.style.setFill('lightblue');
+        } else if (this.isEnemy) {
+            this.name.style.setFill('red');
+        } else {
+            this.name.style.setFill('yellow');
+        }
     },
 
     untarget: function() {

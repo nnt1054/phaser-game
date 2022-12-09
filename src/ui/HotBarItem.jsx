@@ -158,7 +158,7 @@ const HotBarItem = (props) => {
         fontWeight: 'bold',
         borderRadius: '2px',
         color: 'white',
-        zIndex: 4,
+        zIndex: 11,
         pointerEvents: 'none',
         visibility: (dragging || !empty) ? 'visible' : 'hidden',
         left: 0,
@@ -166,13 +166,13 @@ const HotBarItem = (props) => {
     }
 
     const itemCountStyle = {
-        display: (isItem) ? 'block' : 'none',
+        display: (isItem && !dragStarted) ? 'block' : 'none',
         position: `absolute`,
         fontSize: `10pt`,
         fontWeight: 'bold',
         borderRadius: '2px',
         color: itemCount > 0 ? 'white' : 'red',
-        zIndex: 4,
+        zIndex: 11,
         pointerEvents: 'none',
         visibility: (dragging || !empty) ? 'visible' : 'hidden',
         right: 0,
@@ -217,7 +217,7 @@ const HotBarItem = (props) => {
         opacity: dragStarted ? '0.9': '1',
         pointerEvents: dragStarted ? 'none': 'auto',
         overflow: dragStarted ? 'visible': 'hidden',
-        zIndex: isDragging ? 10 : 1,
+        zIndex: isDragging ? 4 : 1,
         border: (slot.active || isHovering) ? `4px solid white` : `4px solid black`,
         visibility: (dragging || !empty) ? 'visible' : 'hidden',
     }
@@ -229,7 +229,7 @@ const HotBarItem = (props) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: isDragging ? 10 : 1,
+        zIndex: isDragging ? 4 : 1,
     }
 
     const onClick = (event) => {

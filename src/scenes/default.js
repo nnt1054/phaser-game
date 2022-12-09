@@ -77,16 +77,27 @@ class defaultScene extends Phaser.Scene {
 
         // NPC
         this.npc = new NPC(this, 975, 1872);
-        this.npc.character.scaleX = Math.abs(this.npc.character.scaleX);
         this.npc2 = new NPC(this, 915, 1872);
+        this.npc3 = new NPC(this, 10, 1872);
+        this.npc4 = new NPC(this, 160, 1872);
+        this.npc5 = new NPC(this, 240, 1872);
+        this.npc6 = new NPC(this, 360, 1872);
 
-        // Player
-        // this.player = new Player(this, 80, 1800);
-        this.player = new Player(this, 850, 10);
-        this.player.availableTargets = [
+        this.npcs = [
             this.npc,
             this.npc2,
+            this.npc3,
+            this.npc4,
+            this.npc5,
+            this.npc6,
         ]
+
+        // Player
+        this.player = new Player(this, 80, 1800);
+        // this.player = new Player(this, 850, 10);
+        this.player.availableTargets = this.npcs;
+
+        this.npc.character.scaleX = Math.abs(this.npc.character.scaleX);
 
         this.npc.targetObject(this.npc2);
         this.npc2.targetObject(this.player);
@@ -134,8 +145,9 @@ class defaultScene extends Phaser.Scene {
         this.zoom = Math.min(this.zoom, 6)
         this.cameras.main.setZoom(this.zoom);
         this.player.autoZoom(this.zoom);
-        this.npc.autoZoom(this.zoom);
-        this.npc2.autoZoom(this.zoom);
+        for (const npc of this.npcs) {
+            npc.autoZoom(this.zoom);
+        }
     }
 }
 

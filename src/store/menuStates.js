@@ -25,10 +25,11 @@ const menuStatesSlice = createSlice({
         menu.visible = !menu.visible;
         if (menu.visible) {
             state.activeMenus.unshift(action.payload);
+
             menu.zIndex = state.zIndexCounter
             state.zIndexCounter += 10
         } else {
-            state.activeMenus.filter(menu => menu != key);
+            state.activeMenus = state.activeMenus.filter(menuKey => { menuKey !== action.payload });
         }
     },
     pushToFront: (state, action) => {
