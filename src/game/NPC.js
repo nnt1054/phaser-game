@@ -44,8 +44,6 @@ export class NPC extends Phaser.GameObjects.Container {
 
         this.displayName = displayName;
 
-        // this.isEnemy = true;
-
         scene.add.existing(this);
         let textureMap = {
             hair_back: 'hair',

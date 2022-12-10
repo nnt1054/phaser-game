@@ -56,6 +56,38 @@ const TARGET_CONSTANTS = {
     CURRENT_TARGET: 'CURRENT_TARGET',
 }
 
+const compositeConfig = {
+    'hair_back': 'hair',
+    'legs': 'legs',
+    'arm_back': 'arm_back',
+    'armor_body_back_sleeve': 'armor_body_back_sleeve',
+    'torso': 'torso',
+    'armor_body': 'armor_body',
+    'arm_front': 'arm_front',
+    'armor_body_front_sleeve': 'armor_body_front_sleeve',
+    'armor_body_collar': 'armor_body_collar',
+    'head': 'head',
+    'ears': 'ears',
+    'face': 'face',
+    'hair_front': 'hair',
+};
+
+const compositeConfigIndexes = {
+    'hair_back': 1,
+    'legs': 1,
+    'arm_back': 1,
+    'armor_body_back_sleeve': 1,
+    'torso': 1,
+    'armor_body': 1,
+    'arm_front': 1,
+    'armor_body_front_sleeve': 1,
+    'armor_body_collar': 1,
+    'head': 1,
+    'ears': 1,
+    'face': 0,
+    'hair_front': 1,
+};
+
 class CooldownManager {
     constructor() {
         this._cooldowns = new Map();
@@ -111,51 +143,27 @@ export class Player extends ArcadeContainer {
 
         this.displayName = 'Player 1';
 
-        this.name = scene.add.text(0, 0, this.displayName, {
-            fontFamily: 'Comic Sans MS',
-            fontSize: '16px',
-            fill: '#FFF',
-            stroke: '#000',
-            strokeThickness: 8,
-        });
+        this.name = scene.add.text(
+            this.ref_x,
+            this.ref_y - this.body.height,
+            this.displayName,
+            {
+                fontFamily: 'Comic Sans MS',
+                fontSize: '16px',
+                fill: '#FFF',
+                stroke: '#000',
+                strokeThickness: 8,
+            }
+        );
         this.name.setOrigin(0.5, 1);
-        this.name.setPosition(this.ref_x + 0, this.ref_y - this.body.height);
 
-        let compositeConfig = {
-            'hair_back': 'hair',
-            'legs': 'legs',
-            'arm_back': 'arm_back',
-            'armor_body_back_sleeve': 'armor_body_back_sleeve',
-            'torso': 'torso',
-            'armor_body': 'armor_body',
-            'arm_front': 'arm_front',
-            'armor_body_front_sleeve': 'armor_body_front_sleeve',
-            'armor_body_collar': 'armor_body_collar',
-            'head': 'head',
-            'ears': 'ears',
-            'face': 'face',
-            'hair_front': 'hair',
-        };
-
-        let compositeConfigIndexes = {
-            'hair_back': 1,
-            'legs': 1,
-            'arm_back': 1,
-            'armor_body_back_sleeve': 1,
-            'torso': 1,
-            'armor_body': 1,
-            'arm_front': 1,
-            'armor_body_front_sleeve': 1,
-            'armor_body_collar': 1,
-            'head': 1,
-            'ears': 1,
-            'face': 0,
-            'hair_front': 1,
-        };
-
-        this.character = new CompositeSprite(scene, 0, 0, compositeConfig, compositeConfigIndexes);
-        this.character.setPosition(this.ref_x, this.ref_y + 1);
-        this.character.setScale(0.1);
+        this.character = new CompositeSprite(
+            scene,
+            this.ref_x,
+            this.ref_y,
+            compositeConfig,
+            compositeConfigIndexes
+        );
 
         this.add([
             this.name,
@@ -163,21 +171,18 @@ export class Player extends ArcadeContainer {
         ]);
 
         this.platformColliders = [];
-
-        this.coyoteTime = 0;
-        this.jumpUsed = true;
         this.setGravityY(1600);
 
+
+        // Input
         this.gcdQueue = null;
         this.gcdTarget = null;
         this.gcdTimer = 0;
         this.abilityTimer = 0;
-
+        this.systemAction = null;
         this.casting = null;
         this.castTarget = null;
         this.castingTimer = 0;
-
-        this.paused = false;
 
         this.reduxCursors = {
             up: 0,
@@ -185,14 +190,6 @@ export class Player extends ArcadeContainer {
             left: 0,
             right: 0,
         }
-
-        // experimental timers
-        this.regenTimer = 3000;
-        this.previousVelocityY = 0;
-
-        this.current_anim = null;
-        this.systemAction = null;
-
         const getPlayerState = state => state.playerState;
         this.observer = observeStore(store, getPlayerState, (playerState) => {
             if (playerState.queuedAbility) {
@@ -217,6 +214,31 @@ export class Player extends ArcadeContainer {
             }
         });
 
+        // Movement
+        this.coyoteTime = 0;
+        this.jumpUsed = true;
+        this.facingRight = true;
+        this.current_anim = null;
+        this.previousVelocityY = 0;
+
+        // TODO: move cooldowns to mixin
+        this.cooldownManager = new CooldownManager();
+
+        // TODO: move inventory to mixin
+        this.inventory = new Map();
+        this.inventory.set('potion', 3);
+
+        let clickPadding = 24
+        this.setInteractive(
+            new Phaser.Geom.Rectangle(0 - (clickPadding/2), 0 - clickPadding, 32 + clickPadding, 48 + clickPadding),
+            Phaser.Geom.Rectangle.Contains
+        );
+        this.on('clicked', (object) => {
+            this.handleClick();
+        })
+
+        // Animation Editor
+        this.paused = false;
         this.currentFrame = 0;
         const getFrameIndex = state => state.aniEditor;
         this.observer_animation = observeStore(store, getFrameIndex, (animState) => {
@@ -226,21 +248,6 @@ export class Player extends ArcadeContainer {
             }
             this.character.setActiveCompositeStates(animState.compositeStates);
         })
-
-        this.cooldownManager = new CooldownManager();
-        this.inventory = new Map();
-        this.inventory.set('potion', 3);
-
-        let padding = 24
-        this.setInteractive(
-            new Phaser.Geom.Rectangle(0 - (padding/2), 0 - padding, 32 + padding, 48 + padding),
-            Phaser.Geom.Rectangle.Contains
-        );
-        this.on('clicked', (object) => {
-            this.handleClick();
-        })
-
-        this.facingRight = true;
     }
 
     handleClick() {
@@ -483,14 +490,6 @@ export class Player extends ArcadeContainer {
         if (this.body.onFloor() && this.previousVelocityY >= 800) {
             this.setCurrentHealth(1);
         }
-
-        // test regen
-        // this.regenTimer -= delta;
-        // if (this.regenTimer <= 0) {
-        //     store.dispatch(incrementHealth(10));
-        //     this.regenTimer += 3000;
-        //     this.addItem('potion', 1);
-        // }
 
         this.updateMovement(delta);
         this.updateCast(delta);

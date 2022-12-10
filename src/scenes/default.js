@@ -71,10 +71,13 @@ class defaultScene extends Phaser.Scene {
         const map_bg = this.add.image(0, this.map.heightInPixels, 'jumpquest_bg');
         map_bg.setOrigin(0, 1);
 
-        const temp = this.add.rectangle(0, this.map.heightInPixels, this.map.widthInPixels, this.map.heightInPixels);
-        temp.setOrigin(0, 1);
-        temp.setInteractive();
-        temp.on('clicked', (object) => {
+        const inputUnderlay = this.add.rectangle(
+            0, 0,
+            this.map.widthInPixels, this.map.heightInPixels,
+        );
+        inputUnderlay.setOrigin(0, 0);
+        inputUnderlay.setInteractive();
+        inputUnderlay.on('clicked', (object) => {
             this.player.untargetObject();
         })
 
@@ -96,8 +99,8 @@ class defaultScene extends Phaser.Scene {
         ]
 
         // Player
-        this.player = new Player(this, 80, 1800);
-        // this.player = new Player(this, 850, 10);
+        // this.player = new Player(this, 80, 1800);
+        this.player = new Player(this, 850, 10);
         this.player.availableTargets = this.npcs;
 
         this.npc1.character.scaleX = Math.abs(this.npc1.character.scaleX);

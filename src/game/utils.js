@@ -148,6 +148,9 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
             this.composition[key].setOrigin(0.5, 1);
             scene.frameAnimator.add(this.composition[key]);
         })
+
+        // set default sprite scale
+        this.setScale(0.1);
     }
 
     play(anim, ignoreIfPlaying) {
