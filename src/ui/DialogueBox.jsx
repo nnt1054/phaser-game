@@ -13,6 +13,8 @@ import actionMap from './actions';
 import icons from './icons';
 import {
     getNextMessage,
+    setCurrentOption,
+    submitCurrentOption,
 } from '../store/dialogueBox';
 
 import * as styles from './../App.module.css';
@@ -25,7 +27,8 @@ const DialogueBox = () => {
     const dialogue = useSelector(state => state.dialogueBox)
     const { display, left, bottom, zIndex } = dialogue;
     const { name, messageIndex, messages } = dialogue;
-    const message = messages[messageIndex];
+    const message = messages ? messages[messageIndex] : '';
+    const { options, currentOption } = dialogue;
 
     const width = 720;
     const height = 256;
@@ -81,6 +84,21 @@ const DialogueBox = () => {
             <div style={ textContainerStyles }>
                 <span> { name } </span>
                 <p> { message } </p>
+                <div style={ {margin: 'auto'} }>
+                    {
+                        options.map((option, i) => {
+                            return <p
+                                key={ i }
+                                onMouseOver={ event => {
+                                    dispatch(setCurrentOption(i))
+                                }}
+                                onClick={ event => {
+                                    dispatch(submitCurrentOption());
+                                }}
+                            > { currentOption == i ? '> ' : ''} { option.text } </p>
+                        })
+                    }
+                </div> 
             </div>
         </div>
     )

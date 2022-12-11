@@ -242,11 +242,12 @@ export class Player extends ArcadeContainer {
         // Dialogue
         this.dialogueTarget = null;
         this.dialogueComplete = true;
-        const getDialogueComplete = state => state.dialogueBox.complete;
-        this.dialogueObserver = observeStore(store, getDialogueComplete, (complete) => {
-            if (complete) {
-                // only set when complete;
-                this.dialogueComplete = complete;
+        this.dialogueOption = null;
+        const getDialogueComplete = state => state.dialogueBox;
+        this.dialogueObserver = observeStore(store, getDialogueComplete, (dialogueState) => {
+            if (dialogueState.complete) {
+                this.dialogueComplete = dialogueState.complete;
+                this.dialogueOption = dialogueState.currentOption;
             }
         });
 
@@ -506,11 +507,9 @@ export class Player extends ArcadeContainer {
 
         if (this.dialogueTarget) {
             if (this.dialogueTarget.shouldEndDialogue(this)) {
-                this.dialogueTarget = null;
-                store.dispatch(clearDialogue());
-            }
-            if (this.dialogueComplete) {
-                this.dialogueTarget.completeDialogue(this);
+                this.dialogueTarget.endDialogue(this);
+            } else if (this.dialogueComplete) {
+                this.dialogueTarget.completeDialogue(this, this.dialogueOption);
             }
         }
 

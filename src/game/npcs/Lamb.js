@@ -113,21 +113,18 @@ export class Lamb extends Phaser.GameObjects.Container {
             this.interactionRect,
         ]);
 
+        this.messages = createMessages({
+            name: this.displayName,
+        })
+        this.currentMessage = null;
     }
 
     startDialogue() {
         const player = this.scene.player;
-        const messages = getMessages({
-            name: player.displayName,
-        })
         const inRange = Phaser.Geom.Rectangle.Overlaps(player.getBounds(), this.interactionRect.getBounds());
         if (inRange && player.body.onFloor()) {
             player.dialogueTarget = this;
-            player.dialogueComplete = false;
-            store.dispatch(setDialogue({
-                name: this.displayName,
-                messages: messages,
-            }))
+            this.displayMessage(player, this.messages['001']);
         } else {
             console.log('you are not in range!');
         }
@@ -138,9 +135,50 @@ export class Lamb extends Phaser.GameObjects.Container {
         return !inRange;
     }
 
-    completeDialogue(player) {
+    displayMessage(player, message) {
+        this.currentMessage = message;
+        if (this.currentMessage.type == 'simple') {
+            store.dispatch(setDialogue({
+                name: this.displayName,
+                messages: message.messages,
+            }))
+            player.dialogueComplete = false;
+        } else if (this.currentMessage.type == 'question') {
+            store.dispatch(setDialogue({
+                name: this.displayName,
+                messages: [message.message],
+                options: message.options,
+            }))
+            player.dialogueComplete = false;
+        } else {
+            this.endDialogue(player);
+        }
+    }
+
+    completeDialogue(player, optionIndex) {
+        if (this.currentMessage) {
+            if (this.currentMessage.type == 'simple') {
+                if (this.currentMessage.next) {
+                    const nextMessage = this.messages[this.currentMessage.next];
+                    this.displayMessage(player, nextMessage);
+                } else {
+                    this.endDialogue(player);
+                }
+            } else if (this.currentMessage.type == 'question') {
+                console.log('a question has been answered');
+                const option = this.currentMessage.options[optionIndex]
+                const nextMessage = this.messages[option.next];
+                this.displayMessage(player, nextMessage);
+            } else {
+                this.endDialogue(player);
+            }
+        }
+    }
+
+    endDialogue(player) {
         player.dialogueTarget = null;
-        console.log('nice complete');
+        player.dialogueComplete = true;
+        store.dispatch(clearDialogue());
     }
 
     handleClick() {
@@ -160,11 +198,41 @@ export class Lamb extends Phaser.GameObjects.Container {
     }
 }
 
-const getMessages = (config) => {
-    const messages = [
-        `Hello ${ config.name }`,
-        'You who are our future, tell me this and tell me true.',
-        'Has your journey been good? Has it been worthwhile?',
-    ];
-    return messages;
+
+const createMessages = config => {
+    return {
+        '001': {
+            type: 'simple',
+            messages: [
+                `Hello ${ config.name }`,
+                'You who are our future, tell me this and tell me true.',
+                'Has your journey been good? Has it been worthwhile?',
+            ],
+            next: '002',
+        },
+        '002': {
+            type: 'question',
+            message: 'Would you rather...',
+            options: [
+                { text: 'Unlimited bacon but no games', next: '003'},
+                { text: 'or games, UNLIMITED GAMES... but no games', next: '004'},
+            ]
+        },
+        '003': {
+            type: 'simple',
+            messages: [
+                'what are you, dumb?',
+                'consider using your head a little',
+            ],
+            next: null,
+        },
+        '004': {
+            type: 'simple',
+            messages: [
+                `same here, ${ config.name }`,
+                'have a good day.'
+            ],
+            next: null,
+        }
+    }
 }
