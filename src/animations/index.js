@@ -78,6 +78,7 @@ function loadCompositeAnimation(scene, config, playerTextureMap) {
         for (var i = 0; i < rows; i++) {
             let data = {
                 key: `${key}_${i}_${config.key}`,
+                repeat: config.repeat ?? 0,
                 frameRate: config.frameRate,
                 frames: frames.map(frame => {
                     return {

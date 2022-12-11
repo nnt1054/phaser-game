@@ -12,6 +12,7 @@ const dialogueBoxSlice = createSlice({
     name: '',
     messageIndex: 0,
     messages: [],
+    complete: true,
   },
   reducers: {
     setDialogue: (state, action) => {
@@ -19,11 +20,20 @@ const dialogueBoxSlice = createSlice({
         state.name = action.payload.name;
         state.messageIndex = 0;
         state.messages = action.payload.messages;
+        state.complete = false;
+    },
+    clearDialogue: (state) => {
+        state.display = false;
+        state.name = '';
+        state.messageIndex = 0;
+        state.messages = [];
+        state.complete = true;
     },
     getNextMessage: (state) => {
         state.messageIndex += 1;
         if (state.messageIndex >= state.messages.length) {
             state.display = false;
+            state.complete = true;
         }
     },
   }
@@ -31,6 +41,7 @@ const dialogueBoxSlice = createSlice({
 
 export const {
     setDialogue,
+    clearDialogue,
     getNextMessage,
 } = dialogueBoxSlice.actions;
 

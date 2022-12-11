@@ -1,5 +1,6 @@
 {
     "key": "idle",
+    "repeat": -1,
     "frameRate": 1,
     "frames": {
         "hair_back": [

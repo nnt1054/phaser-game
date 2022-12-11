@@ -31,6 +31,9 @@ import {
     addItemCount
 } from '../store/inventory';
 import {
+    clearDialogue,
+} from '../store/dialogueBox';
+import {
     HealthMixin,
     TargetMixin,
 } from './mixins';
@@ -160,7 +163,7 @@ export class Player extends ArcadeContainer {
         this.character = new CompositeSprite(
             scene,
             this.ref_x,
-            this.ref_y,
+            this.ref_y + 1,
             compositeConfig,
             compositeConfigIndexes
         );
@@ -172,7 +175,6 @@ export class Player extends ArcadeContainer {
 
         this.platformColliders = [];
         this.setGravityY(1600);
-
 
         // Input
         this.gcdQueue = null;
@@ -228,7 +230,7 @@ export class Player extends ArcadeContainer {
         this.inventory = new Map();
         this.inventory.set('potion', 3);
 
-        let clickPadding = 24
+        let clickPadding = 24;
         this.setInteractive(
             new Phaser.Geom.Rectangle(0 - (clickPadding/2), 0 - clickPadding, 32 + clickPadding, 48 + clickPadding),
             Phaser.Geom.Rectangle.Contains
@@ -237,11 +239,22 @@ export class Player extends ArcadeContainer {
             this.handleClick();
         })
 
+        // Dialogue
+        this.dialogueTarget = null;
+        this.dialogueComplete = true;
+        const getDialogueComplete = state => state.dialogueBox.complete;
+        this.dialogueObserver = observeStore(store, getDialogueComplete, (complete) => {
+            if (complete) {
+                // only set when complete;
+                this.dialogueComplete = complete;
+            }
+        });
+
         // Animation Editor
         this.paused = false;
         this.currentFrame = 0;
         const getFrameIndex = state => state.aniEditor;
-        this.observer_animation = observeStore(store, getFrameIndex, (animState) => {
+        this.animationObserver = observeStore(store, getFrameIndex, (animState) => {
             if (animState.frameIndex != this.currentFrame) {
                 this.currentFrame = animState.frameIndex;
                 this.queueAbility(`frame${animState.frameIndex}`);
@@ -489,6 +502,16 @@ export class Player extends ArcadeContainer {
         // test fall damage
         if (this.body.onFloor() && this.previousVelocityY >= 800) {
             this.setCurrentHealth(1);
+        }
+
+        if (this.dialogueTarget) {
+            if (this.dialogueTarget.shouldEndDialogue(this)) {
+                this.dialogueTarget = null;
+                store.dispatch(clearDialogue());
+            }
+            if (this.dialogueComplete) {
+                this.dialogueTarget.completeDialogue(this);
+            }
         }
 
         this.updateMovement(delta);

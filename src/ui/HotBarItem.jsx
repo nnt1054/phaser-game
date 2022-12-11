@@ -201,7 +201,7 @@ const HotBarItem = (props) => {
         zIndex: 3,
         pointerEvents: 'none',
         display: (tile.gcd && gcd) ? 'block' : 'none',
-        animation: gcd ? `${ styles.roll } ${ gcd / 1000 }s infinite linear` : 'none',
+        animation: gcd ? `${ styles.roll } ${ (gcd) / 1000 }s infinite linear` : 'none',
     }
 
     // TODO: deprecate old styles once all abilities have an icon
