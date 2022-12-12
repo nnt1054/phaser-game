@@ -5,6 +5,7 @@ import {
 import {
     HealthMixin,
     TargetMixin,
+    DialogueMixin,
 } from '../mixins';
 
 import store from '../../store/store';
@@ -18,6 +19,7 @@ export class SignPost extends Phaser.GameObjects.Container {
 
     mixins = [
         TargetMixin,
+        DialogueMixin,
     ]
 
     constructor(scene, x, y, displayName='Non-Player') {
@@ -71,43 +73,31 @@ export class SignPost extends Phaser.GameObjects.Container {
             this.interactionRect,
         ]);
 
-    }
-
-    startDialogue() {
-        const messages = [
-            'hello! congrats on making it this far!',
-            'you actually get nothing for being here',
-            'goodbye!',
-        ];
-
-        const player = this.scene.player;
-        const inRange = Phaser.Geom.Rectangle.Overlaps(player.getBounds(), this.interactionRect.getBounds());
-        if (inRange && player.body.onFloor()) {
-            player.dialogueTarget = this;
-            store.dispatch(setDialogue({
-                name: this.displayName,
-                messages: messages,
-            }))
-        } else {
-            console.log('you are not in range!');
-        }
-    }
-
-    shouldEndDialogue(player) {
-        const inRange = Phaser.Geom.Rectangle.Overlaps(player.getBounds(), this.interactionRect.getBounds());
-        return !inRange;
+        this.messages = {
+            '001': {
+                type: 'simple',
+                messages: [
+                    'hello! congrats on making it this far!',
+                    'you actually get nothing for being here',
+                    'goodbye!',
+                ],
+                next: null,
+            },
+        };
     }
 
     handleClick() {
+        const player = this.scene.player;
         if (this.isTargeted) {
-            this.startDialogue();
+            this.startDialogue(player);
         } else {
             this.scene.player.targetObject(this);
         }
     }
 
     handleConfirm() {
-        this.startDialogue();
+        const player = this.scene.player;
+        this.startDialogue(player);
     }
 
     autoZoom(zoom) {

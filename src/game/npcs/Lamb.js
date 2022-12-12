@@ -4,6 +4,7 @@ import {
 
 import {
     TargetMixin,
+    DialogueMixin,
 } from '../mixins';
 
 import store from '../../store/store';
@@ -44,10 +45,12 @@ const compositeConfigIndexes = {
     'hair_front': 1,
 };
 
+
 export class Lamb extends Phaser.GameObjects.Container {
 
     mixins = [
         TargetMixin,
+        DialogueMixin,
     ]
 
     constructor(scene, x, y, displayName='Non-Player') {
@@ -114,83 +117,22 @@ export class Lamb extends Phaser.GameObjects.Container {
         ]);
 
         this.messages = createMessages({
-            name: this.displayName,
+            name: scene.player.displayName,
         })
-        this.currentMessage = null;
-    }
-
-    startDialogue() {
-        const player = this.scene.player;
-        const inRange = Phaser.Geom.Rectangle.Overlaps(player.getBounds(), this.interactionRect.getBounds());
-        if (inRange && player.body.onFloor()) {
-            player.dialogueTarget = this;
-            this.displayMessage(player, this.messages['001']);
-        } else {
-            console.log('you are not in range!');
-        }
-    }
-
-    shouldEndDialogue(player) {
-        const inRange = Phaser.Geom.Rectangle.Overlaps(player.getBounds(), this.interactionRect.getBounds());
-        return !inRange;
-    }
-
-    displayMessage(player, message) {
-        this.currentMessage = message;
-        if (this.currentMessage.type == 'simple') {
-            store.dispatch(setDialogue({
-                name: this.displayName,
-                messages: message.messages,
-            }))
-            player.dialogueComplete = false;
-        } else if (this.currentMessage.type == 'question') {
-            store.dispatch(setDialogue({
-                name: this.displayName,
-                messages: [message.message],
-                options: message.options,
-            }))
-            player.dialogueComplete = false;
-        } else {
-            this.endDialogue(player);
-        }
-    }
-
-    completeDialogue(player, optionIndex) {
-        if (this.currentMessage) {
-            if (this.currentMessage.type == 'simple') {
-                if (this.currentMessage.next) {
-                    const nextMessage = this.messages[this.currentMessage.next];
-                    this.displayMessage(player, nextMessage);
-                } else {
-                    this.endDialogue(player);
-                }
-            } else if (this.currentMessage.type == 'question') {
-                console.log('a question has been answered');
-                const option = this.currentMessage.options[optionIndex]
-                const nextMessage = this.messages[option.next];
-                this.displayMessage(player, nextMessage);
-            } else {
-                this.endDialogue(player);
-            }
-        }
-    }
-
-    endDialogue(player) {
-        player.dialogueTarget = null;
-        player.dialogueComplete = true;
-        store.dispatch(clearDialogue());
     }
 
     handleClick() {
+        const player = this.scene.player;
         if (this.isTargeted) {
-            this.startDialogue();
+            this.startDialogue(player);
         } else {
             this.scene.player.targetObject(this);
         }
     }
 
     handleConfirm() {
-        this.startDialogue();
+        const player = this.scene.player;
+        this.startDialogue(player);
     }
 
     autoZoom(zoom) {
@@ -206,7 +148,6 @@ const createMessages = config => {
             messages: [
                 `Hello ${ config.name }`,
                 'You who are our future, tell me this and tell me true.',
-                'Has your journey been good? Has it been worthwhile?',
             ],
             next: '002',
         },
@@ -221,8 +162,8 @@ const createMessages = config => {
         '003': {
             type: 'simple',
             messages: [
-                'what are you, dumb?',
-                'consider using your head a little',
+                'hmmmm',
+                'questionable.',
             ],
             next: null,
         },

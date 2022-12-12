@@ -10,6 +10,10 @@ import {
     removeCotarget,
     setCotargetCurrentHealth,
 } from '../store/targetInfo';
+import {
+    setDialogue,
+    clearDialogue,
+} from '../store/dialogueBox';
 
 
 export const HealthMixin = {
@@ -93,7 +97,6 @@ export const TargetMixin = {
         this.name.style.setFill('white');
     },
 
-
     targetObject: function(gameObject) {
         if (gameObject.isTargetable) {
             if (this.isPlayer) {
@@ -157,4 +160,81 @@ export const TargetMixin = {
             this.currentTarget = null;
         }
     },
+}
+
+
+export const DialogueMixin = {
+
+    hasDialogue: true,
+    messages: {},
+    currentMessage: null,
+    interactionRect: null,
+
+    isPlayerInRange: function(player) {
+        if (this.interactionRect) {
+            return Phaser.Geom.Rectangle.Overlaps(
+                player.getBounds(),
+                this.interactionRect.getBounds(),
+            )
+        } else {
+            return true;
+        }
+    },
+
+    startDialogue: function(player) {
+        if (this.isPlayerInRange(player) && player.body.onFloor()) {
+            player.dialogueTarget = this;
+            this.displayMessage(player, this.messages['001']);
+        } else {
+            console.log('Target is not in range.');
+        }
+    },
+
+    displayMessage: function(player, message) {
+        this.currentMessage = message;
+        if (this.currentMessage.type == 'simple') {
+            store.dispatch(setDialogue({
+                name: this.displayName,
+                messages: message.messages,
+            }));
+            player.dialogueComplete = false;
+        } else if (this.currentMessage.type == 'question') {
+            store.dispatch(setDialogue({
+                name: this.displayName,
+                messages: [message.message],
+                options: message.options,
+            }));
+            player.dialogueComplete = false;
+        } else {
+            this.endDialogue(player);
+        }
+    },
+
+    completeDialogue: function(player, optionIndex) {
+        if (this.currentMessage) {
+            if (this.currentMessage.type == 'simple') {
+                if (this.currentMessage.next) {
+                    const nextMessage = this.messages[this.currentMessage.next];
+                    this.displayMessage(player, nextMessage);
+                } else {
+                    this.endDialogue(player);
+                }
+            } else if (this.currentMessage.type == 'question') {
+                const option = this.currentMessage.options[optionIndex];
+                const nextMessage = this.messages[option.next];
+                this.displayMessage(player, nextMessage);
+            } else {
+                this.endDialogue(player);
+            }
+        } else {
+            this.endDialogue(player);
+        }
+    },
+
+    endDialogue(player) {
+        player.dialogueTarget = null;
+        player.dialogueComplete = true;
+        store.dispatch(clearDialogue());
+    },
+
 }

@@ -15,7 +15,7 @@ const dialogueBoxSlice = createSlice({
     complete: true,
 
     options: [],
-    currentOption: 0,
+    currentOption: -1,
   },
   reducers: {
     setDialogue: (state, action) => {
@@ -25,6 +25,7 @@ const dialogueBoxSlice = createSlice({
         state.messages = action.payload.messages;
         state.complete = false;
         state.options = action.payload.options ?? [];
+        state.currentOption = -1;
     },
     clearDialogue: (state) => {
         state.display = false;
@@ -33,11 +34,10 @@ const dialogueBoxSlice = createSlice({
         state.messages = [];
         state.complete = true;
         state.options = [];
+        state.currentOption = -1;
     },
     getNextMessage: (state) => {
-        if (state.options.length > 0) {
-            console.log('dont advance');
-        } else {
+        if (!state.options.length) {
             state.messageIndex += 1;
             if (state.messageIndex >= state.messages.length) {
                 state.display = false;
@@ -52,8 +52,6 @@ const dialogueBoxSlice = createSlice({
         state.currentOption = action.payload;
     },
     submitCurrentOption: (state) => {
-        // signal completed dialogue
-        // read state.currentOption as submission
         state.display = false;
         state.complete = true;
         state.messageIndex = 0;

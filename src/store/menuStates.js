@@ -24,12 +24,13 @@ const menuStatesSlice = createSlice({
         const menu = state[action.payload];
         menu.visible = !menu.visible;
         if (menu.visible) {
-            state.activeMenus.unshift(action.payload);
-
+            state.activeMenus.push(action.payload);
             menu.zIndex = state.zIndexCounter
             state.zIndexCounter += 10
         } else {
-            state.activeMenus = state.activeMenus.filter(menuKey => { menuKey !== action.payload });
+            state.activeMenus = state.activeMenus.filter(menuKey => {
+                return menuKey !== action.payload;
+            });
         }
     },
     pushToFront: (state, action) => {
@@ -47,7 +48,7 @@ const menuStatesSlice = createSlice({
         state.zIndexCounter += 10;
     },
     closeMenus: (state) => {
-        const key = state.activeMenus.shift()
+        const key = state.activeMenus.pop()
         if (key && state[key]) {
             state[key].visible = false;
         }

@@ -55,6 +55,7 @@ class defaultScene extends Phaser.Scene {
     }
 
     create () {
+        // this.input.enableDebug();
         this.frameAnimator = this.plugins.get('frameAnimator');
         animationCreate(this);
 
@@ -86,29 +87,20 @@ class defaultScene extends Phaser.Scene {
             this.player.untargetObject();
         })
 
+        // Player
+        // this.player = new Player(this, 32 * 18, 32 * 1.5);
+        this.player = new Player(this, 32 * 3, 32 * 56);
+
         // NPC
-        this.npc1 = new NPC(this, 10, 1872, 'Non-Player 1');
-        this.npc2 = new NPC(this, 160, 1872, 'Non-Player 2');
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
         this.lamb = new Lamb(this, 32 * 20, 32 * 1.5, 'Lamb');
-        this.input.enableDebug(this.sign);
 
         this.npcs = [
-            this.npc1,
-            this.npc2,
             this.sign,
             this.lamb,
-        ]
+        ];
 
-        // Player
-        this.player = new Player(this, 32 * 18, 32 * 1.5);
-        // this.player = new Player(this, 850, 10);
         this.player.availableTargets = this.npcs;
-
-        this.npc1.character.scaleX = Math.abs(this.npc1.character.scaleX);
-        this.npc1.targetObject(this.npc2);
-        this.npc2.targetObject(this.player);
-
         this.player.setCollideWorldBounds(true);
         this.player.addPlatforms([layer2]);
         this.player.addCollision([layer1]);
@@ -126,7 +118,6 @@ class defaultScene extends Phaser.Scene {
             this.zoom -= deltaY * 0.001;
             this.autoZoomCamera();
         });
-
         this.autoZoomCamera();
 
         this.mouse = null;

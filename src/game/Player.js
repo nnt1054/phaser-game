@@ -506,7 +506,7 @@ export class Player extends ArcadeContainer {
         }
 
         if (this.dialogueTarget) {
-            if (this.dialogueTarget.shouldEndDialogue(this)) {
+            if (!this.dialogueTarget.isPlayerInRange(this)) {
                 this.dialogueTarget.endDialogue(this);
             } else if (this.dialogueComplete) {
                 this.dialogueTarget.completeDialogue(this, this.dialogueOption);
