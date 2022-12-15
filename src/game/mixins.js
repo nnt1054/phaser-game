@@ -14,11 +14,15 @@ import {
     setDialogue,
     clearDialogue,
 } from '../store/dialogueBox';
+import {
+    setAlert,
+} from '../store/alert';
 
 
 export const HealthMixin = {
 
-    health: 50,
+    hasHealth: true,
+    health: 100,
     maxHealth: 100,
 
     setCurrentHealth: function(value) {
@@ -36,6 +40,10 @@ export const HealthMixin = {
     reduceHealth: function(value) {
         this.health = Math.max(this.health - value, 0);
         this.updateStore();
+
+        if (this.health <= 0) {
+            this.visible = false;
+        }
     },
 
     updateStore: function() {
@@ -81,7 +89,7 @@ export const TargetMixin = {
         if (this.isPlayer) {
             this.name.style.setFill('lightblue');
         } else if (this.isEnemy) {
-            this.name.style.setFill('red');
+            this.name.style.setFill('pink');
         } else {
             this.name.style.setFill('yellow');
         }
@@ -104,12 +112,14 @@ export const TargetMixin = {
                 this.currentTarget = gameObject;
                 gameObject.target();
 
+                const backgroundColor = gameObject.isEnemy ? 'pink' : 'lightblue';
                 if ('health' in gameObject) {
                     store.dispatch(
                         setTarget({
                             targetName: gameObject.displayName,
                             currentHealth: gameObject.health,
                             maxHealth: gameObject.maxHealth,
+                            backgroundColor: backgroundColor,
                         })
                     )
                 } else {
@@ -130,6 +140,7 @@ export const TargetMixin = {
                                 targetName: cotarget.displayName,
                                 currentHealth: cotarget.health,
                                 maxHealth: cotarget.maxHealth,
+                                backgroundColor: backgroundColor,
                             })
                         )
                     } else {
@@ -186,7 +197,7 @@ export const DialogueMixin = {
             player.dialogueTarget = this;
             this.displayMessage(player, this.messages['001']);
         } else {
-            console.log('Target is not in range.');
+            store.dispatch(setAlert('Target is not in range.'));
         }
     },
 

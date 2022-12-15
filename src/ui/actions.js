@@ -265,11 +265,6 @@ const reducerMap = {
         icon: 'melee3',
         gcd: true,
     },
-    'fleche': {
-        label: 'fleche',
-        action: () => { store.dispatch(setQueuedAbility('fleche')) },
-        icon: 'fleche',
-    },
     'embolden': {
         label: 'embolden',
         action: () => { store.dispatch(setQueuedAbility('embolden')) },
@@ -282,9 +277,28 @@ const reducerMap = {
     },
     'jolt': {
         label: 'jolt',
-        action: () => { store.dispatch(setQueuedAbility('jolt')) },
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'jolt',
+                    target: target ?? null,
+                })
+            );
+        },
         icon: 'jolt',
         gcd: true,
+    },
+    'fleche': {
+        label: 'fleche',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'fleche',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'fleche',
     },
     'verraise': {
         label: 'verraise',
@@ -303,6 +317,24 @@ const reducerMap = {
         action: () => { store.dispatch(setQueuedAbility('verflare')) },
         icon: 'verflare',
         gcd: true,
+    },
+
+    'vercure': {
+        label: 'vercure',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'vercure',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'vercure',
+        gcd: true,
+        description: `
+            Restores target HP by 10.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+        `,
     },
 
     // items

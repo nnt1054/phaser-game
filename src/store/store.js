@@ -11,6 +11,7 @@ import characterPreviewSlice from './characterPreview';
 import inventorySlice from './inventory';
 import targetInfoSlice from './targetInfo';
 import dialogueBoxSlice from './dialogueBox';
+import alertSlice from './alert';
 
 export default configureStore({
     reducer: {
@@ -25,5 +26,6 @@ export default configureStore({
         inventory: inventorySlice.reducer,
         targetInfo: targetInfoSlice.reducer,
         dialogueBox: dialogueBoxSlice.reducer,
+        alert: alertSlice.reducer,
     }
 })

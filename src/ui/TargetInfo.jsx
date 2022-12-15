@@ -9,19 +9,21 @@ const TargetInfo = () => {
     const currentHealth = useSelector(state => state.targetInfo.currentHealth);
     const percentHealth = useSelector(state => state.targetInfo.percentHealth);
     const increasing = useSelector(state => state.targetInfo.increasing);
+    const color = useSelector(state => state.targetInfo.color)
 
     const cotargetDisplay = useSelector(state => state.targetInfo.cotargetDisplay);
     const cotargetName = useSelector(state => state.targetInfo.cotargetName);
     const cotargetCurrentHealth = useSelector(state => state.targetInfo.cotargetCurrentHealth);
     const cotargetPercentHealth = useSelector(state => state.targetInfo.cotargetPercentHealth);
     const cotargetIncreasing = useSelector(state => state.targetInfo.cotargetIncreasing);
+    const cotargetColor = useSelector(state => state.targetInfo.cotargetColor)
 
     const barStyles = {
         position: 'absolute',
         width: `${ percentHealth * 100 }%`,
         transition: (increasing == null) ? `width 0s` : increasing ? `width 0.1s` : `width 0s`,
         transitionDelay: (increasing == null) ? `0s` : increasing ? `0.2s` : `0s`,
-        backgroundColor: 'lightblue',
+        backgroundColor: color,
     };
 
     const underlayBarStyles = {
@@ -69,7 +71,7 @@ const TargetInfo = () => {
         width: `${ cotargetPercentHealth * 100 }%`,
         transition: (cotargetIncreasing == null) ? `width 0s` : cotargetIncreasing ? `width 0.1s` : `width 0s`,
         transitionDelay: (cotargetIncreasing == null) ? `0s` : cotargetIncreasing ? `0.2s` : `0s`,
-        backgroundColor: 'lightblue',
+        backgroundColor: cotargetColor,
     };
 
     const cotargetUnderlayBarStyles = {

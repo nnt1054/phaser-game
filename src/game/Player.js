@@ -37,6 +37,9 @@ import {
     HealthMixin,
     TargetMixin,
 } from './mixins';
+import {
+    setAlert,
+} from '../store/alert';
 
 
 function observeStore(store, select, onChange) {
@@ -138,6 +141,7 @@ export class Player extends ArcadeContainer {
         scene.physics.add.existing(this);
 
         this.isPlayer = true;
+        this.setCurrentHealth(50);
 
         this.setSize(32, 48);
         this.setMaxVelocity(800);
@@ -298,23 +302,28 @@ export class Player extends ArcadeContainer {
         if (ability.gcd && this.gcdTimer > 500) return;
         if (this.casting && this.castingTimer > 500) return;
 
-        // TODO: need way to check if applicable target before queueing;  3 behaviors
-        // * applicable target; continue
-        // * inapplicable target; target self instead
-        // * inapplicable target; cancel ability
-        // this data should be stored somewhere with the ability
-        // ill add this in when abilities get more fleshed out? or maybe when targets are fleshed out
-        // we should be able to prevent the inputManager from queueing with inapplicable targets
-        // but we should still be able to catch those here regardless
-        this.gcdQueue = ability;
+        let targetObject = null;
         switch(target) {
             case TARGET_CONSTANTS.CURRENT_TARGET:
-                if (this.currentTarget) {
-                    this.gcdTarget = this.currentTarget;
+                if (this.currentTarget && ability.canTarget(this, this.currentTarget)) {
+                    targetObject = this.currentTarget;
                     break;
                 }
             default:
-                this.gcdTarget = this;
+                if (ability.canTarget(this, this)) {
+                    targetObject = this;
+                }
+        }
+
+        if (ability.canTarget(this, targetObject)) {
+            if (ability.canExecute(this, targetObject)) {
+                this.gcdQueue = ability;
+                this.gcdTarget = targetObject;
+            } else {
+                store.dispatch(setAlert('Cannot execute at this time.'));
+            }
+        } else {
+            store.dispatch(setAlert('Invalid Target.'));
         }
     }
 
@@ -584,7 +593,10 @@ export class Player extends ArcadeContainer {
         const camera = this.scene.cameras.main;
         const targets = [];
         for (const target of this.availableTargets) {
-            if (Phaser.Geom.Rectangle.Overlaps(camera.worldView, target.getBounds())) {
+            if (
+                Phaser.Geom.Rectangle.Overlaps(camera.worldView, target.getBounds())
+                && target.visible
+            ) {
                 targets.push(target);
             }
         };

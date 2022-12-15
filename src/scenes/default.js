@@ -18,6 +18,9 @@ import {
 import {
     Lamb,
 } from '../game/npcs/Lamb';
+import {
+    Booma,
+} from '../game/npcs/Booma';
 
 import jumpquest_map from '../assets/tilemaps/jq_map.json';
 import jumpquest_bg from '../assets/jq.png';
@@ -93,11 +96,13 @@ class defaultScene extends Phaser.Scene {
 
         // NPC
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
-        this.lamb = new Lamb(this, 32 * 20, 32 * 1.5, 'Lamb');
+        this.lamb = new Lamb(this, 32 * 20, 32 * 1.5, 'Auspicious Friend');
+        this.booma = new Booma(this, 32 * 12, 32 * 58.5, 'Hostile Enemy');
 
         this.npcs = [
             this.sign,
             this.lamb,
+            this.booma,
         ];
 
         this.player.availableTargets = this.npcs;

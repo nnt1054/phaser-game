@@ -29,6 +29,7 @@ const targetInfoSlice = createSlice({
     maxHealth: 100,
     percentHealth: 0.5,
     increasing: false,
+    color: 'lightblue',
 
     cotargetDisplay: true,
     cotargetName: 'HELLO',
@@ -36,6 +37,7 @@ const targetInfoSlice = createSlice({
     cotargetMaxHealth: 150,
     cotargetPercentHealth: 0.33,
     cotargetIncreasing: false,
+    cotargetColor: 'lightblue',
   },
   reducers: {
     setTarget: (state, action) => {
@@ -47,6 +49,7 @@ const targetInfoSlice = createSlice({
             _calculateTargetHealthState(state);
         }
         state.increasing = null;
+        state.color = action.payload.backgroundColor ?? 'lightblue';
 
         // cotarget state
         state.cotargetDisplay = false;
@@ -54,6 +57,7 @@ const targetInfoSlice = createSlice({
         state.cotargetCurrentHealth = 0;
         state.cotargetMaxHealth = 0;
         state.cotargetpercentHealth = 0;
+        state.cotargetColor = 'lightblue';
     },
     removeTarget: (state) => {
         state.display = false;
@@ -94,6 +98,7 @@ const targetInfoSlice = createSlice({
             _calculateCotargetHealthState(state);
         }
         state.cotargetIncreasing = null;
+        state.cotargetColor = action.payload.backgroundColor ?? 'lightblue';
     },
     removeCotarget: (state) => {
         state.cotargetDisplay = false;

@@ -23,6 +23,7 @@ import CastBar from './ui/CastBar';
 import Tooltip from './ui/Tooltip';
 import TargetInfo from './ui/TargetInfo';
 import DialogueBox from './ui/DialogueBox';
+import Alert from './ui/Alert';
 
 
 var config = {
@@ -59,6 +60,9 @@ const App = () => {
     const phaserReference = useRef(null);
 
     const uiContainerStyles = {
+        display: 'flex',
+        justifyContent: 'space-around',
+        alignItems: 'center',
         overflow: 'hidden',
     }
 
@@ -92,6 +96,7 @@ const App = () => {
                 <CastBar />
                 <TargetInfo />
                 <Tooltip />
+                <Alert />
             </div>
         </div>
     )

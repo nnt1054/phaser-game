@@ -247,7 +247,7 @@ const HotBarItem = (props) => {
             onMouseUp={ e => e.stopPropagation() }
         >
             <span style={ keybindStyle }> { slot.keybind } </span>
-            <span style={ itemCountStyle }> { itemCount } </span>
+            <span style={ itemCountStyle }> x{ itemCount } </span>
             <button
                 ref={ ref }
                 style={ tile.icon ? buttonStyle : labelButtonStyle }

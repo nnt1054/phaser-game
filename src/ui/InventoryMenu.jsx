@@ -146,7 +146,7 @@ const InventoryItem = (props) => {
 
     return (
         <div style={ itemContainerStyles }>
-            <span style={ itemCountStyles }> { item.count } </span>
+            <span style={ itemCountStyles }> x{ item.count } </span>
             <button
                 ref={ ref }
                 className={ styles.ItemSlot }
