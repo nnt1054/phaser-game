@@ -149,6 +149,14 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
             scene.frameAnimator.add(this.composition[key]);
         })
 
+        // propogate events from first sprite
+        for (const [ key, sprite ] of Object.entries(this.composition)) {
+            sprite.on('animationcomplete', (anim, frame, gameObject, frameKey) => {
+                this.emit('animationcomplete', anim, frame, gameObject, frameKey);
+            });
+            break;
+        }
+
         // set default sprite scale
         this.setScale(0.1);
     }

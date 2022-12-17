@@ -143,7 +143,7 @@ export class Player extends ArcadeContainer {
         this.isPlayer = true;
         this.setCurrentHealth(50);
 
-        this.setSize(32, 48);
+        this.setSize(20, 48);
         this.setMaxVelocity(800);
         this.ref_x = this.body.width / 2;
         this.ref_y = this.body.height;
@@ -302,28 +302,24 @@ export class Player extends ArcadeContainer {
         if (ability.gcd && this.gcdTimer > 500) return;
         if (this.casting && this.castingTimer > 500) return;
 
-        let targetObject = null;
-        switch(target) {
-            case TARGET_CONSTANTS.CURRENT_TARGET:
-                if (this.currentTarget && ability.canTarget(this, this.currentTarget)) {
-                    targetObject = this.currentTarget;
-                    break;
-                }
-            default:
-                if (ability.canTarget(this, this)) {
-                    targetObject = this;
-                }
-        }
-
-        if (ability.canTarget(this, targetObject)) {
-            if (ability.canExecute(this, targetObject)) {
-                this.gcdQueue = ability;
-                this.gcdTarget = targetObject;
-            } else {
-                store.dispatch(setAlert('Cannot execute at this time.'));
-            }
+        let targetObject;
+        if (this.currentTarget && ability.canTarget(this, this.currentTarget)) {
+            targetObject = this.currentTarget;
+        } else if (ability.canTarget(this, this)) {
+            targetObject = this;
+        } else if (ability.canTarget(this, null)) {
+            targetObject = null;
         } else {
             store.dispatch(setAlert('Invalid Target.'));
+            return;
+        }
+
+        if (ability.canExecute(this, targetObject)) {
+            this.gcdQueue = ability;
+            this.gcdTarget = targetObject;
+        } else {
+            store.dispatch(setAlert('Cannot execute at this time.'));
+            return;
         }
     }
 
@@ -354,16 +350,16 @@ export class Player extends ArcadeContainer {
         // horizontal position changes
         if (this.reduxCursors.left) {
             if (this.reduxCursors.down) {
-                this.setVelocityX(-80);
+                this.setVelocityX(-75);
             } else {
-                this.setVelocityX(-140);
+                this.setVelocityX(-150);
             }
             this.facingRight = false;
         } else if (this.reduxCursors.right) {
             if (this.reduxCursors.down) {
-                this.setVelocityX(80);
+                this.setVelocityX(75);
             } else {
-                this.setVelocityX(140);
+                this.setVelocityX(150);
             }
             this.facingRight = true;
         } else {

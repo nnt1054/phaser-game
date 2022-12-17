@@ -14,8 +14,8 @@ import {
 } from '../store/inventory';
 
 const isAny = (player, target) => { return true };
-const isEnemy = (player, target) => { return target && target.isEnemy };
-const isFriendly = (player, target) => { return target && target.hasHealth && !target.isEnemy };
+const isEnemy = (player, target) => { return target && target.isEnemy && target.visible };
+const isFriendly = (player, target) => { return target && target.hasHealth && !target.isEnemy && target.visible };
 
 const basicAbility = {
     type: 'ability',

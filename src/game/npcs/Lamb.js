@@ -12,6 +12,9 @@ import {
     setDialogue,
     clearDialogue,
 } from '../../store/dialogueBox';
+import {
+    setAlert,
+} from '../../store/alert';
 
 const compositeConfig = {
     'hair_back': 'hair',
@@ -85,7 +88,13 @@ export class Lamb extends Phaser.GameObjects.Container {
             compositeConfig,
             compositeConfigIndexes
         );
-        this.character.play('idle');
+
+        // loop animation
+        this.character.play('floss', true);
+        this.character.on('animationcomplete', () => {
+            this.character.play('floss', true);
+        })
+
         this.character.setScale(0.1);
         this.character.scaleX = -Math.abs(this.character.scaleX);
 

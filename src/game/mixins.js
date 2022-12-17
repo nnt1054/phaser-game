@@ -34,11 +34,36 @@ export const HealthMixin = {
 
     increaseHealth: function(value) {
         this.health = Math.min(this.health + value, this.maxHealth);
+        let text = this.scene.add.text(this.x, this.y, `+${ value }`, {
+            fontFamily: 'Comic Sans MS',
+            fontSize: '16px',
+            fill: '#0F0',
+            stroke: '#000',
+            strokeThickness: 8,
+        });
+        text.setScale(1 / this.scene.zoom);
+        this.scene.tweens.add({
+            targets: [ text ],
+            y: this.y - 30,
+            duration: 500,
+            hold: 1000,
+            ease: 'Sine.easeOut',
+        });
+
         this.updateStore();
     },
 
     reduceHealth: function(value) {
         this.health = Math.max(this.health - value, 0);
+        let text = this.scene.add.text(this.x, this.y, `-${ value }`, {
+            fontFamily: 'Comic Sans MS',
+            fontSize: '16px',
+            fill: '#F00',
+            stroke: '#000',
+            strokeThickness: 8,
+        });
+        text.setScale(1 / this.scene.zoom);
+
         this.updateStore();
 
         if (this.health <= 0) {
