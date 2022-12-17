@@ -25,45 +25,32 @@ export const HealthMixin = {
     health: 100,
     maxHealth: 100,
 
-    setCurrentHealth: function(value) {
+    setCurrentHealth: function(value, generateText) {
+        let diff = this.health - value;
         let health = Math.max(value, 0);
         health = Math.min(health, this.maxHealth);
         this.health = health;
         this.updateStore();
+
+        // if (generateText) {
+        if (true) {
+            if (diff > 0) {
+                this.generateDamageNumbers(diff);
+            } else if (diff < 0) {
+                this.generateHealNumbers(-diff);
+            }
+        }
     },
 
     increaseHealth: function(value) {
         this.health = Math.min(this.health + value, this.maxHealth);
-        let text = this.scene.add.text(this.x, this.y, `+${ value }`, {
-            fontFamily: 'Comic Sans MS',
-            fontSize: '16px',
-            fill: '#0F0',
-            stroke: '#000',
-            strokeThickness: 8,
-        });
-        text.setScale(1 / this.scene.zoom);
-        this.scene.tweens.add({
-            targets: [ text ],
-            y: this.y - 30,
-            duration: 500,
-            hold: 1000,
-            ease: 'Sine.easeOut',
-        });
-
+        this.generateHealNumbers(value);
         this.updateStore();
     },
 
     reduceHealth: function(value) {
         this.health = Math.max(this.health - value, 0);
-        let text = this.scene.add.text(this.x, this.y, `-${ value }`, {
-            fontFamily: 'Comic Sans MS',
-            fontSize: '16px',
-            fill: '#F00',
-            stroke: '#000',
-            strokeThickness: 8,
-        });
-        text.setScale(1 / this.scene.zoom);
-
+        this.generateDamageNumbers(value);
         this.updateStore();
 
         if (this.health <= 0) {
@@ -89,6 +76,48 @@ export const HealthMixin = {
                 setCotargetCurrentHealth(this.health)
             )
         }
+    },
+
+    generateDamageNumbers(value) {
+        let text = this.scene.add.text(this.x, this.y, `-${ value }`, {
+            fontFamily: 'Comic Sans MS',
+            fontSize: '24px',
+            fill: '#F00',
+            stroke: '#000',
+            strokeThickness: 8,
+        });
+        text.setScale(1 / this.scene.zoom);
+        let tween = this.scene.tweens.add({
+            targets: [ text ],
+            y: this.y - 32,
+            duration: 500,
+            hold: 500,
+            ease: 'Sine.easeOut',
+        });
+        tween.on('complete', () => {
+            text.destroy();
+        })
+    },
+
+    generateHealNumbers(value) {
+        let text = this.scene.add.text(this.x, this.y, `+${ value }`, {
+            fontFamily: 'Comic Sans MS',
+            fontSize: '24px',
+            fill: '#0F0',
+            stroke: '#000',
+            strokeThickness: 8,
+        });
+        text.setScale(1 / this.scene.zoom);
+        let tween = this.scene.tweens.add({
+            targets: [ text ],
+            y: this.y - 32,
+            duration: 500,
+            hold: 500,
+            ease: 'Sine.easeOut',
+        });
+        tween.on('complete', () => {
+            text.destroy();
+        })
     },
 }
 
