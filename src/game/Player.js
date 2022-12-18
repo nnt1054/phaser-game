@@ -163,6 +163,10 @@ export class Player extends ArcadeContainer {
             }
         );
         this.name.setOrigin(0.5, 1);
+        this.name.setInteractive();
+        this.name.on('clicked', (object) => {
+            this.handleClick();
+        });
 
         this.character = new CompositeSprite(
             scene,
@@ -172,9 +176,45 @@ export class Player extends ArcadeContainer {
             compositeConfigIndexes
         );
 
+        let hitboxPadding = { width: 24, height: 42 };
+        this.hitboxRect = scene.add.rectangle(
+            0, 0, hitboxPadding.width, hitboxPadding.height,
+        );
+        this.hitboxRect.setOrigin(0.5, 1);
+        this.hitboxRect.setPosition(this.ref_x + 0, this.ref_y);
+
+        let meleePadding = { width: 128, height: 48 };
+        this.meleeRect = scene.add.rectangle(
+            0, 0, meleePadding.width, meleePadding.height,
+        );
+        this.meleeRect.setOrigin(0.5, 1);
+        this.meleeRect.setPosition(this.ref_x + 0, this.ref_y);
+
+        let rangedPadding = { width: 1028, height: 256 }
+        this.rangedRect = scene.add.rectangle(
+            0, 0, rangedPadding.width, rangedPadding.height,
+        )
+        this.rangedRect.setOrigin(0.5, 0.5);
+        this.rangedRect.setPosition(this.ref_x + 0, 0);
+
+        let clickPadding = { width: 32, height: 64 };
+        this.clickRect = scene.add.rectangle(
+            0, 0, clickPadding.width, clickPadding.height,
+        );
+        this.clickRect.setOrigin(0.5, 1);
+        this.clickRect.setPosition(this.ref_x + 0, this.ref_y);
+        this.clickRect.setInteractive();
+        this.clickRect.on('clicked', (object) => {
+            this.handleClick();
+        });
+
         this.add([
             this.name,
             this.character,
+            this.clickRect,
+            this.hitboxRect,
+            this.meleeRect,
+            this.rangedRect,
         ]);
 
         this.platformColliders = [];
@@ -189,6 +229,7 @@ export class Player extends ArcadeContainer {
         this.casting = null;
         this.castTarget = null;
         this.castingTimer = 0;
+        this.directionLockTimer = 0;
 
         this.reduxCursors = {
             up: 0,
@@ -233,15 +274,6 @@ export class Player extends ArcadeContainer {
         // TODO: move inventory to mixin
         this.inventory = new Map();
         this.inventory.set('potion', 3);
-
-        let clickPadding = 24;
-        this.setInteractive(
-            new Phaser.Geom.Rectangle(0 - (clickPadding/2), 0 - clickPadding, 32 + clickPadding, 48 + clickPadding),
-            Phaser.Geom.Rectangle.Contains
-        );
-        this.on('clicked', (object) => {
-            this.handleClick();
-        })
 
         // Dialogue
         this.dialogueTarget = null;
@@ -309,6 +341,12 @@ export class Player extends ArcadeContainer {
             targetObject = this;
         } else if (ability.canTarget(this, null)) {
             targetObject = null;
+        } else if (this.currentTarget == null) {
+            const isReverse = !this.facingRight;
+            this.cycleTargets(isReverse);
+            if (this.currentTarget == null) {
+                store.dispatch(setAlert('Invalid Target.'));
+            }
         } else {
             store.dispatch(setAlert('Invalid Target.'));
             return;
@@ -318,7 +356,7 @@ export class Player extends ArcadeContainer {
             this.gcdQueue = ability;
             this.gcdTarget = targetObject;
         } else {
-            store.dispatch(setAlert('Cannot execute at this time.'));
+            // store.dispatch(setAlert('Cannot execute at this time.'));
             return;
         }
     }
@@ -337,6 +375,7 @@ export class Player extends ArcadeContainer {
         this.casting = null;
         this.castTarget = null;
         this.castingTimer = 0;
+        this.directionLockTimer = 0;
         store.dispatch(setCast({
             key: '',
             duration: 0,
@@ -344,6 +383,10 @@ export class Player extends ArcadeContainer {
 
         this.gcdTimer = 0
         store.dispatch(setGCD(0));
+    }
+
+    isMoving() {
+        return (this.body.velocity.y || this.body.velocity.x);
     }
 
     updateMovement(delta) {
@@ -354,14 +397,18 @@ export class Player extends ArcadeContainer {
             } else {
                 this.setVelocityX(-150);
             }
-            this.facingRight = false;
+            if (this.directionLockTimer <= 0) {
+                this.facingRight = false;
+            }
         } else if (this.reduxCursors.right) {
             if (this.reduxCursors.down) {
                 this.setVelocityX(75);
             } else {
                 this.setVelocityX(150);
             }
-            this.facingRight = true;
+            if (this.directionLockTimer <= 0) {
+                this.facingRight = true;
+            }
         } else {
             this.setVelocityX(0);
         }
@@ -454,12 +501,16 @@ export class Player extends ArcadeContainer {
         if (ability && this.abilityTimer == 0 && this.castingTimer == 0) {
             if (ability.gcd) {
                 if (this.gcdTimer == 0) {
-                    if (!(ability.canExecute && !ability.canExecute(this, this.gcdTarget))) {
+                    // if (!(ability.canExecute && !ability.canExecute(this, this.gcdTarget))) {
+                    if (ability.canExecute(this, this.gcdTarget)) {
+                        this.faceTarget(this.gcdTarget);
                         if (ability.castTime) {
                             this.startCast(ability, this.gcdTarget);
+                            this.directionLockTimer += ability.castTime;
                         } else {
                             ability.execute(this, this.gcdTarget);
                             this.abilityTimer += 500;
+                            this.directionLockTimer += 500;
                         }
                         this.gcdTimer += ability.cooldown;
                         store.dispatch(setGCD(ability.cooldown));
@@ -470,8 +521,10 @@ export class Player extends ArcadeContainer {
                 }
             } else {
                 if (!(ability.canExecute && !ability.canExecute(this, this.gcdTarget))) {
+                    this.faceTarget(this.gcdTarget);
                     ability.execute(this, this.gcdTarget);
                     this.abilityTimer += 750;
+                    this.directionLockTimer += 500;
                     this.cooldownManager.updateStore();
                 }
                 this.gcdQueue = null;
@@ -484,8 +537,10 @@ export class Player extends ArcadeContainer {
         this.castingTimer = Math.max(0, this.castingTimer - delta);
         if (this.casting && this.castingTimer === 0) {
             const ability = this.casting;
+            this.faceTarget(this.castTarget);
             ability.execute(this, this.castTarget);
             this.abilityTimer += 500;
+            this.directionLockTimer += 500;
             this.cooldownManager.updateStore();
             this.casting = null;
             this.castTarget = null;
@@ -509,6 +564,8 @@ export class Player extends ArcadeContainer {
         if (this.body.onFloor() && this.previousVelocityY >= 800) {
             this.setCurrentHealth(1);
         }
+
+        this.directionLockTimer = Math.max(0, this.directionLockTimer - delta);
 
         if (this.dialogueTarget) {
             if (!this.dialogueTarget.isPlayerInRange(this)) {
@@ -585,6 +642,18 @@ export class Player extends ArcadeContainer {
         )
     }
 
+    faceTarget(gameObject) {
+        if (gameObject) {
+            const playerX = this.clickRect.getBounds().centerX;
+            const targetX = gameObject.clickRect.getBounds().centerX;
+            if (playerX < targetX) {
+                this.facingRight = true;
+            } else if (targetX < playerX) {
+                this.facingRight = false;
+            }
+        }
+    }
+
     cycleTargets(isReverse=false) {
         const camera = this.scene.cameras.main;
         const targets = [];
@@ -598,7 +667,7 @@ export class Player extends ArcadeContainer {
         };
 
         const playerX = this.body.center.x;
-        let currentX = this.currentTarget ? this.currentTarget.getBounds().centerX : playerX;
+        let currentX = this.currentTarget ? this.currentTarget.clickRect.getBounds().centerX : playerX;
         if (this.facingRight) {
             currentX = Math.max(playerX, currentX);
         } else {
@@ -611,12 +680,12 @@ export class Player extends ArcadeContainer {
 
         if (this.facingRight) {
             for (const target of targets) {
-                const targetX = target.getBounds().centerX;
+                const targetX = target.clickRect.getBounds().centerX;
                 if (isReverse) {
                     if (playerX < targetX && targetX < currentX) {
                         if (!nextTarget) {
                             nextTarget = target;
-                        } else if (targetX > nextTarget.getBounds().centerX) {
+                        } else if (targetX > nextTarget.clickRect.getBounds().centerX) {
                             nextTarget = target;
                         }
                     }
@@ -625,7 +694,7 @@ export class Player extends ArcadeContainer {
                         // check if target is to the right of currentTarget
                         if (!nextTarget) {
                             nextTarget = target;
-                        } else if (targetX < nextTarget.getBounds().centerX) {
+                        } else if (targetX < nextTarget.clickRect.getBounds().centerX) {
                             nextTarget = target;
                         }
                     }
@@ -634,25 +703,25 @@ export class Player extends ArcadeContainer {
                 if (playerX < targetX) {
                     if (!closestTarget) {
                         closestTarget = target;
-                    } else if (targetX < closestTarget.getBounds().centerX) {
+                    } else if (targetX < closestTarget.clickRect.getBounds().centerX) {
                         closestTarget = target;
                     }
 
                     if (!furthestTarget) {
                         furthestTarget = target;
-                    } else if (target > furthestTarget.getBounds().centerX) {
+                    } else if (target > furthestTarget.clickRect.getBounds().centerX) {
                         furthestTarget = target;
                     }
                 }
             }
         } else {
             for (const target of targets) {
-                const targetX = target.getBounds().centerX;
+                const targetX = target.clickRect.getBounds().centerX;
                 if (isReverse) {
                     if (currentX < targetX && targetX < playerX) {
                         if (!nextTarget) {
                             nextTarget = target;
-                        } else if (targetX < nextTarget.getBounds().centerX) {
+                        } else if (targetX < nextTarget.clickRect.getBounds().centerX) {
                             nextTarget = target;
                         }
                     }
@@ -661,7 +730,7 @@ export class Player extends ArcadeContainer {
                         // check if target is to the right of currentTarget
                         if (!nextTarget) {
                             nextTarget = target;
-                        } else if (nextTarget.getBounds().centerX < targetX) {
+                        } else if (nextTarget.clickRect.getBounds().centerX < targetX) {
                             // check if target is closer to the currentTarget than current next potential target
                             nextTarget = target;
                         }
@@ -671,13 +740,13 @@ export class Player extends ArcadeContainer {
                if (targetX < playerX) {
                     if (!closestTarget) {
                         closestTarget = target;
-                    } else if (closestTarget.getBounds().centerX < targetX) {
+                    } else if (closestTarget.clickRect.getBounds().centerX < targetX) {
                         closestTarget = target;
                     }
 
                     if (!furthestTarget) {
                         furthestTarget = target;
-                    } else if (target < furthestTarget.getBounds().centerX) {
+                    } else if (target < furthestTarget.clickRect.getBounds().centerX) {
                         furthestTarget = target;
                     }
                 }

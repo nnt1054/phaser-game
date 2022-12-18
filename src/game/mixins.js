@@ -24,6 +24,7 @@ export const HealthMixin = {
     hasHealth: true,
     health: 100,
     maxHealth: 100,
+    // hitboxRect: null,
 
     setCurrentHealth: function(value, generateText) {
         let diff = this.health - value;
@@ -54,7 +55,9 @@ export const HealthMixin = {
         this.updateStore();
 
         if (this.health <= 0) {
-            this.visible = false;
+            if (this.handleDeath) {
+                this.handleDeath();
+            }
         }
     },
 
@@ -132,6 +135,8 @@ export const TargetMixin = {
     // isTargeted and isCotargeted are in relation to the Player
     isTargeted: false,
     isCotargeted: false,
+
+    // clickRect: null,
 
     target: function() {
         this.isTargeted = true;
@@ -236,14 +241,10 @@ export const DialogueMixin = {
     interactionRect: null,
 
     isPlayerInRange: function(player) {
-        if (this.interactionRect) {
-            return Phaser.Geom.Rectangle.Overlaps(
-                player.getBounds(),
-                this.interactionRect.getBounds(),
-            )
-        } else {
-            return true;
-        }
+        return Phaser.Geom.Rectangle.Overlaps(
+            player.hitboxRect.getBounds(),
+            this.interactionRect.getBounds(),
+        )
     },
 
     startDialogue: function(player) {

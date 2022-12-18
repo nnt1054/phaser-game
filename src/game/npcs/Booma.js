@@ -76,6 +76,10 @@ export class Booma extends Phaser.GameObjects.Container {
         });
         this.name.setOrigin(0.5, 1);
         this.name.setPosition(this.ref_x + 0, this.ref_y - height);
+        this.name.setInteractive();
+        this.name.on('clicked', (object) => {
+            this.handleClick();
+        });
 
         this.character = new CompositeSprite(
             scene,
@@ -88,31 +92,30 @@ export class Booma extends Phaser.GameObjects.Container {
         this.character.setScale(0.1);
         this.character.scaleX = -Math.abs(this.character.scaleX);
 
-        let inputPadding = { width: 24, height: 24 };
-        this.inputRect = scene.add.rectangle(
-            0, 0,
-            this.width + inputPadding.width, this.height + inputPadding.height,
+        let clickPadding = { width: 32, height: 64 };
+        this.clickRect = scene.add.rectangle(
+            0, 0, clickPadding.width, clickPadding.height,
         );
-        this.inputRect.setOrigin(0.5, 1);
-        this.inputRect.setPosition(this.ref_x + 0, this.ref_y);
-        this.inputRect.setInteractive();
-        this.inputRect.on('clicked', (object) => {
+        this.clickRect.setOrigin(0.5, 1);
+        this.clickRect.setPosition(this.ref_x + 0, this.ref_y);
+        this.clickRect.setInteractive();
+        this.clickRect.on('clicked', (object) => {
             this.handleClick();
         });
 
-        let interactionPadding = { width: 256, height: 48 };
-        this.interactionRect = scene.add.rectangle(
+        let hitboxRect = { width: 24, height: 24 };
+        this.hitboxRect = scene.add.rectangle(
             0, 0,
-            this.width + interactionPadding.width, this.height + interactionPadding.height,
+            this.width + hitboxRect.width, this.height + hitboxRect.height,
         );
-        this.interactionRect.setOrigin(0.5, 1);
-        this.interactionRect.setPosition(this.ref_x + 0, this.ref_y);
+        this.hitboxRect.setOrigin(0.5, 1);
+        this.hitboxRect.setPosition(this.ref_x + 0, this.ref_y);
 
         this.add([
             this.name,
             this.character,
-            this.inputRect,
-            this.interactionRect,
+            this.clickRect,
+            this.hitboxRect,
         ]);
 
     }
@@ -129,5 +132,13 @@ export class Booma extends Phaser.GameObjects.Container {
 
     autoZoom(zoom) {
         this.name.setScale(1 / zoom);
+    }
+
+    handleDeath() {
+        this.visible = false;
+        if (this.isTargeted) {
+            const player = this.scene.player;
+            player.untargetObject();
+        }
     }
 }

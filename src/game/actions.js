@@ -12,6 +12,9 @@ import {
     setItemCount,
     subractItemCount,
 } from '../store/inventory';
+import {
+    setAlert,
+} from '../store/alert';
 
 const isAny = (player, target) => { return true };
 const isEnemy = (player, target) => { return target && target.isEnemy && target.visible };
@@ -190,6 +193,9 @@ const confirm = {
             if (player.currentTarget.handleConfirm) {
                 player.currentTarget.handleConfirm();
             }
+        } else {
+            const isReverse = !player.facingRight;
+            player.cycleTargets(isReverse);
         }
     },
 };
@@ -216,10 +222,18 @@ const jolt = {
     canTarget: isEnemy,
     canExecute: (player, target) => {
         if (!target) return false;
-        if (target.health > 0) {
-            return true;
+        if (!target.hasHealth) return false;
+        if (target.health <= 0) return false;
+        const inRange = Phaser.Geom.Rectangle.Overlaps(
+            player.rangedRect.getBounds(),
+            target.hitboxRect.getBounds(),
+        )
+        if (!inRange) {
+            store.dispatch(setAlert('Target is out of range.'));
+            return false;
         }
-        return false;
+        if (player.isMoving()) return false;
+        return true;
     },
     execute: (player, target) => {
         target.reduceHealth(25);
@@ -233,9 +247,19 @@ const fleche = {
     canTarget: isEnemy,
     canExecute: (player, target) => {
         if (!target) return false;
+        if (!target.hasHealth) return false;
         if (target.health <= 0) return false;
+        const inRange = Phaser.Geom.Rectangle.Overlaps(
+            player.rangedRect.getBounds(),
+            target.hitboxRect.getBounds(),
+        )
+        if (!inRange) {
+            store.dispatch(setAlert('Target is out of range.'));
+            return false;
+        }
         const [cooldown, duration] = player.cooldownManager.getTimer('fleche');
-        return (cooldown == 0);
+        if (cooldown > 0) return false;
+        return true;
     },
     execute: (player, target) => {
         target.reduceHealth(10);
@@ -252,10 +276,18 @@ const vercure = {
     canTarget: isFriendly,
     canExecute: (player, target) => {
         if (!target) return false;
-        if (target.hasHealth && target.health > 0) {
-            return true;
+        if (!target.hasHealth) return false;
+        if (target.health <= 0) return false;
+        const inRange = (player == target) ? true : Phaser.Geom.Rectangle.Overlaps(
+            player.rangedRect.getBounds(),
+            target.hitboxRect.getBounds(),
+        )
+        if (!inRange) {
+            store.dispatch(setAlert('Target is out of range.'));
+            return false;
         }
-        return false;
+        if (player.isMoving()) return false;
+        return true;
     },
     execute: (player, target) => {
         target.increaseHealth(20);
@@ -288,10 +320,37 @@ const potion = {
     },
 };
 
+const slice = {
+    name: 'slice',
+    type: 'weaponskill ',
+    gcd: true,
+    castTime: 0,
+    cooldown: 1500,
+    canTarget: isEnemy,
+    canExecute: (player, target) => {
+        if (!target) return false;
+        if (!target.hasHealth) return false;
+        if (target.health <= 0) return false;
+        const inRange = Phaser.Geom.Rectangle.Overlaps(
+            player.meleeRect.getBounds(),
+            target.hitboxRect.getBounds(),
+        )
+        if (!inRange) {
+            store.dispatch(setAlert('Target is out of range.'));
+            return false;
+        }
+        return true;
+    },
+    execute: (player, target) => {
+        target.reduceHealth(15);
+    },
+}
+
 const actionMap = {
     'jolt': jolt,
     'vercure': vercure,
     'fleche': fleche,
+    'slice': slice,
 
     // 'attack': basicAttack,
     // 'heal': basicHeal,

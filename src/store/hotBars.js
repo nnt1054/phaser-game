@@ -78,8 +78,8 @@ const hotBarsSlice = createSlice({
             { name: 'empty', active: false, keybind: '4'},
             { name: 'empty', active: false, keybind: '5'},
             { name: 'jolt', active: false, keybind: 'Q'},
-            { name: 'vercure', active: false, keybind: 'E'},
-            { name: 'empty', active: false, keybind: 'R'},
+            { name: 'slice', active: false, keybind: 'E'},
+            { name: 'vercure', active: false, keybind: 'R'},
             { name: 'empty', active: false, keybind: 'F'},
             { name: 'fleche', active: false, keybind: 'G'},
         ]

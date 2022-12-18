@@ -46,16 +46,19 @@ export class SignPost extends Phaser.GameObjects.Container {
         });
         this.name.setOrigin(0.5, 1);
         this.name.setPosition(this.ref_x + 0, this.ref_y - height);
+        this.name.setInteractive();
+        this.name.on('clicked', (object) => {
+            this.handleClick();
+        });
 
-        let inputPadding = { width: 24, height: 24 };
-        this.inputRect = scene.add.rectangle(
-            0, 0,
-            this.width + inputPadding.width, this.height + inputPadding.height,
+        let clickPadding = { width: 24, height: 48 };
+        this.clickRect = scene.add.rectangle(
+            0, 0, clickPadding.width, clickPadding.height,
         );
-        this.inputRect.setOrigin(0.5, 1);
-        this.inputRect.setPosition(this.ref_x + 0, this.ref_y);
-        this.inputRect.setInteractive();
-        this.inputRect.on('clicked', (object) => {
+        this.clickRect.setOrigin(0.5, 1);
+        this.clickRect.setPosition(this.ref_x + 0, this.ref_y);
+        this.clickRect.setInteractive();
+        this.clickRect.on('clicked', (object) => {
             this.handleClick();
         });
 
@@ -69,7 +72,7 @@ export class SignPost extends Phaser.GameObjects.Container {
 
         this.add([
             this.name,
-            this.inputRect,
+            this.clickRect,
             this.interactionRect,
         ]);
 
