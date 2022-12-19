@@ -8,6 +8,9 @@
         "legs": [
             { "key": "legs", "frame": 5, "rotate": 0, "translateX": 0, "translateY": 0}
         ],
+        "pants": [
+            { "key": "pants", "frame": 5, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
         "arm_back": [
             { "key": "arms", "frame": 1, "rotate": 0, "translateX": 0, "translateY": 0}
         ],
@@ -37,6 +40,9 @@
         ],
         "face": [
             { "key": "face", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
+        ],
+        "headband": [
+            { "key": "headband", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}
         ],
         "hair_front": [
             { "key": "hair", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0}

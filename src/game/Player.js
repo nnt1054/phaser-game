@@ -65,6 +65,7 @@ const TARGET_CONSTANTS = {
 const compositeConfig = {
     'hair_back': 'hair',
     'legs': 'legs',
+    'pants': 'pants',
     'arm_back': 'arm_back',
     'armor_body_back_sleeve': 'armor_body_back_sleeve',
     'torso': 'torso',
@@ -75,22 +76,25 @@ const compositeConfig = {
     'head': 'head',
     'ears': 'ears',
     'face': 'face',
+    'headband': 'headband',
     'hair_front': 'hair',
 };
 
 const compositeConfigIndexes = {
     'hair_back': 1,
     'legs': 1,
+    'pants': 1,
     'arm_back': 1,
-    'armor_body_back_sleeve': 1,
+    'armor_body_back_sleeve': 2,
     'torso': 1,
-    'armor_body': 1,
+    'armor_body': 2,
     'arm_front': 1,
-    'armor_body_front_sleeve': 1,
-    'armor_body_collar': 1,
+    'armor_body_front_sleeve': 2,
+    'armor_body_collar': 2,
     'head': 1,
     'ears': 1,
     'face': 0,
+    'headband': 1,
     'hair_front': 1,
 };
 
@@ -171,7 +175,7 @@ export class Player extends ArcadeContainer {
         this.character = new CompositeSprite(
             scene,
             this.ref_x,
-            this.ref_y + 1,
+            this.ref_y + 1.5,
             compositeConfig,
             compositeConfigIndexes
         );
@@ -709,7 +713,7 @@ export class Player extends ArcadeContainer {
 
                     if (!furthestTarget) {
                         furthestTarget = target;
-                    } else if (target > furthestTarget.clickRect.getBounds().centerX) {
+                    } else if (targetX > furthestTarget.clickRect.getBounds().centerX) {
                         furthestTarget = target;
                     }
                 }
@@ -746,7 +750,7 @@ export class Player extends ArcadeContainer {
 
                     if (!furthestTarget) {
                         furthestTarget = target;
-                    } else if (target < furthestTarget.clickRect.getBounds().centerX) {
+                    } else if (targetX < furthestTarget.clickRect.getBounds().centerX) {
                         furthestTarget = target;
                     }
                 }

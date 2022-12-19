@@ -29,6 +29,7 @@ const compositeConfig = {
     'head': 'head',
     'ears': 'ears',
     'face': 'face',
+    'headband': 'headband',
     'hair_front': 'hair',
 };
 
@@ -45,6 +46,7 @@ const compositeConfigIndexes = {
     'head': 1,
     'ears': 1,
     'face': 0,
+    'headband': 2,
     'hair_front': 1,
 };
 

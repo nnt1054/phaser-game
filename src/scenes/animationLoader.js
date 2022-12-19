@@ -9,6 +9,7 @@ import ears from '../assets/spritesheets/ears.png';
 import hair from '../assets/spritesheets/hair.png';
 import head from '../assets/spritesheets/head.png';
 import legs from '../assets/spritesheets/legs.png';
+import pants from '../assets/spritesheets/pants.png';
 
 // armor spritesheets
 import armor_body from '../assets/spritesheets/armor_body.png';
@@ -36,6 +37,7 @@ export class AnimationLoader extends Phaser.Scene {
   		'ears': ears,
   		'hair': hair,
         'armor_body': armor_body,
+        'pants': pants,
   	}
   	for (const [key, source] of Object.entries(spritesheets_512)) {
 	    this.load.spritesheet(key, source, {
@@ -57,6 +59,7 @@ export class AnimationLoader extends Phaser.Scene {
         hair_back: 'hair',
         face: 'face',
         legs: 'legs',
+        pants: 'pants',
         armor_body: 'armor_body',
         armor_body_collar: 'armor_body',
         armor_body_front_sleeve: 'armor_body',

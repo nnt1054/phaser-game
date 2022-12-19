@@ -18,6 +18,14 @@
             { "key": "legs", "frame": 7, "rotate": 12, "translateX": 0, "translateY": -8},
             { "key": "legs", "frame": 8, "rotate": 12, "translateX": 0, "translateY": 0}
         ],
+        "pants": [
+            { "key": "pants", "frame": 5, "rotate": 12, "translateX": 0, "translateY": -8},
+            { "key": "pants", "frame": 5, "rotate": 12, "translateX": 0, "translateY": -8},
+            { "key": "pants", "frame": 6, "rotate": 12, "translateX": 0, "translateY": 0},
+            { "key": "pants", "frame": 7, "rotate": 12, "translateX": 0, "translateY": -8},
+            { "key": "pants", "frame": 7, "rotate": 12, "translateX": 0, "translateY": -8},
+            { "key": "pants", "frame": 8, "rotate": 12, "translateX": 0, "translateY": 0}
+        ],
         "arm_back": [
             { "key": "arms", "frame": 0, "rotate": 45, "translateX": -64, "translateY": -32},
             { "key": "arms", "frame": 0, "rotate": 45, "translateX": -64, "translateY": -32},
@@ -89,6 +97,14 @@
             { "key": "ears", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 0},
             { "key": "ears", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 0},
             { "key": "ears", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 4}
+        ],
+        "headband": [
+            { "key": "headband", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 0},
+            { "key": "headband", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 0},
+            { "key": "headband", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 4},
+            { "key": "headband", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 0},
+            { "key": "headband", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 0},
+            { "key": "headband", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 4}
         ],
         "hair_front": [
             { "key": "hair", "frame": 0, "rotate": 12, "translateX": 0, "translateY": 0},

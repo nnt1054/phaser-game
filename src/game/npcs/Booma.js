@@ -16,6 +16,7 @@ import {
 const compositeConfig = {
     'hair_back': 'hair',
     'legs': 'legs',
+    'pants': 'pants',
     'arm_back': 'arm_back',
     'armor_body_back_sleeve': 'armor_body_back_sleeve',
     'torso': 'torso',
@@ -25,12 +26,14 @@ const compositeConfig = {
     'armor_body_collar': 'armor_body_collar',
     'head': 'head',
     'ears': 'ears',
+    'headband': 'headband',
     'hair_front': 'hair',
 };
 
 const compositeConfigIndexes = {
     'hair_back': 1,
     'legs': 1,
+    'pants': 1,
     'arm_back': 1,
     'armor_body_back_sleeve': 1,
     'torso': 1,
@@ -40,6 +43,7 @@ const compositeConfigIndexes = {
     'armor_body_collar': 1,
     'head': 1,
     'ears': 1,
+    'headband': 3,
     'hair_front': 1,
 };
 
