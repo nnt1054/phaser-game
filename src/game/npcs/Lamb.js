@@ -28,26 +28,26 @@ const compositeConfig = {
     'armor_body_collar': 'armor_body_collar',
     'head': 'head',
     'ears': 'ears',
-    'face': 'face',
+    // 'face': 'face',
     'headband': 'headband',
     'hair_front': 'hair',
 };
 
 const compositeConfigIndexes = {
-    'hair_back': 1,
+    'hair_back': 2,
     'legs': 1,
     'arm_back': 1,
-    'armor_body_back_sleeve': 1,
+    'armor_body_back_sleeve': 3,
     'torso': 1,
-    'armor_body': 1,
+    'armor_body': 3,
     'arm_front': 1,
-    'armor_body_front_sleeve': 1,
-    'armor_body_collar': 1,
+    'armor_body_front_sleeve': 3,
+    'armor_body_collar': 3,
     'head': 1,
     'ears': 1,
-    'face': 0,
+    // 'face': 0,
     'headband': 2,
-    'hair_front': 1,
+    'hair_front': 2,
 };
 
 
@@ -96,9 +96,9 @@ export class Lamb extends Phaser.GameObjects.Container {
         );
 
         // loop animation
-        this.character.play('floss', true);
+        this.character.play('idle', true);
         this.character.on('animationcomplete', () => {
-            this.character.play('floss', true);
+            this.character.play('idle', true);
         })
 
         this.character.setScale(0.1);

@@ -35,12 +35,12 @@ const compositeConfigIndexes = {
     'legs': 1,
     'pants': 1,
     'arm_back': 1,
-    'armor_body_back_sleeve': 1,
+    'armor_body_back_sleeve': 2,
     'torso': 1,
-    'armor_body': 1,
+    'armor_body': 2,
     'arm_front': 1,
-    'armor_body_front_sleeve': 1,
-    'armor_body_collar': 1,
+    'armor_body_front_sleeve': 2,
+    'armor_body_collar': 2,
     'head': 1,
     'ears': 1,
     'headband': 3,
@@ -92,9 +92,14 @@ export class Booma extends Phaser.GameObjects.Container {
             compositeConfig,
             compositeConfigIndexes
         );
-        this.character.play('idle');
         this.character.setScale(0.1);
         this.character.scaleX = -Math.abs(this.character.scaleX);
+
+        // loop animation
+        this.character.play('floss', false);
+        this.character.on('animationcomplete', () => {
+            this.character.play('floss', false);
+        })
 
         let clickPadding = { width: 32, height: 64 };
         this.clickRect = scene.add.rectangle(

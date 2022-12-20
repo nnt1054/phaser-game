@@ -19,12 +19,12 @@
             { "key": "legs", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 2, "scale": 1}
         ],
         "pants": [
-            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 2, "scale": 1},
-            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 2, "scale": 1},
-            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 2, "scale": 1},
-            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 2, "scale": 1},
-            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 2, "scale": 1},
-            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 2, "scale": 1}
+            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 3, "scale": 1},
+            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 3, "scale": 1},
+            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 3, "scale": 1},
+            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 3, "scale": 1},
+            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 3, "scale": 1},
+            { "key": "pants", "frame": 0, "rotate": 0, "translateX": 0, "translateY": 0, "depth": 3, "scale": 1}
         ],
         "arm_back": [
             { "key": "arms", "frame": 1, "rotate": -7, "translateX": 41, "translateY": 9, "depth": 3, "scale": 1},
