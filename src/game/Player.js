@@ -34,6 +34,9 @@ import {
     clearDialogue,
 } from '../store/dialogueBox';
 import {
+    updatePreview
+} from '../store/characterPreview';
+import {
     HealthMixin,
     TargetMixin,
 } from './mixins';
@@ -98,6 +101,56 @@ const compositeConfigIndexes = {
     'hair_front': 1,
 };
 
+// I wonder if SQLite might be better for items?
+// a json file might be better I think though; we really just need the ID for lookup
+const helmets = {
+    '001': {
+        name: 'tamamo headband',
+        sprites: {
+            'headband': 1,
+        }
+    },
+    '002': {
+        name: 'halo',
+        sprites: {
+            'headband': 2,
+        }
+    }
+}
+
+
+const EquipmentMixin = {
+
+    equipped: {
+        weapon: null,
+        helmet: null,
+        body: null,
+        legs: null,
+    },
+
+    equipHelmet: function(item) {
+        this.equipped.helmet = item;
+        this.updateCharacterSprite(item);
+    },
+
+    updateCharacterSprite: function(item) {
+        if (item) {
+            this.character.updateIndexes(item.sprites);
+        } else {
+            Object.entries(this.equipped).forEach(([key, item]) => {
+                if (item) this.character.updateIndexes(item.sprites);
+            });
+        }
+        this.updateCharacterPreview();
+    },
+
+    updateCharacterPreview: function() {
+        store.dispatch(updatePreview(this.character.indexes));
+    },
+
+}
+
+
 class CooldownManager {
     constructor() {
         this._cooldowns = new Map();
@@ -133,6 +186,7 @@ export class Player extends ArcadeContainer {
     mixins = [
         HealthMixin,
         TargetMixin,
+        EquipmentMixin,
     ]
 
     constructor(scene, x, y, children) {

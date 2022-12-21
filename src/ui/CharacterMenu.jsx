@@ -40,21 +40,25 @@ class characterPreview extends Phaser.Scene {
     }
 
     create() {
-        let textureMap = {
-            hair_back: 'hair',
-            legs: 'legs',
-            arm_back: 'arms',
-            armor_body_back_sleeve: 'armor_body',
-            torso: 'torso',
-            armor_body: 'armor_body',
-            arm_front: 'arms',
-            armor_body_front_sleeve: 'armor_body',
-            armor_body_collar: 'armor_body',
-            head: 'head',
-            ears: 'ears',
-            face: 'face',
-            hair_front: 'hair',
+
+        const textureMap = {
+            'hair_back': 'hair',
+            'legs': 'legs',
+            'pants': 'pants',
+            'arm_back': 'arms',
+            'armor_body_back_sleeve': 'armor_body',
+            'torso': 'torso',
+            'armor_body': 'armor_body',
+            'arm_front': 'arms',
+            'armor_body_front_sleeve': 'armor_body',
+            'armor_body_collar': 'armor_body',
+            'head': 'head',
+            'ears': 'ears',
+            'face': 'face',
+            'headband': 'headband',
+            'hair_front': 'hair',
         };
+
         this.character = new StaticCompositeSprite(this, 150, 430, textureMap);
         this.character.setScale(0.9);
         const getCharacterPreviewState = state => state.characterPreview;

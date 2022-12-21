@@ -161,6 +161,12 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
         this.setScale(0.1);
     }
 
+    updateIndexes(indexes) {
+        Object.entries(indexes).forEach(([key, index]) => {
+            this.indexes[key] = index;
+        })
+    }
+
     play(anim, ignoreIfPlaying) {
         this.currentAnim = anim;
         Object.entries(this.config).forEach(([key, texture]) => {
