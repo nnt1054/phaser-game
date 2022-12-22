@@ -44,6 +44,7 @@ import {
     setAlert,
 } from '../store/alert';
 
+import helmets from './equipment/helmets';
 
 function observeStore(store, select, onChange) {
   let currentState;
@@ -101,31 +102,14 @@ const compositeConfigIndexes = {
     'hair_front': 1,
 };
 
-// I wonder if SQLite might be better for items?
-// a json file might be better I think though; we really just need the ID for lookup
-const helmets = {
-    '001': {
-        name: 'tamamo headband',
-        sprites: {
-            'headband': 1,
-        }
-    },
-    '002': {
-        name: 'halo',
-        sprites: {
-            'headband': 2,
-        }
-    }
-}
-
 
 const EquipmentMixin = {
 
     equipped: {
         weapon: null,
         helmet: null,
-        body: null,
-        legs: null,
+        armor: null,
+        pants: null,
     },
 
     equipHelmet: function(item) {
@@ -713,6 +697,9 @@ export class Player extends ArcadeContainer {
     }
 
     cycleTargets(isReverse=false) {
+        const halo = helmets[2];
+        this.equipHelmet(halo);
+
         const camera = this.scene.cameras.main;
         const targets = [];
         for (const target of this.availableTargets) {
