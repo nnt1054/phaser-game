@@ -233,10 +233,12 @@ const HotBarItem = (props) => {
     }
 
     const onClick = (event) => {
-        if (targetName) {
-            tile.action(TARGET_CONSTANTS.CURRENT_TARGET);
-        } else {
-            tile.action();
+        if (tile.action) {
+            if (targetName) {
+                tile.action(TARGET_CONSTANTS.CURRENT_TARGET);
+            } else {
+                tile.action();
+            }
         }
     }
 

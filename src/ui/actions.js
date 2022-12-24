@@ -42,12 +42,8 @@ import {
 
 import * as styles from '../App.module.css';
 
-// TODO: add type to all tiles
-const reducerMap = {
-    'empty': {
-        label: '',
-        action: () => {},
-    },
+// TODO: separate dictionaries into separate files
+const movementActions = {
     'jump': {
         label: 'jump',
         action: () => {
@@ -129,8 +125,9 @@ const reducerMap = {
             }))
         },
     },
+};
 
-    // menus
+const shortcutActions = {
     'characterMenu': {
         label: 'menu',
         action: () => {
@@ -142,8 +139,54 @@ const reducerMap = {
         label: 'inventory',
         action: () => { store.dispatch(toggleMenuVisible('inventory')) },
     },
+};
 
-    // abilities
+const systemActions = {
+    'empty': {
+        label: '',
+        action: () => {},
+    },
+    'close': {
+        label: 'close',
+        action: () => {
+            const state = store.getState();
+            if (state.menuStates.activeMenus.length) {
+                store.dispatch(closeMenus());
+            } else {
+                store.dispatch(setSystemAction('untarget'));
+            }
+        },
+    },
+    'confirm': {
+        label: 'confirm',
+        action: () => {
+            const state = store.getState();
+            if (state.dialogueBox.display) {
+                store.dispatch(getNextMessage());
+            } else {
+                store.dispatch(setSystemAction('confirm'));
+            }
+        },
+    },
+};
+
+const targetingActions = {
+    'cycleTarget': {
+        label: 'cycleTarget',
+        action: () => {
+            store.dispatch(setSystemAction('cycleTarget'));
+        },
+        icon: 'fleche',
+    },
+    'cycleTargetReverse': {
+        label: 'cycleTarget',
+        action: () => {
+            store.dispatch(setSystemAction('cycleTargetReverse'));
+        },
+    },
+};
+
+const abilities = {
     'jolt': {
         label: 'jolt',
         action: (target) => {
@@ -155,6 +198,19 @@ const reducerMap = {
             );
         },
         icon: 'jolt',
+        gcd: true,
+    },
+    'verthunder': {
+        label: 'verthunder',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'verthunder',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'verthunder',
         gcd: true,
     },
     'fleche': {
@@ -192,8 +248,9 @@ const reducerMap = {
         icon: 'melee1',
         gcd: true,
     },
+};
 
-    // items
+const items = {
     'potion': {
         label: 'potion',
         action: () => { store.dispatch(setQueuedAbility('potion')) },
@@ -204,7 +261,9 @@ const reducerMap = {
             THIS IS AN ITEM NOT AN ABILITY !!!! Restores self HP by 100. Press "I" to open your inventory.
         `
     },
+};
 
+export const equipment = {
     // equipment test
     'halo': {
         label: 'halo',
@@ -212,42 +271,16 @@ const reducerMap = {
         type: 'item',
         description: `this is a helmet thing`,
     },
+};
 
-    // system actions
-    'close': {
-        label: 'close',
-        action: () => {
-            const state = store.getState();
-            if (state.menuStates.activeMenus.length) {
-                store.dispatch(closeMenus());
-            } else {
-                store.dispatch(setSystemAction('untarget'));
-            }
-        },
-    },
-    'confirm': {
-        label: 'confirm',
-        action: () => {
-            const state = store.getState();
-            if (state.dialogueBox.display) {
-                store.dispatch(getNextMessage());
-            } else {
-                store.dispatch(setSystemAction('confirm'));
-            }
-        },
-    },
-    'cycleTarget': {
-        label: 'cycleTarget',
-        action: () => {
-            store.dispatch(setSystemAction('cycleTarget'));
-        },
-    },
-    'cycleTargetReverse': {
-        label: 'cycleTarget',
-        action: () => {
-            store.dispatch(setSystemAction('cycleTargetReverse'));
-        },
-    },
-}
+const reducerMap = {
+    ...movementActions,
+    ...shortcutActions,
+    ...systemActions,
+    ...targetingActions,
+    ...abilities,
+    ...items,
+    ...equipment, 
+};
 
 export default reducerMap;

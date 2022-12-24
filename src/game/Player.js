@@ -384,6 +384,8 @@ export class Player extends ArcadeContainer {
             }
             this.character.setActiveCompositeStates(animState.compositeStates);
         })
+
+        this.updateCharacterPreview();
     }
 
     handleClick() {

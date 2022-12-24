@@ -20,165 +20,6 @@ const isAny = (player, target) => { return true };
 const isEnemy = (player, target) => { return target && target.isEnemy && target.visible };
 const isFriendly = (player, target) => { return target && target.hasHealth && !target.isEnemy && target.visible };
 
-const basicAbility = {
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    cooldown: 2500,
-    execute: (player) => {},
-}
-
-const basicAttack = {
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    cooldown: 1000,
-    execute: (player) => {
-        player.isAttacking = true;
-        player.character.play('run', false);
-        setTimeout(() => player.isAttacking = false, 1000);
-    },
-}
-
-const basicHeal = {
-    name: 'heal',
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    gcd: true,
-    castTime: 2000,
-    cooldown: 2500,
-    canExecute: (player, target) => {
-        if (target && 'health' in target) {
-            return true;
-        }
-        return false;
-    },
-    execute: (player, target) => {
-        store.dispatch(decrementMana());
-        target.increaseHealth(20);
-    },
-}
-
-const floss = {
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    gcd: true,
-    cooldown: 1000,
-    canExecute: (player) => {
-        const [cooldown, duration] = player.cooldownManager.getTimer('floss');
-        return (cooldown == 0 && player.body.onFloor());
-    },
-    execute: (player) => {
-        player.doEmote('floss');
-        player.cooldownManager.startTimer('floss', 12000);
-    },
-}
-
-const basicMelee = {
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    gcd: true,
-    cooldown: 1500,
-    execute: (player) => {
-        // store.dispatch(incrementMana());
-    },
-}
-
-const manafication = {
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    gcd: false,
-    cooldown: 1000,
-    canExecute: (player) => {
-        const [cooldown, duration] = player.cooldownManager.getTimer('manafication');
-        return (cooldown == 0);
-    },
-    execute: (player) => {
-        player.cooldownManager.startTimer('manafication', 30000);
-        store.dispatch(setPlayerCurrentMana(100));
-    },
-}
-
-const embolden = {
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    cooldown: 1000,
-    gcd: false,
-    canExecute: (player) => {
-        const [cooldown, duration] = player.cooldownManager.getTimer('embolden');
-        return (cooldown == 0);
-    },
-    execute: (player) => {
-        player.cooldownManager.startTimer('embolden', 30000);
-    },
-}
-
-// const jolt = {
-//     name: 'jolt',
-//     type: 'ability',
-//     charges: -1,
-//     cost: -1,
-//     gcd: true,
-//     castTime: 2000,
-//     cooldown: 2500,
-//     canExecute: (player) => {
-//         return true;
-//     },
-//     execute: (player) => {
-//         store.dispatch(decrementMana());
-//     },
-// }
-
-const verthunder = {
-    name: 'verthunder',
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    gcd: true,
-    cooldown: 2500,
-    canExecute: (player) => {
-        return true;
-    },
-    execute: (player) => {
-        store.dispatch(decrementMana());
-    },
-}
-
-const verflare = {
-    name: 'verflare',
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    gcd: true,
-    cooldown: 2500,
-    canExecute: (player) => {
-        return true;
-    },
-    execute: (player) => {
-        store.dispatch(decrementMana());
-    },
-}
-
-const verraise = {
-    type: 'ability',
-    charges: -1,
-    cost: -1,
-    gcd: true,
-    cooldown: 4000,
-    canExecute: (player) => {
-        return true;
-    },
-    execute: (player) => {
-        store.dispatch(decrementMana());
-        store.dispatch(setPlayerCurrentMana(0));
-    },
-}
-
 const untarget = {
     type: 'system',
     execute: (player) => {
@@ -233,6 +74,35 @@ const jolt = {
             return false;
         }
         if (player.isMoving()) return false;
+        return true;
+    },
+    execute: (player, target) => {
+        target.reduceHealth(25);
+    },
+}
+
+
+const verthunder = {
+    name: 'verthunder',
+    type: 'ability',
+    gcd: true,
+    castTime: 0,
+    cooldown: 2500,
+    canTarget: isEnemy,
+    canExecute: (player, target) => {
+        if (!target) return false;
+        if (!target.hasHealth) return false;
+        if (target.health <= 0) return false;
+        const inRange = Phaser.Geom.Rectangle.Overlaps(
+            player.rangedRect.getBounds(),
+            target.hitboxRect.getBounds(),
+        )
+        if (!inRange) {
+            store.dispatch(setAlert('Target is out of range.'));
+            return false;
+        }
+        // TODO: move to player logic; if castTime > 0; then check if player.isMoving
+        // if (player.isMoving()) return false;
         return true;
     },
     execute: (player, target) => {
@@ -347,21 +217,10 @@ const slice = {
 
 const actionMap = {
     'jolt': jolt,
+    'verthunder': verthunder,
     'vercure': vercure,
     'fleche': fleche,
     'slice': slice,
-
-    // 'attack': basicAttack,
-    // 'heal': basicHeal,
-    // 'floss': floss,
-    // 'melee': basicMelee,
-    // 'fleche': fleche,
-    // 'manafication': manafication,
-    // 'embolden': embolden,
-    // 'jolt': jolt,
-    // 'verthunder': verthunder,
-    // 'verflare': verflare,
-    // 'verraise': verraise,
 
     // items
     'potion': potion,

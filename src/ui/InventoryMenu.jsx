@@ -34,7 +34,6 @@ const InventoryItem = (props) => {
     const ref = useRef();
     const dispatch = useDispatch();
 
-    // const abilityKey = useSelector(state => state.playerState.castKey);
     const item = props.item;
     const itemData = actionMap[item.name];
     const icon = icons[itemData.icon];
