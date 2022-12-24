@@ -10,11 +10,14 @@ import {
 } from '../store/playerMana';
 import {
     setItemCount,
+    addItemCount,
     subractItemCount,
 } from '../store/inventory';
 import {
     setAlert,
 } from '../store/alert';
+
+import helmets from './equipment/helmets';
 
 const isAny = (player, target) => { return true };
 const isEnemy = (player, target) => { return target && target.isEnemy && target.visible };
@@ -47,10 +50,32 @@ const cycleTarget = {
         player.cycleTargets();
     },
 }
+
 const cycleTargetReverse = {
     type: 'system',
     execute: (player) => {
         player.cycleTargets(true);
+    },
+}
+
+const equipHelmet = {
+    type: 'system',
+    execute: (player, itemId) => {
+        const item = helmets[itemId]
+        if (!item) return;
+
+        const itemCount = player.inventory.get(item.name) || 0;
+        if (itemCount < 1) return;
+
+        const currentItem = player.equipped.helmet;
+
+        player.removeItem(item.name);
+        player.equipHelmet(item);
+
+        // store.dispatch(setHelmet(item));
+        if (currentItem) {
+            player.addItem(currentItem.name);
+        }
     },
 }
 
@@ -230,6 +255,9 @@ const actionMap = {
     'confirm': confirm,
     'cycleTarget': cycleTarget,
     'cycleTargetReverse': cycleTargetReverse,
+
+    // equip
+    'equipHelmet': equipHelmet,
 }
 
 export default actionMap;

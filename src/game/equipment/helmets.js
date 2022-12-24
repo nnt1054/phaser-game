@@ -1,7 +1,7 @@
 const helmets = {
     '1': {
         id: 1,
-        name: 'tamamo headband',
+        name: 'foxears',
         sprites: {
             'headband': 1,
         }

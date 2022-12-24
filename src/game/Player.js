@@ -28,7 +28,8 @@ import {
     setCotargetCurrentHealth,
 } from '../store/targetInfo';
 import {
-    addItemCount
+    addItemCount,
+    subractItemCount,
 } from '../store/inventory';
 import {
     clearDialogue,
@@ -314,6 +315,7 @@ export class Player extends ArcadeContainer {
         this.gcdTimer = 0;
         this.abilityTimer = 0;
         this.systemAction = null;
+        this.systemActionTarget = null;
         this.casting = null;
         this.castTarget = null;
         this.castingTimer = 0;
@@ -336,7 +338,10 @@ export class Player extends ArcadeContainer {
             }
 
             if (playerState.systemAction) {
-                this.queueSystemAction(playerState.systemAction)
+                this.queueSystemAction(
+                    playerState.systemAction,
+                    playerState.systemActionTarget,
+                );
                 store.dispatch(clearSystemAction());
             }
 
@@ -372,6 +377,11 @@ export class Player extends ArcadeContainer {
         });
 
         this.addItem('potion', 3);
+        this.addItem('halo', 1);
+        this.addItem('foxears', 1);
+
+        const ears = helmets[1];
+        this.equipHelmet(ears);
 
         // Animation Editor
         this.paused = false;
@@ -405,12 +415,13 @@ export class Player extends ArcadeContainer {
         })
     }
 
-    queueSystemAction(actionName) {
+    queueSystemAction(actionName, target) {
         if (!actionName) return;
         const action = actionMap[actionName];
         if (!action) return;
         if (this.systemAction) return;
         this.systemAction = action;
+        this.systemActionTarget = target;
     }
 
     queueAbility(abilityName, target) {
@@ -641,8 +652,9 @@ export class Player extends ArcadeContainer {
 
     updateSystemAction(delta) {
         if (this.systemAction) {
-            this.systemAction.execute(this);
+            this.systemAction.execute(this, this.systemActionTarget);
             this.systemAction = null;
+            this.systemActionTarget = null;
         }
     }
 

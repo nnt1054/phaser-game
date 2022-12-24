@@ -25,6 +25,7 @@ const playerStateSlice = createSlice({
     cooldowns: {},
 
     systemAction: null,
+    systemActionTarget: null,
   },
   reducers: {
     setQueuedAbility: (state, action) => {
@@ -70,10 +71,18 @@ const playerStateSlice = createSlice({
     setSystemAction: (state, action) => {
         if (!state.systemAction) {
             state.systemAction = action.payload;
+            state.systemActionTarget = null;
+        }
+    },
+    setSystemActionAndTarget: (state, action) => {
+        if (!state.systemAction) {
+            state.systemAction = action.payload.action;
+            state.systemActionTarget = action.payload.target;
         }
     },
     clearSystemAction: (state) => {
         state.systemAction = null;
+        state.systemActionTarget = null;
     },
   }
 })
@@ -89,6 +98,7 @@ export const {
     setGCD,
     setCast,
     setSystemAction,
+    setSystemActionAndTarget,
     clearSystemAction,
 } = playerStateSlice.actions;
 

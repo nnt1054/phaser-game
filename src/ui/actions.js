@@ -18,6 +18,7 @@ import {
     setCursorState,
     setJump,
     setSystemAction,
+    setSystemActionAndTarget,
 } from '../store/playerState';
 
 import {
@@ -265,11 +266,29 @@ const items = {
 
 export const equipment = {
     // equipment test
+    'foxears': {
+        label: 'foxears',
+        icon: 'verflare',
+        type: 'item',
+        description: `fox ears! ripped out of a real live fox.`,
+        action: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 1,
+            }))
+        },
+    },
     'halo': {
         label: 'halo',
         icon: 'verholy',
         type: 'item',
         description: `this is a helmet thing`,
+        action: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 2,
+            }))
+        },
     },
 };
 

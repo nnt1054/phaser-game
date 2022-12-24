@@ -143,6 +143,10 @@ const InventoryItem = (props) => {
         alignItems: 'center',
     }
 
+    const onClick = (event) => {
+        if (itemData.action) itemData.action();
+    }
+
     return (
         <div style={ itemContainerStyles }>
             <span style={ itemCountStyles }> x{ item.count } </span>
@@ -150,6 +154,7 @@ const InventoryItem = (props) => {
                 ref={ ref }
                 className={ styles.ItemSlot }
                 style={ iconContainerStyles }
+                onClick={ onClick }
             >
                 <img draggable={ false } style={ iconStyle } src={ icon }/>
             </button>
