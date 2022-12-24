@@ -45,6 +45,7 @@ import {
 } from '../store/alert';
 
 import helmets from './equipment/helmets';
+import armors from './equipment/armors';
 
 function observeStore(store, select, onChange) {
   let currentState;
@@ -117,6 +118,11 @@ const EquipmentMixin = {
         this.updateCharacterSprite(item);
     },
 
+    equipArmor: function(item) {
+        this.equipped.armor = item;
+        this.updateCharacterSprite(item);
+    },
+
     updateCharacterSprite: function(item) {
         if (item) {
             this.character.updateIndexes(item.sprites);
@@ -134,6 +140,45 @@ const EquipmentMixin = {
 
 }
 
+const InventoryMixin = {
+
+    inventory: new Map(),
+
+    addItem: function(key, amount) {
+        if (amount == null) amount = 1;
+        const itemCount = this.inventory.get(key) || 0;
+        const newItemCount = itemCount + amount;
+        this.inventory.set(key, newItemCount);
+
+        store.dispatch(addItemCount({
+            name: key,
+            value: newItemCount - itemCount,
+        }))
+    },
+
+    removeItem: function(key, amount) {
+        if (amount == null) amount = 1;
+        const itemCount = this.inventory.get(key);
+        const newItemCount = Math.max(0, itemCount - amount);
+        this.inventory.set(key, newItemCount);
+
+        store.dispatch(subractItemCount({
+            name: key,
+            value: itemCount - newItemCount,
+        }))
+    },
+
+    hasItem: function(key, amount) {
+        if (amount == null) amount = 1;
+        const itemCount = this.inventory.get(key);
+        if (itemCount && itemCount >= amount) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+}
 
 class CooldownManager {
     constructor() {
@@ -171,6 +216,7 @@ export class Player extends ArcadeContainer {
         HealthMixin,
         TargetMixin,
         EquipmentMixin,
+        InventoryMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -313,10 +359,6 @@ export class Player extends ArcadeContainer {
         // TODO: move cooldowns to mixin
         this.cooldownManager = new CooldownManager();
 
-        // TODO: move inventory to mixin
-        this.inventory = new Map();
-        this.inventory.set('potion', 3);
-
         // Dialogue
         this.dialogueTarget = null;
         this.dialogueComplete = true;
@@ -328,6 +370,8 @@ export class Player extends ArcadeContainer {
                 this.dialogueOption = dialogueState.currentOption;
             }
         });
+
+        this.addItem('potion', 3);
 
         // Animation Editor
         this.paused = false;
@@ -697,9 +741,6 @@ export class Player extends ArcadeContainer {
     }
 
     cycleTargets(isReverse=false) {
-        const halo = helmets[2];
-        this.equipHelmet(halo);
-
         const camera = this.scene.cameras.main;
         const targets = [];
         for (const target of this.availableTargets) {

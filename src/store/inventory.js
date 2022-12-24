@@ -19,9 +19,9 @@ const inventorySlice = createSlice({
   initialState: {
     draggingIndex: null,
     items: [
-      { name: 'potion', count: 1 },
+      { name: 'halo', count: 1 },
       { name: 'empty', count: 0 },
-      { name: 'potion', count: 2 },
+      { name: 'empty', count: 0 },
       { name: 'empty', count: 0 },
       { name: 'empty', count: 0 },
 

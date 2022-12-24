@@ -60,7 +60,7 @@ const InventoryItem = (props) => {
             });
             dispatch(setDragging({
                 name: item.name,
-                type: 'inventory',
+                type: itemData.type,
                 hotbar: null,
                 index: null,
             }));
@@ -80,7 +80,7 @@ const InventoryItem = (props) => {
     const isDragging = dragState.isDragging;
     const isPointerDown = dragState.isPointerDown;
     const dragStarted = (isDragging && (translate.x || translate.y));
-    const droppable = (dragging && draggingSource.type === 'inventory' && isHovering);
+    const droppable = (dragging && draggingSource.type === 'item' && isHovering);
 
     useEffect(() => {
         const element = ref.current;

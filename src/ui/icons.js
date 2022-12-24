@@ -7,6 +7,7 @@ import manafication_icon from '../assets/icons/manafication.png';
 import verraise_icon from '../assets/icons/verraise.png';
 import verthunder_icon from '../assets/icons/verthunder.png';
 import verflare_icon from '../assets/icons/verflare.png';
+import verholy_icon from '../assets/icons/verholy.png';
 import melee1_icon from '../assets/icons/riposte.png';
 import melee2_icon from '../assets/icons/zwerchhau.png';
 import melee3_icon from '../assets/icons/redoublement.png';
@@ -24,4 +25,5 @@ export default {
     verraise: verraise_icon,
     verthunder: verthunder_icon,
     verflare: verflare_icon,
+    verholy: verholy_icon,
 }

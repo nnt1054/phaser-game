@@ -12,7 +12,14 @@ const helmets = {
         sprites: {
             'headband': 2,
         }
-    }
+    },
+    '3': {
+        id: 2,
+        name: 'horns',
+        sprites: {
+            'headband': 3,
+        }
+    },
 }
 
 export default helmets;

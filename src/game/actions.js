@@ -305,8 +305,7 @@ const potion = {
     canTarget: isAny,
     canExecute: (player) => {
         const [cooldown, duration] = player.cooldownManager.getTimer('potion');
-        const itemCount = player.inventory.get('potion') || 0;
-        return (cooldown == 0 && itemCount > 0);
+        return (cooldown == 0 && player.hasItem('potion'));
     },
     execute: (player) => {
         const itemCount = player.inventory.get('potion') || 0;
