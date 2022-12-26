@@ -267,6 +267,7 @@ const items = {
 export const equipment = {
     // equipment test
     'foxears': {
+        itemId: 1,
         label: 'foxears',
         icon: 'verflare',
         type: 'item',
@@ -279,6 +280,7 @@ export const equipment = {
         },
     },
     'halo': {
+        itemId: 2,
         label: 'halo',
         icon: 'verholy',
         type: 'item',

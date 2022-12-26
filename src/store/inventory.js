@@ -106,7 +106,15 @@ const inventorySlice = createSlice({
         state.helmet = action.payload.helmet;
         state.armor = action.payload.armor;
         state.pants = action.payload.payload;
-    }
+    },
+    setEquipment: (state, action) => {
+        const type = action.payload.type;
+        const name = action.payload.name;
+        state[type] = name;
+    },
+    setDraggingEquipment: (state, action) => {
+        state.draggingIndex = action.payload;
+    },
   }
 })
 
@@ -118,5 +126,7 @@ export const {
   setItemDragging,
   setDraggingIndex,
   updateEquipment,
+  setEquipment,
+  setDraggingEquipment,
 } = inventorySlice.actions;
 export default inventorySlice;

@@ -28,7 +28,11 @@ import {
 import {
     moveItem,
     setDraggingIndex,
+    setEquipment,
 } from '../store/inventory';
+import {
+    setSystemActionAndTarget
+} from '../store/playerState';
 
 import { equipment } from './actions';
 
@@ -219,24 +223,22 @@ const EquipmentSlot = (props) => {
     const dragState = useDrag(ref,
         event => {
             if (!itemData) return;
-            // setTranslate({
-            //     x: translate.x + event.movementX,
-            //     y: translate.y + event.movementY,
-            // });
-            // dispatch(setDragging({
-            //     name: item.name,
-            //     type: itemData.type,
-            //     hotbar: null,
-            //     index: null,
-            // }));
-            // dispatch(setDraggingIndex(props.index));
-            // document.body.style.cursor = "grabbing";
+            setTranslate({
+                x: translate.x + event.movementX,
+                y: translate.y + event.movementY,
+            });
+            dispatch(setDragging({
+                name: itemData.label,
+                type: itemData.type,
+                hotbar: null,
+                index: null,
+            }));
+            document.body.style.cursor = "grabbing";
         },
         event => {
-            // setTranslate({ x: 0, y: 0 });
-            // dispatch(clearDragging());
-            // dispatch(setDraggingIndex(null));
-            // document.body.style.cursor = "unset";
+            setTranslate({ x: 0, y: 0 });
+            dispatch(clearDragging());
+            document.body.style.cursor = "unset";
         },
         event => {
             dispatch(pushToFront('character'));
@@ -252,17 +254,26 @@ const EquipmentSlot = (props) => {
         const element = ref.current;
 
         const handlePointerUp = event => {
-            // dispatch(setSystemActionAndTarget({
-            //     action: 'equipHelmet',
-            //     target: 2,
-            // }))
+            const item = equipment[dragging];
+            if (!item) return;
+            let action;
+            switch(type) {
+                case 'helmet':
+                    action = 'equipHelmet';
+                    break;
+            }
+            if (!action) return;
+            dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: item.itemId,
+            }))
         }
         element.addEventListener('pointerup', handlePointerUp);
 
         return () => {
             element.removeEventListener('pointerup', handlePointerUp);
         }
-    }, [])
+    }, [dragging])
 
     const itemContainerStyles = {
         position: 'relative',
