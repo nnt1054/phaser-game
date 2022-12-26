@@ -101,40 +101,6 @@ const hotBarsSlice = createSlice({
             { name: 'empty', active: false, keybind: '↑G'},
         ]
     },
-    // 3: {
-    //     visible: !animationToggle,
-    //     left: 50,
-    //     bottom: 9,
-    //     slots: [
-    //         { name: 'melee1', active: false, keybind: '1'},
-    //         { name: 'melee2', active: false, keybind: '2'},
-    //         { name: 'melee3', active: false, keybind: '3'},
-    //         { name: 'potion', active: false, keybind: '4'},
-    //         { name: 'empty', active: false, keybind: '5'},
-    //         { name: 'jolt', active: false, keybind: 'Q'},
-    //         { name: 'verthunder', active: false, keybind: 'E'},
-    //         { name: 'verflare', active: false, keybind: 'R'},
-    //         { name: 'verraise', active: false, keybind: 'F'},
-    //         { name: 'fleche', active: false, keybind: 'G'},
-    //     ]
-    // },
-    // 4: {
-    //     visible: !animationToggle,
-    //     left: 50,
-    //     bottom: 15,
-    //     slots: [
-    //         { name: 'empty', active: false, keybind: '↑1'},
-    //         { name: 'empty', active: false, keybind: '↑2'},
-    //         { name: 'empty', active: false, keybind: '↑3'},
-    //         { name: 'empty', active: false, keybind: '↑4'},
-    //         { name: 'empty', active: false, keybind: '↑5'},
-    //         { name: 'vercure', active: false, keybind: '↑Q'},
-    //         { name: 'embolden', active: false, keybind: '↑E'},
-    //         { name: 'manafication', active: false, keybind: '↑R'},
-    //         { name: 'empty', active: false, keybind: '↑F'},
-    //         { name: 'empty', active: false, keybind: '↑G'},
-    //     ]
-    // },
   },
   reducers: {
     doNothing: (state) => {},
