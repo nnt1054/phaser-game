@@ -30,6 +30,7 @@ import {
 import {
     addItemCount,
     subractItemCount,
+    updateEquipment,
 } from '../store/inventory';
 import {
     clearDialogue,
@@ -117,11 +118,13 @@ const EquipmentMixin = {
     equipHelmet: function(item) {
         this.equipped.helmet = item;
         this.updateCharacterSprite(item);
+        this.updateEquipmentStore();
     },
 
     equipArmor: function(item) {
         this.equipped.armor = item;
         this.updateCharacterSprite(item);
+        this.updateEquipmentStore();
     },
 
     updateCharacterSprite: function(item) {
@@ -133,6 +136,15 @@ const EquipmentMixin = {
             });
         }
         this.updateCharacterPreview();
+    },
+
+    updateEquipmentStore: function() {
+        store.dispatch(updateEquipment({
+            weapon: this.equipped.weapon?.name,
+            helmet: this.equipped.helmet?.name,
+            armor: this.equipped.armor?.name,
+            pants: this.equipped.pants?.name,
+        }))
     },
 
     updateCharacterPreview: function() {

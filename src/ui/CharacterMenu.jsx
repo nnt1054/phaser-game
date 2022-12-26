@@ -111,7 +111,7 @@ const CharacterMenu = () => {
     const position = useSelector(state => state.menuStates.character);
     const dispatch = useDispatch();
 
-    const width = 512;
+    const width = 412;
     const height = 512;
 
     const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
@@ -154,6 +154,7 @@ const CharacterMenu = () => {
     const equipmentContainerStyles = {
         display: 'flex',
         flexDirection: 'column',
+        gap: '12px',
     }
 
     return (
@@ -170,24 +171,22 @@ const CharacterMenu = () => {
                 style={{
                     display: 'flex',
                     flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    margin: '0px 16px',
                 }}
             >
                 <div
                     ref={ characterPreviewRef }
                     id="character-preview-container"
-                    style={ labelStyle }
                 ></div>
 
                 <div
                     style={ equipmentContainerStyles }
                 >
-                    <EquipmentSlot
-                        key={ 1 }
-                        index={ 1 }
-                        item={
-                            { name: 'empty', count: 1 }
-                        }
-                    />
+                    <EquipmentSlot type={ 'weapon' } />
+                    <EquipmentSlot type={ 'helmet' } />
+                    <EquipmentSlot type={ 'armor' } />
+                    <EquipmentSlot type={ 'pants' } />
                 </div>
             </div>
         </div>
@@ -198,21 +197,18 @@ const EquipmentSlot = (props) => {
     const ref = useRef();
     const dispatch = useDispatch();
 
-    // const type = props.type;
-    const type = 'helmet';
+    const type = props.type;
+    const itemName = useSelector(state => state.inventory[type]);
+    const itemData = equipment[itemName];
 
-    const item = props.item;
-    const itemData = equipment[item.name];
-    const empty = (item.name === 'empty');
-
-    const icon = !empty ? icons[itemData.icon] : '';
+    const icon = itemData ? icons[itemData.icon] : '';
 
     const dragging = useSelector(state => state.hotBars.dragging);
     const draggingSource = useSelector(state => state.hotBars.draggingSource);
 
     const isHovering = useHover(ref,
         event => {
-            dispatch(setHoverKey(item.name));
+            dispatch(setHoverKey(itemName));
         },
         event => {
             dispatch(setHoverKey(null));
@@ -222,11 +218,11 @@ const EquipmentSlot = (props) => {
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const dragState = useDrag(ref,
         event => {
-            if (empty) return;
-            setTranslate({
-                x: translate.x + event.movementX,
-                y: translate.y + event.movementY,
-            });
+            if (!itemData) return;
+            // setTranslate({
+            //     x: translate.x + event.movementX,
+            //     y: translate.y + event.movementY,
+            // });
             // dispatch(setDragging({
             //     name: item.name,
             //     type: itemData.type,
@@ -234,13 +230,13 @@ const EquipmentSlot = (props) => {
             //     index: null,
             // }));
             // dispatch(setDraggingIndex(props.index));
-            document.body.style.cursor = "grabbing";
+            // document.body.style.cursor = "grabbing";
         },
         event => {
-            setTranslate({ x: 0, y: 0 });
+            // setTranslate({ x: 0, y: 0 });
             // dispatch(clearDragging());
             // dispatch(setDraggingIndex(null));
-            document.body.style.cursor = "unset";
+            // document.body.style.cursor = "unset";
         },
         event => {
             dispatch(pushToFront('character'));
@@ -256,11 +252,10 @@ const EquipmentSlot = (props) => {
         const element = ref.current;
 
         const handlePointerUp = event => {
-            console.log('heyo');
-            // dispatch(moveItem({
-            //     name: dragging,
-            //     index: props.index,
-            // }));
+            // dispatch(setSystemActionAndTarget({
+            //     action: 'equipHelmet',
+            //     target: 2,
+            // }))
         }
         element.addEventListener('pointerup', handlePointerUp);
 
@@ -271,15 +266,16 @@ const EquipmentSlot = (props) => {
 
     const itemContainerStyles = {
         position: 'relative',
-        width: `48px`,
-        height: `48px`,
+        // width: `48px`,
+        // height: `48px`,
         display: 'flex',
         justifyContent: 'center',
+        flexDirection: 'column',
         alignItems: 'center',
     }
 
     const iconStyle = {
-        display: empty ? 'none' : 'block',
+        display: !itemData ? 'none' : 'block',
         width: `48px`,
         height: `48px`,
         position: `absolute`,
@@ -302,8 +298,14 @@ const EquipmentSlot = (props) => {
         zIndex: isDragging ? 10 : 1,
     }
 
+    const labelStyle = {
+        top: '0px',
+        // position: 'absolute',
+    };
+
     return (
         <div style={ itemContainerStyles }>
+            <span style={ labelStyle }> { type } </span>
             <button
                 ref={ ref }
                 className={ styles.ItemSlot }

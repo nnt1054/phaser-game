@@ -19,36 +19,40 @@ const inventorySlice = createSlice({
   initialState: {
     draggingIndex: null,
     items: [
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
 
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
 
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
 
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
 
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
-      { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
     ],
+    weapon: null,
+    helmet: 'foxears',
+    armor: null,
+    pants: null,
   },
   reducers: {
     setItemCount: (state, action) => {
@@ -95,7 +99,13 @@ const inventorySlice = createSlice({
       state.draggingIndex = null;
     },
     setDraggingIndex: (state, action) => {
-      state.draggingIndex = action.payload;
+        state.draggingIndex = action.payload;
+    },
+    updateEquipment: (state, action) => {
+        state.weapon = action.payload.weapon;
+        state.helmet = action.payload.helmet;
+        state.armor = action.payload.armor;
+        state.pants = action.payload.payload;
     }
   }
 })
@@ -107,5 +117,6 @@ export const {
   moveItem,
   setItemDragging,
   setDraggingIndex,
+  updateEquipment,
 } = inventorySlice.actions;
 export default inventorySlice;
