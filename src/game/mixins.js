@@ -43,22 +43,25 @@ export const HealthMixin = {
         }
     },
 
-    increaseHealth: function(value) {
+    increaseHealth: function(value, delay) {
+        if (!delay) delay = 0;
         this.health = Math.min(this.health + value, this.maxHealth);
-        this.generateHealNumbers(value);
+        setTimeout(() => this.generateHealNumbers(value), delay);
         this.updateStore();
     },
 
-    reduceHealth: function(value) {
+    reduceHealth: function(value, delay) {
+        if (!delay) delay = 0;
         this.health = Math.max(this.health - value, 0);
-        this.generateDamageNumbers(value);
-        this.updateStore();
-
-        if (this.health <= 0) {
-            if (this.handleDeath) {
-                this.handleDeath();
+        setTimeout(() => {
+            this.generateDamageNumbers(value)
+            this.updateStore();
+            if (this.health <= 0) {
+                if (this.handleDeath) {
+                    this.handleDeath();
+                }
             }
-        }
+        }, delay);
     },
 
     updateStore: function() {

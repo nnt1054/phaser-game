@@ -93,6 +93,7 @@ class defaultScene extends Phaser.Scene {
         // Player
         // this.player = new Player(this, 32 * 18, 32 * 1.5);
         this.player = new Player(this, 32 * 3, 32 * 56);
+        this.player.setDepth(100);
 
         // NPC
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');

@@ -26,6 +26,22 @@ const movementOnly = {
       type: 'cursor',
       cursor: 'right',
     },
+    [KeyCodes.UP]: {
+      type: 'cursor',
+      cursor: 'up',
+    },
+    [KeyCodes.LEFT]: {
+      type: 'cursor',
+      cursor: 'left',
+    },
+    [KeyCodes.DOWN]: {
+      type: 'cursor',
+      cursor: 'down',
+    },
+    [KeyCodes.RIGHT]: {
+      type: 'cursor',
+      cursor: 'right',
+    },
 
     // menus
     [KeyCodes.C]: {
@@ -196,3 +212,21 @@ export const {
 } = inputManagerSlice.actions;
 
 export default inputManagerSlice;
+
+
+    // [KeyCodes.UP]: {
+    //   type: 'cursor',
+    //   cursor: 'up',
+    // },
+    // [KeyCodes.LEFT]: {
+    //   type: 'cursor',
+    //   cursor: 'left',
+    // },
+    // [KeyCodes.DOWN]: {
+    //   type: 'cursor',
+    //   cursor: 'down',
+    // },
+    // [KeyCodes.RIGHT]: {
+    //   type: 'cursor',
+    //   cursor: 'right',
+    // },

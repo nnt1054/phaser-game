@@ -23,6 +23,12 @@ import jumpIdleJson from './jumpIdle.json';
 import crouchJson from './crouch.json';
 import flossJson from './floss.json';
 
+// vfx
+import pack1 from '../assets/spritesheets/vfx/pack1.png';
+import pack2 from '../assets/spritesheets/vfx/pack2.png';
+import pack3 from '../assets/spritesheets/vfx/pack3.png';
+import pack4 from '../assets/spritesheets/vfx/pack4.png';
+import pack5 from '../assets/spritesheets/vfx/pack5.png';
 
 export function animationPreload(scene) {
   	let spritesheets_512 = {
@@ -43,6 +49,27 @@ export function animationPreload(scene) {
 	        frameHeight: 512,
 	    });
   	};
+
+    scene.load.spritesheet('vfx1', pack1, {
+        frameWidth: 96,
+        frameHeight: 96,
+    })
+    scene.load.spritesheet('vfx2', pack2, {
+        frameWidth: 96,
+        frameHeight: 96,
+    })
+    scene.load.spritesheet('vfx3', pack3, {
+        frameWidth: 96,
+        frameHeight: 96,
+    })
+    scene.load.spritesheet('vfx4', pack4, {
+        frameWidth: 96,
+        frameHeight: 96,
+    })
+    scene.load.spritesheet('vfx5', pack5, {
+        frameWidth: 96,
+        frameHeight: 96,
+    })
 }
 
 export function animationCreate(scene) {
@@ -72,6 +99,49 @@ export function animationCreate(scene) {
     loadCompositeAnimation(scene, jumpIdleJson, playerTextureMap);
     loadCompositeAnimation(scene, crouchJson, playerTextureMap);
     loadCompositeAnimation(scene, flossJson, playerTextureMap);
+
+    scene.anims.create({
+        key: "smoke",
+        duration: 250,
+        frames: scene.anims.generateFrameNumbers("vfx1", { start: 12, end: 23 }),
+    });
+
+    scene.anims.create({
+        key: "fleche",
+        duration: 750,
+        frames: scene.anims.generateFrameNumbers("vfx1", { start: 36, end: 47 }),
+    });
+
+    scene.anims.create({
+        key: "slice",
+        duration: 750,
+        frames: scene.anims.generateFrameNumbers("vfx2", { start: 60, end: 74 }),
+    });
+
+    // scene.anims.create({
+    //     key: "jolt",
+    //     duration: 300,
+    //     frames: scene.anims.generateFrameNumbers("vfx3", { start: 56, end: 70 }),
+    // });
+
+    scene.anims.create({
+        key: "jolt",
+        frameRate: 12,
+        frames: scene.anims.generateFrameNumbers("vfx4", { start: 10, end: 19 }),
+        repeat: -1
+    });
+
+    scene.anims.create({
+        key: "impact",
+        duration: 500,
+        frames: scene.anims.generateFrameNumbers("vfx5", { start: 27, end: 35 }),
+    });
+
+    scene.anims.create({
+        key: "impact2",
+        duration: 250,
+        frames: scene.anims.generateFrameNumbers("vfx5", { start: 0, end: 8 }),
+    });
 }
 
 

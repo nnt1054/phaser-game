@@ -102,7 +102,33 @@ const jolt = {
         return true;
     },
     execute: (player, target) => {
-        target.reduceHealth(25);
+        target.reduceHealth(25, 500);
+
+        let bounds = player.hitboxRect.getBounds();
+        let targetBounds = target.hitboxRect.getBounds();
+        let angle = Phaser.Math.Angle.Between(bounds.centerX, bounds.centerY, targetBounds.centerX, targetBounds.centerY);
+        let vfx = player.scene.add.sprite(bounds.centerX, bounds.centerY);
+        let facingRight = bounds.centerX < targetBounds.centerX;
+        vfx.setOrigin(0.5, 0.5);
+        vfx.setRotation(angle);
+        vfx.play('jolt');
+        let tween = player.scene.tweens.add({
+            targets: [ vfx ],
+            x: targetBounds.centerX,
+            y: targetBounds.centerY,
+            duration: 500,
+            ease: 'Linear',
+        });
+        tween.on('complete', () => {
+            vfx.destroy();
+            let bounds = target.hitboxRect.getBounds();
+            let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
+            if (!facingRight) {
+                smoke.scaleX = -1;
+            }
+            smoke.setOrigin(0.5, 1);
+            smoke.play('smoke');
+        })
     },
 }
 
@@ -159,6 +185,24 @@ const fleche = {
     execute: (player, target) => {
         target.reduceHealth(10);
         player.cooldownManager.startTimer('fleche', 12000);
+
+        let bounds = target.hitboxRect.getBounds();
+        let vfx = player.scene.add.sprite(bounds.centerX, bounds.bottom + 12);
+        vfx.setScale(1.5);
+        vfx.setOrigin(0.5, 1);
+        vfx.play('fleche');
+        vfx.on('animationcomplete', () => {
+            vfx.destroy();
+        })
+
+        setTimeout(() => {
+            let vfx2 = player.scene.add.sprite(bounds.centerX, bounds.bottom + 24);
+            vfx2.setOrigin(0.5, 1);
+            vfx2.play('smoke');
+            vfx2.on('animationcomplete', () => {
+                vfx2.destroy();
+            })
+        }, 150);
     },
 }
 
@@ -236,7 +280,30 @@ const slice = {
         return true;
     },
     execute: (player, target) => {
-        target.reduceHealth(15);
+        target.reduceHealth(15, 500);
+
+        let bounds = target.hitboxRect.getBounds();
+        let vfx = player.scene.add.sprite(player.ref_x, player.ref_y + 6);
+        player.add(vfx);
+        if (player.facingRight) {
+            vfx.scaleX = 1.5;
+        } else {
+            vfx.scaleX = -1.5;            
+        }
+        vfx.setOrigin(0.5, 1);
+        vfx.play('slice');
+        vfx.on('animationcomplete', () => {
+            vfx.destroy();
+        })
+
+        setTimeout(() => {
+            let vfx2 = player.scene.add.sprite(bounds.centerX, bounds.bottom + 24);
+            vfx2.setOrigin(0.5, 1);
+            vfx2.play('impact');
+            vfx2.on('animationcomplete', () => {
+                vfx2.destroy();
+            })
+        }, 400);
     },
 }
 
