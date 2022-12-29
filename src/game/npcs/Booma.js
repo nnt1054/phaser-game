@@ -1,4 +1,5 @@
 import {
+    ArcadeContainer,
     CompositeSprite,
 } from '../utils';
 
@@ -49,7 +50,7 @@ const compositeConfigIndexes = {
 };
 
 
-export class Booma extends Phaser.GameObjects.Container {
+export class Booma extends ArcadeContainer {
 
     mixins = [
         TargetMixin,
@@ -63,15 +64,20 @@ export class Booma extends Phaser.GameObjects.Container {
             Object.assign(this, mixin);
         })
 
+        scene.add.existing(this);
+        scene.physics.add.existing(this);
+
         this.isEnemy = true;
         this.displayName = displayName;
 
-        scene.add.existing(this);
         this.setSize(32, 48);
         let width = 32;
         let height = 48;
         this.ref_x = width / 2;
         this.ref_y = height;
+
+        this.setGravityY(1600);
+        // this.setVelocityX(-160);
 
         this.name = scene.add.text(0, 0, this.displayName, {
             fontFamily: 'Comic Sans MS',
@@ -114,7 +120,7 @@ export class Booma extends Phaser.GameObjects.Container {
             this.handleClick();
         });
 
-        let hitboxRect = { width: 24, height: 24 };
+        let hitboxRect = { width: 24, height: 48 };
         this.hitboxRect = scene.add.rectangle(
             0, 0,
             this.width + hitboxRect.width, this.height + hitboxRect.height,
@@ -122,13 +128,22 @@ export class Booma extends Phaser.GameObjects.Container {
         this.hitboxRect.setOrigin(0.5, 1);
         this.hitboxRect.setPosition(this.ref_x + 0, this.ref_y);
 
+        let meleePadding = { width: 128, height: 86 };
+        this.meleeRect = scene.add.rectangle(
+            0, 0, meleePadding.width, meleePadding.height,
+        );
+        this.meleeRect.setOrigin(0.5, 1);
+        this.meleeRect.setPosition(this.ref_x + 0, this.ref_y + 24);
+
         this.add([
             this.name,
             this.character,
             this.clickRect,
             this.hitboxRect,
+            this.meleeRect,
         ]);
 
+        this.autoAttackTimer = 0;
     }
 
     handleClick() {
@@ -150,6 +165,15 @@ export class Booma extends Phaser.GameObjects.Container {
         this.untargetObject();
     }
 
+    updateAutoAttack(target, delta) {
+        if (this.autoAttackTimer <= 0) {
+            target.reduceHealth(5);
+            this.autoAttackTimer = 1000;
+        } else {
+            this.autoAttackTimer -= delta;
+        }
+    }
+
     update(time, delta) {
         if (this.highestAggro) {
             if (this.currentTarget == null || this.currentTarget != this.highestAggro) {
@@ -161,5 +185,27 @@ export class Booma extends Phaser.GameObjects.Container {
         // if target is not in hitbox; move towards target
         // if autoattack is not in cooldown; autoattack target
         // need to give these guys physics now
+
+        if (this.currentTarget) {
+            const bounds = this.meleeRect.getBounds();
+            const targetBounds = this.currentTarget.hitboxRect.getBounds();
+            const inRange = Phaser.Geom.Rectangle.Overlaps(
+                bounds,
+                targetBounds
+            )
+            const distance = Math.abs(bounds.centerX - targetBounds.centerX);
+            if (inRange) {
+                this.updateAutoAttack(this.currentTarget, delta);
+                this.setVelocityX(0);
+            } else if (distance > 32) {
+                if (bounds.centerX < targetBounds.centerX) {
+                    this.setVelocityX(64);
+                    this.character.scaleX = Math.abs(this.character.scaleX);
+                } else {
+                    this.setVelocityX(-64);
+                    this.character.scaleX = -Math.abs(this.character.scaleX);
+                }
+            }
+        }
     }
 }

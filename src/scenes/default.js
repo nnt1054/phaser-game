@@ -99,9 +99,12 @@ class defaultScene extends Phaser.Scene {
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
         this.lamb = new Lamb(this, 32 * 20, 32 * 1.5, 'Auspicious Friend');
 
-        this.booma1 = new Booma(this, 32 * 12, 32 * 58.5, 'Hostile Enemy A');
-        this.booma2 = new Booma(this, 32 * 14.5, 32 * 58.5, 'Hostile Enemy B');
-        this.booma3 = new Booma(this, 32 * 17, 32 * 58.5, 'Hostile Enemy C');
+        this.booma1 = new Booma(this, 32 * 12, 32 * 58, 'Hostile Enemy A');
+        this.booma2 = new Booma(this, 32 * 14.5, 32 * 58, 'Hostile Enemy B');
+        this.booma3 = new Booma(this, 32 * 17, 32 * 58, 'Hostile Enemy C');
+        // this.booma1 = new Booma(this, 32 * 12, 32 * 58.5, 'Hostile Enemy A');
+        // this.booma2 = new Booma(this, 32 * 14.5, 32 * 58.5, 'Hostile Enemy B');
+        // this.booma3 = new Booma(this, 32 * 17, 32 * 58.5, 'Hostile Enemy C');
 
         this.npcs = [
             this.sign,
@@ -122,6 +125,11 @@ class defaultScene extends Phaser.Scene {
         this.player.addPlatforms([layer2]);
         this.player.addCollision([layer1]);
         // this.player.addCollision([layer1, spikes]);
+
+        for (const enemy of this.enemies) {
+            enemy.setCollideWorldBounds(true);
+            enemy.addCollision([layer1]);
+        }
 
         this.cameras.main.startFollow(this.player, false, 1, 1);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);

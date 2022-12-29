@@ -284,12 +284,12 @@ export class Player extends ArcadeContainer {
         this.hitboxRect.setOrigin(0.5, 1);
         this.hitboxRect.setPosition(this.ref_x + 0, this.ref_y);
 
-        let meleePadding = { width: 128, height: 48 };
+        let meleePadding = { width: 128, height: 86 };
         this.meleeRect = scene.add.rectangle(
             0, 0, meleePadding.width, meleePadding.height,
         );
         this.meleeRect.setOrigin(0.5, 1);
-        this.meleeRect.setPosition(this.ref_x + 0, this.ref_y);
+        this.meleeRect.setPosition(this.ref_x + 0, this.ref_y + 24);
 
         let rangedPadding = { width: 1028, height: 256 }
         this.rangedRect = scene.add.rectangle(
