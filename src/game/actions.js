@@ -102,11 +102,17 @@ const jolt = {
         return true;
     },
     execute: (player, target) => {
-        target.reduceHealth(25, 500);
-
         let bounds = player.hitboxRect.getBounds();
         let targetBounds = target.hitboxRect.getBounds();
         let angle = Phaser.Math.Angle.Between(bounds.centerX, bounds.centerY, targetBounds.centerX, targetBounds.centerY);
+        let distance = Phaser.Math.Distance.Between(bounds.centerX, bounds.centerY, targetBounds.centerX, targetBounds.centerY);
+        var duration = distance / 0.75;
+
+        target.reduceHealth(25, duration);
+        if (target.hasAggro) {
+            target.addAggro(player, 25);
+        }
+
         let vfx = player.scene.add.sprite(bounds.centerX, bounds.centerY);
         let facingRight = bounds.centerX < targetBounds.centerX;
         vfx.setOrigin(0.5, 0.5);
@@ -116,8 +122,8 @@ const jolt = {
             targets: [ vfx ],
             x: targetBounds.centerX,
             y: targetBounds.centerY,
-            duration: 500,
-            ease: 'Linear',
+            duration: duration,
+            ease: 'Sine.easeIn',
         });
         tween.on('complete', () => {
             vfx.destroy();
@@ -128,6 +134,9 @@ const jolt = {
             }
             smoke.setOrigin(0.5, 1);
             smoke.play('smoke');
+            smoke.on('animationcomplete', () => {
+                smoke.destroy();
+            })
         })
     },
 }
@@ -158,6 +167,9 @@ const verthunder = {
     },
     execute: (player, target) => {
         target.reduceHealth(25);
+        if (target.hasAggro) {
+            target.addAggro(player, 25);
+        }
     },
 }
 
@@ -184,6 +196,10 @@ const fleche = {
     },
     execute: (player, target) => {
         target.reduceHealth(10);
+        if (target.hasAggro) {
+            target.addAggro(player, 10);
+        }
+
         player.cooldownManager.startTimer('fleche', 12000);
 
         let bounds = target.hitboxRect.getBounds();
@@ -281,6 +297,9 @@ const slice = {
     },
     execute: (player, target) => {
         target.reduceHealth(15, 500);
+        if (target.hasAggro) {
+            target.addAggro(player, 15);
+        }
 
         let bounds = target.hitboxRect.getBounds();
         let vfx = player.scene.add.sprite(player.ref_x, player.ref_y + 6);

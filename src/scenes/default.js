@@ -111,6 +111,12 @@ class defaultScene extends Phaser.Scene {
             this.booma3,
         ];
 
+        this.enemies = [
+            this.booma1,
+            this.booma2,
+            this.booma3,
+        ];
+
         this.player.availableTargets = this.npcs;
         this.player.setCollideWorldBounds(true);
         this.player.addPlatforms([layer2]);
@@ -145,6 +151,9 @@ class defaultScene extends Phaser.Scene {
 
     update (time, delta) {
         this.player.update(time, delta);
+        for (const enemy of this.enemies) {
+            if (enemy.update) enemy.update(time, delta);
+        }
     }
 
     autoZoomCamera() {

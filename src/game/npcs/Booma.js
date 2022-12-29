@@ -5,6 +5,7 @@ import {
 import {
     HealthMixin,
     TargetMixin,
+    AggroMixin,
 } from '../mixins';
 
 import store from '../../store/store';
@@ -53,6 +54,7 @@ export class Booma extends Phaser.GameObjects.Container {
     mixins = [
         TargetMixin,
         HealthMixin,
+        AggroMixin,
     ]
 
     constructor(scene, x, y, displayName='Non-Player') {
@@ -134,11 +136,6 @@ export class Booma extends Phaser.GameObjects.Container {
         this.scene.player.targetObject(this);
     }
 
-    handleConfirm() {
-        // const player = this.scene.player;
-        // this.startDialogue(player);
-    }
-
     autoZoom(zoom) {
         this.name.setScale(1 / zoom);
     }
@@ -149,5 +146,20 @@ export class Booma extends Phaser.GameObjects.Container {
             const player = this.scene.player;
             player.untargetObject();
         }
+        this.resetAggro();
+        this.untargetObject();
+    }
+
+    update(time, delta) {
+        if (this.highestAggro) {
+            if (this.currentTarget == null || this.currentTarget != this.highestAggro) {
+                this.targetObject(this.highestAggro);
+            }
+        }
+
+        // add basic attack hitbox
+        // if target is not in hitbox; move towards target
+        // if autoattack is not in cooldown; autoattack target
+        // need to give these guys physics now
     }
 }

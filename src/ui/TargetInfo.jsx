@@ -164,8 +164,8 @@ const TargetInfo = () => {
 
             <div style={ cotargetContainerStyles }>
                 <div style={ targetTextStyles }>
-                    <span style={ percentHealthStyle }> { currentHealth }% </span>
-                    <span style={ textStyle }> { targetName } </span>
+                    <span style={ percentHealthStyle }> { cotargetCurrentHealth }% </span>
+                    <span style={ textStyle }> { cotargetName } </span>
                 </div>
                 <div style={ cotargetGreenLine }/>
                 <div style={ cotargetHealthBarStyle }>

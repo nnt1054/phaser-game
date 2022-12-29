@@ -414,19 +414,6 @@ export class Player extends ArcadeContainer {
         this.targetObject(this);
     }
 
-    addPlatforms(platforms) {
-        platforms.forEach(platform => {
-            let collider =  this.physics.add.collider(this, platform);
-            this.platformColliders.push(collider)
-        })
-    }
-
-    addCollision(objects) {
-        objects.forEach(object => {
-            this.physics.add.collider(this, object);
-        })
-    }
-
     queueSystemAction(actionName, target) {
         if (!actionName) return;
         const action = actionMap[actionName];

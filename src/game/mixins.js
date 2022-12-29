@@ -196,13 +196,14 @@ export const TargetMixin = {
 
                 const cotarget = gameObject.currentTarget;
                 if (cotarget) {
+                    const cotargetBackgroundColor = cotarget.isEnemy ? 'pink' : 'lightblue';
                     if ('health' in cotarget) {
                         store.dispatch(
                             setCotarget({
                                 targetName: cotarget.displayName,
                                 currentHealth: cotarget.health,
                                 maxHealth: cotarget.maxHealth,
-                                backgroundColor: backgroundColor,
+                                backgroundColor: cotargetBackgroundColor,
                             })
                         )
                     } else {
@@ -218,6 +219,30 @@ export const TargetMixin = {
 
             } else {
                 this.currentTarget = gameObject;
+                // if this is currently targetted by player; gameObject is now cotargeted
+                if (this.isTargeted) {
+                    const cotarget = gameObject;
+                    cotarget.isCotargeted = true;
+                    const cotargetBackgroundColor = cotarget.isEnemy ? 'pink' : 'lightblue';
+                    if ('health' in cotarget) {
+                        store.dispatch(
+                            setCotarget({
+                                targetName: cotarget.displayName,
+                                currentHealth: cotarget.health,
+                                maxHealth: cotarget.maxHealth,
+                                backgroundColor: cotargetBackgroundColor,
+                            })
+                        )
+                    } else {
+                        store.dispatch(
+                            setCotarget({
+                                targetName: cotarget.displayName,
+                                currentHealth: null,
+                                maxHealth: null,
+                            })
+                        )
+                    }
+                }
             }
         }
     },
@@ -228,7 +253,12 @@ export const TargetMixin = {
                 this.currentTarget.untarget();
                 store.dispatch(
                     removeTarget()
-                )
+                );
+            } else if (this.isTargeted) {
+                this.currentTarget.isCotargeted = false;
+                store.dispatch(
+                    removeCotarget()
+                );
             }
             this.currentTarget = null;
         }
@@ -300,10 +330,38 @@ export const DialogueMixin = {
         }
     },
 
-    endDialogue(player) {
+    endDialogue: function(player) {
         player.dialogueTarget = null;
         player.dialogueComplete = true;
         store.dispatch(clearDialogue());
     },
 
+}
+
+export const AggroMixin = {
+    hasAggro: true,
+
+    highestAggro: null,
+    aggroMap: new Map(),
+
+    addAggro: function(gameObject, amount) {
+        if (amount == null) amount = 1;
+        const currentAggro = this.aggroMap.get(gameObject) || 0;
+        const newAggro = currentAggro + amount;
+        this.aggroMap.set(gameObject, newAggro);
+
+        if (this.highestAggro == null) {
+            this.highestAggro = gameObject;
+        } else {
+            const currentHighestAggro = this.aggroMap.get(gameObject) || 0;
+            if (newAggro > currentHighestAggro) {
+                this.highestAggro = gameObject;
+            }
+        }
+    },
+
+    resetAggro: function() {
+        this.highestAggro = null;
+        this.aggroMap = new Map();
+    }
 }

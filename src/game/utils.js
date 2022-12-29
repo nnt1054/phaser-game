@@ -102,6 +102,19 @@ export class ArcadeContainer extends Phaser.GameObjects.Container {
         this.time = scene.time
         this.physics = scene.physics
     }
+
+    addPlatforms(platforms) {
+        platforms.forEach(platform => {
+            let collider =  this.physics.add.collider(this, platform);
+            this.platformColliders.push(collider)
+        })
+    }
+
+    addCollision(objects) {
+        objects.forEach(object => {
+            this.physics.add.collider(this, object);
+        })
+    }
 }
 
 export class StaticSprite extends Phaser.Physics.Arcade.Sprite {
@@ -128,7 +141,6 @@ export class StaticSprite extends Phaser.Physics.Arcade.Sprite {
             this.setOffset(collisionObject.x, collisionObject.y);
         }
     };
-
 }
 
 export class CompositeSprite extends Phaser.GameObjects.Container {
