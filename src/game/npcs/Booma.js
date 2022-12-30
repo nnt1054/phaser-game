@@ -58,6 +58,40 @@ export class Booma extends ArcadeContainer {
         AggroMixin,
     ]
 
+    abilities = {
+        'temp': {
+            name: 'temp',
+            cooldown: 12000,
+            castTime: 3000,
+            canExecute: (target) => { return true },
+            startCast: (target) => {
+                let tween = this.scene.tweens.add({
+                    targets: [ this.telegraphRect ],
+                    width: 256,
+                    duration: 1000,
+                    ease: 'Sine.easeIn',
+                    onUpdate: (tween, target) => {
+                        target.updateDisplayOrigin();
+                    }
+                });
+            },
+            execute: (target) => {
+                let player = this.scene.player;
+                const bounds = this.telegraphRect.getBounds();
+                const playerBounds = player.hitboxRect.getBounds();
+                const inRange = Phaser.Geom.Rectangle.Overlaps(
+                    bounds,
+                    playerBounds
+                );
+                if (inRange) {
+                    player.reduceHealth(50);
+                }
+                this.telegraphRect.width = 0;
+                this.telegraphRect.updateDisplayOrigin();
+            },
+        }
+    }
+
     constructor(scene, x, y, displayName='Non-Player') {
         super(scene, x, y);
         this.mixins.forEach(mixin => {
@@ -154,21 +188,17 @@ export class Booma extends ArcadeContainer {
         ]);
 
         this.autoAttackTimer = 0;
+
+        this.casting = null;
+        this.castTarget = null;
+        this.castingTimer = 0;
+
+        this.cooldown = 3000;
     }
 
     handleClick() {
         const player = this.scene.player;
         this.scene.player.targetObject(this);
-
-        let tween = this.scene.tweens.add({
-            targets: [ this.telegraphRect ],
-            width: 256,
-            duration: 2000,
-            ease: 'Sine.easeIn',
-            onUpdate: (tween, target) => {
-                target.updateDisplayOrigin();
-            }
-        });
     }
 
     autoZoom(zoom) {
@@ -182,6 +212,7 @@ export class Booma extends ArcadeContainer {
             player.untargetObject();
         }
         this.resetAggro();
+        this.cancelCast();
         this.untargetObject();
     }
 
@@ -194,7 +225,36 @@ export class Booma extends ArcadeContainer {
         }
     }
 
+    startCast(ability, target) {
+        this.casting = ability;
+        this.castTarget = target;
+        this.castingTimer = ability.castTime;
+        ability.startCast(this, target);
+        this.cooldown = ability.cooldown;
+    }
+
+    updateCast(delta) {
+        this.castingTimer = Math.max(0, this.castingTimer - delta);
+        if (this.casting && this.castingTimer === 0) {
+            const ability = this.casting;
+            ability.execute(this, this.castTarget);
+            this.casting = null;
+            this.castTarget = null;
+        }
+    }
+
+    cancelCast() {
+        this.casting = null;
+        this.castTarget = null;
+        this.castingTimer = 0;
+    }
+
     update(time, delta) {
+        if (this.casting) {
+            this.updateCast(delta);
+            return;
+        }
+
         if (this.highestAggro) {
             if (this.currentTarget == null || this.currentTarget != this.highestAggro) {
                 this.targetObject(this.highestAggro);
@@ -202,6 +262,7 @@ export class Booma extends ArcadeContainer {
         }
 
         if (this.currentTarget) {
+            this.cooldown = Math.max(0, this.cooldown - delta);
             const bounds = this.meleeRect.getBounds();
             const targetBounds = this.currentTarget.hitboxRect.getBounds();
             const inRange = Phaser.Geom.Rectangle.Overlaps(
@@ -210,9 +271,17 @@ export class Booma extends ArcadeContainer {
             )
             const distance = Math.abs(bounds.centerX - targetBounds.centerX);
             if (inRange) {
+                if (this.cooldown <= 0) {
+                    this.startCast(this.abilities['temp'])
+                }
                 this.updateAutoAttack(this.currentTarget, delta);
                 this.setVelocityX(0);
-            } else if (distance > 32) {
+            } else if (distance <= 32) {
+                if (this.cooldown <= 0) {
+                    this.startCast(this.abilities['temp'])
+                    this.setVelocityX(0);
+                };
+            } else {
                 if (bounds.centerX < targetBounds.centerX) {
                     this.setVelocityX(64);
                     this.character.scaleX = Math.abs(this.character.scaleX);
@@ -222,8 +291,5 @@ export class Booma extends ArcadeContainer {
                 }
             }
         }
-
-        // NOW we want to make enemy cast something
-        // how do we do that?  this needs to be standardized probably like the targetinfo stuff
     }
 }

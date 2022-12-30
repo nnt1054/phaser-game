@@ -454,7 +454,6 @@ export class Player extends ArcadeContainer {
             this.gcdQueue = ability;
             this.gcdTarget = targetObject;
         } else {
-            // store.dispatch(setAlert('Cannot execute at this time.'));
             return;
         }
     }
