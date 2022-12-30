@@ -135,7 +135,17 @@ export class Booma extends ArcadeContainer {
         this.meleeRect.setOrigin(0.5, 1);
         this.meleeRect.setPosition(this.ref_x + 0, this.ref_y + 24);
 
+        this.telegraphRect = {}
+        let telegraphPadding = { width: 0, height: 86 };
+        this.telegraphRect = scene.add.rectangle(
+            0, 0, telegraphPadding.width, telegraphPadding.height,
+            '0xFFA500', 0.2,
+        );
+        this.telegraphRect.setPosition(this.ref_x + 0, this.ref_y);
+        this.telegraphRect.setOrigin(0.5, 1);
+
         this.add([
+            this.telegraphRect,
             this.name,
             this.character,
             this.clickRect,
@@ -149,6 +159,16 @@ export class Booma extends ArcadeContainer {
     handleClick() {
         const player = this.scene.player;
         this.scene.player.targetObject(this);
+
+        let tween = this.scene.tweens.add({
+            targets: [ this.telegraphRect ],
+            width: 256,
+            duration: 2000,
+            ease: 'Sine.easeIn',
+            onUpdate: (tween, target) => {
+                target.updateDisplayOrigin();
+            }
+        });
     }
 
     autoZoom(zoom) {
@@ -181,11 +201,6 @@ export class Booma extends ArcadeContainer {
             }
         }
 
-        // add basic attack hitbox
-        // if target is not in hitbox; move towards target
-        // if autoattack is not in cooldown; autoattack target
-        // need to give these guys physics now
-
         if (this.currentTarget) {
             const bounds = this.meleeRect.getBounds();
             const targetBounds = this.currentTarget.hitboxRect.getBounds();
@@ -207,5 +222,8 @@ export class Booma extends ArcadeContainer {
                 }
             }
         }
+
+        // NOW we want to make enemy cast something
+        // how do we do that?  this needs to be standardized probably like the targetinfo stuff
     }
 }

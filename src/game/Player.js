@@ -484,7 +484,7 @@ export class Player extends ArcadeContainer {
     }
 
     isMoving() {
-        return (this.body.velocity.y || this.body.velocity.x);
+        return Boolean(this.body.velocity.y || this.body.velocity.x);
     }
 
     updateMovement(delta) {

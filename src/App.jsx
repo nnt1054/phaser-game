@@ -27,7 +27,7 @@ import Alert from './ui/Alert';
 
 
 var config = {
-    type: Phaser.AUTO,
+    type: Phaser.WEBGL,
     scale: {
       mode: Phaser.Scale.ScaleModes.RESIZE,
       width: window.innerWidth,
