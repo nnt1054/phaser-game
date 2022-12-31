@@ -84,10 +84,21 @@ export class Booma extends ArcadeContainer {
                     playerBounds
                 );
                 if (inRange) {
-                    player.reduceHealth(50);
+                    player.reduceHealth(30, 250);
                 }
                 this.telegraphRect.width = 0;
                 this.telegraphRect.updateDisplayOrigin();
+
+                let vfx = this.scene.add.sprite(
+                    bounds.centerX,
+                    bounds.centerY + 10,
+                );
+                vfx.scaleX = 3;
+                vfx.setDepth(1000);
+                vfx.play('explosion');
+                vfx.on('animationcomplete', () => {
+                    vfx.destroy();
+                });
             },
         }
     }

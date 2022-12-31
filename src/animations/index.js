@@ -29,6 +29,7 @@ import pack2 from '../assets/spritesheets/vfx/pack2.png';
 import pack3 from '../assets/spritesheets/vfx/pack3.png';
 import pack4 from '../assets/spritesheets/vfx/pack4.png';
 import pack5 from '../assets/spritesheets/vfx/pack5.png';
+import pack6 from '../assets/spritesheets/vfx/pack6.png';
 
 export function animationPreload(scene) {
   	let spritesheets_512 = {
@@ -67,6 +68,10 @@ export function animationPreload(scene) {
         frameHeight: 96,
     })
     scene.load.spritesheet('vfx5', pack5, {
+        frameWidth: 96,
+        frameHeight: 96,
+    })
+    scene.load.spritesheet('vfx6', pack6, {
         frameWidth: 96,
         frameHeight: 96,
     })
@@ -142,6 +147,12 @@ export function animationCreate(scene) {
         duration: 250,
         frames: scene.anims.generateFrameNumbers("vfx5", { start: 0, end: 8 }),
     });
+
+    scene.anims.create({
+        key: 'explosion',
+        duration: 500,
+        frames: scene.anims.generateFrameNumbers("vfx6", { start: 32, end: 47 }),
+    })
 }
 
 
