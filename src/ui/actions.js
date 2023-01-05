@@ -24,6 +24,7 @@ import {
 import {
     doNothing,
     setPosition,
+    setHoverKey,
 } from '../store/hotBars';
 
 import {
@@ -153,6 +154,7 @@ const systemActions = {
             const state = store.getState();
             if (state.menuStates.activeMenus.length) {
                 store.dispatch(closeMenus());
+                store.dispatch(setHoverKey(null));
             } else {
                 store.dispatch(setSystemAction('untarget'));
             }
@@ -278,6 +280,12 @@ export const equipment = {
                 target: 1,
             }))
         },
+        equip: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 1,
+            }))
+        },
     },
     'halo': {
         itemId: 2,
@@ -286,6 +294,12 @@ export const equipment = {
         type: 'item',
         description: `this is a helmet thing`,
         action: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 2,
+            }))
+        },
+        equip: () => {
             store.dispatch(setSystemActionAndTarget({
                 action: 'equipHelmet',
                 target: 2,
