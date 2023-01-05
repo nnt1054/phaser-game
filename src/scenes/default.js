@@ -58,7 +58,7 @@ class defaultScene extends Phaser.Scene {
     }
 
     create () {
-        // this.input.enableDebug();
+        // this.input.enableDebug(this.player);
         this.frameAnimator = this.plugins.get('frameAnimator');
         animationCreate(this);
 
@@ -92,7 +92,7 @@ class defaultScene extends Phaser.Scene {
 
         // Player
         // this.player = new Player(this, 32 * 18, 32 * 1.5);
-        this.player = new Player(this, 32 * 3, 32 * 56);
+        this.player = new Player(this, 32 * 3, 32 * 58);
         this.player.setDepth(100);
 
         // NPC

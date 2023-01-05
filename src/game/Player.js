@@ -410,6 +410,19 @@ export class Player extends ArcadeContainer {
         this.updateCharacterPreview();
     }
 
+    setWidth(width) {
+        this.setSize(width, 48);
+        this.ref_x = this.body.width / 2;
+        // this.name.setPosition(
+        //     this.ref_x,
+        //     this.ref_y - this.body.height,
+        // )
+        this.character.setPosition(
+            this.ref_x,
+            this.ref_y + 1.5,
+        );
+    }
+
     handleClick() {
         this.targetObject(this);
     }
@@ -497,6 +510,7 @@ export class Player extends ArcadeContainer {
             if (this.directionLockTimer <= 0) {
                 this.facingRight = false;
             }
+            this.setWidth(32);
         } else if (this.reduxCursors.right) {
             if (this.reduxCursors.down) {
                 this.setVelocityX(75);
@@ -506,8 +520,10 @@ export class Player extends ArcadeContainer {
             if (this.directionLockTimer <= 0) {
                 this.facingRight = true;
             }
+            this.setWidth(32);
         } else {
             this.setVelocityX(0);
+            this.setWidth(20);
         }
 
         if (this.body.onFloor()) {
