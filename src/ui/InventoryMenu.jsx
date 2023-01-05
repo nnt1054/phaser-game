@@ -38,64 +38,6 @@ const InventoryItem = (props) => {
     const itemData = actionMap[item.name];
     const icon = icons[itemData.icon];
     const empty = (item.name === 'empty');
-    const dragging = useSelector(state => state.hotBars.dragging);
-    const draggingSource = useSelector(state => state.hotBars.draggingSource);
-
-    const isHovering = useHover(ref,
-        event => {
-            dispatch(setHoverKey(item.name));
-        },
-        event => {
-            dispatch(setHoverKey(null));
-        }
-    );
-    const [translate, setTranslate] = useState({ x: 0, y: 0 });
-    const dragState = useDrag(ref,
-        event => {
-            if (empty) return;
-            setTranslate({
-                x: translate.x + event.movementX,
-                y: translate.y + event.movementY,
-            });
-            dispatch(setDragging({
-                name: item.name,
-                type: itemData.type,
-                hotbar: null,
-                index: null,
-            }));
-            dispatch(setDraggingIndex(props.index));
-            document.body.style.cursor = "grabbing";
-        },
-        event => {
-            setTranslate({ x: 0, y: 0 });
-            dispatch(clearDragging());
-            dispatch(setDraggingIndex(null));
-            document.body.style.cursor = "unset";
-        },
-        event => {
-            dispatch(pushToFront('inventory'));
-        }
-    );
-    const isDragging = dragState.isDragging;
-    const isPointerDown = dragState.isPointerDown;
-    const dragStarted = (isDragging && (translate.x || translate.y));
-    const droppable = (dragging && draggingSource.type === 'item' && isHovering);
-
-    useEffect(() => {
-        const element = ref.current;
-
-        const handlePointerUp = event => {
-            dispatch(moveItem({
-                name: dragging,
-                index: props.index,
-            }));
-        }
-        element.addEventListener('pointerup', handlePointerUp);
-
-        return () => {
-            element.removeEventListener('pointerup', handlePointerUp);
-        }
-    }, [])
 
     const iconContainerStyles = {
         width: '48px',
@@ -104,12 +46,11 @@ const InventoryItem = (props) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        overflow: dragStarted ? 'visible': 'hidden',
-        border: (droppable && !dragStarted) ? '4px solid white' : '4px solid black',
+        overflow: 'hidden',
+        border: '4px solid black',
         position: 'relative',
         marginRight: '4px',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        zIndex: isDragging ? 10 : 1,
     }
 
     const iconStyle = {
@@ -118,20 +59,19 @@ const InventoryItem = (props) => {
         height: `48px`,
         position: `absolute`,
         pointerEvents: `none`,
-        transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
     }
 
     const itemCountStyles = {
         display: item.count > 0 ? 'block' : 'none',
-        visibility: dragStarted ? 'hidden' : 'visible',
+        visibility: 'visible',
         position: `absolute`,
         fontSize: `10pt`,
         fontWeight: 'bold',
         borderRadius: '2px',
-        zIndex: isDragging ? 11 : 2,
         pointerEvents: 'none',
         bottom: 0,
         right: 0,
+        zIndex: 2,
     }
 
     const itemContainerStyles = {
@@ -144,7 +84,7 @@ const InventoryItem = (props) => {
     }
 
     const onClick = (event) => {
-        if (itemData.action) itemData.action();
+        dispatch(setHoverKey(item.name));
     }
 
     return (
@@ -164,56 +104,36 @@ const InventoryItem = (props) => {
 
 const InventoryMenu = () => {
     const ref = useRef();
-
     const position = useSelector(state => state.menuStates.inventory);
     const dispatch = useDispatch();
-
-    // const width = 512;
-    const width = 5 * 60;
-    const height = 512;
-
-    const slotCount = 35;
 
     const inventory = useSelector(state => state.inventory.items);
     const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
 
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const dragState = useDrag(ref,
-        event => {
-            setTranslate({
-                x: translate.x + event.movementX,
-                y: translate.y + event.movementY,
-            });
-        },
-        event => {
-            const data = calculatePosition('inventory', ref);
-            dispatch(setMenuPosition(data));
-            setTranslate({ x: 0, y: 0 });
-        },
+        event => {},
+        event => {},
         event => {
             dispatch(pushToFront('inventory'));
         }
     );
 
     const inventoryMenuStyles = {
-        display: position.visible ? 'block' : 'none',
-        width: `${ width }px`,
-        height: `${ height }px`,
-        left: `calc(${ position.left }vw - ${ width / 2 }px)`,
-        bottom: `${ position.bottom }vh`,
-        transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
+        display: 'flex',
         flexDirection: `column`,
-        zIndex: position.zIndex,
+        flexGrow: 3,
+        overflow: 'hidden',
     };
 
     const inventoryStyles = {
         display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',
-        maxWidth: `512px`,
-        justifyContent: 'space-around',
-        gap: '4px',
+        gap: '16px',
+        justifyContent: 'space-between',
         padding: '0px 8px',
+        overflow: 'auto',
     };
 
     return (

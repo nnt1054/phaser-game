@@ -48,6 +48,35 @@ const inventorySlice = createSlice({
         { name: 'empty', count: 0 },
         { name: 'empty', count: 0 },
         { name: 'empty', count: 0 },
+
+        // hey
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
     ],
     weapon: null,
     helmet: 'foxears',

@@ -17,14 +17,12 @@ import HealthBar from './ui/HealthBar';
 import ManaBar from './ui/ManaBar';
 import HotBar from './ui/HotBar';
 import InputManager from './ui/InputManager';
-import CharacterMenu from './ui/CharacterMenu';
-import InventoryMenu from './ui/InventoryMenu';
 import CastBar from './ui/CastBar';
-import Tooltip from './ui/Tooltip';
 import TargetInfo from './ui/TargetInfo';
 import DialogueBox from './ui/DialogueBox';
 import Alert from './ui/Alert';
 
+import BackpackMenu from './ui/BackpackMenu';
 
 var config = {
     type: Phaser.WEBGL,
@@ -88,15 +86,12 @@ const App = () => {
                     <ManaBar />
                 </div>
 
-                {/* menus */}
-                <CharacterMenu />
-                <InventoryMenu />
-
                 <DialogueBox />
                 <CastBar />
                 <TargetInfo />
-                <Tooltip />
                 <Alert />
+
+                <BackpackMenu />
             </div>
         </div>
     )

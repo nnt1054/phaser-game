@@ -36,6 +36,7 @@ import {
 
 import { equipment } from './actions';
 
+
 function observeStore(store, select, onChange) {
   let currentState;
 
@@ -52,6 +53,23 @@ function observeStore(store, select, onChange) {
   return unsubscribe;
 }
 
+const textureMap = {
+    'hair_back': 'hair',
+    'legs': 'legs',
+    'pants': 'pants',
+    'arm_back': 'arms',
+    'armor_body_back_sleeve': 'armor_body',
+    'torso': 'torso',
+    'armor_body': 'armor_body',
+    'arm_front': 'arms',
+    'armor_body_front_sleeve': 'armor_body',
+    'armor_body_collar': 'armor_body',
+    'head': 'head',
+    'ears': 'ears',
+    'face': 'face',
+    'headband': 'headband',
+    'hair_front': 'hair',
+};
 
 class characterPreview extends Phaser.Scene {
     preload() {
@@ -60,25 +78,6 @@ class characterPreview extends Phaser.Scene {
     }
 
     create() {
-
-        const textureMap = {
-            'hair_back': 'hair',
-            'legs': 'legs',
-            'pants': 'pants',
-            'arm_back': 'arms',
-            'armor_body_back_sleeve': 'armor_body',
-            'torso': 'torso',
-            'armor_body': 'armor_body',
-            'arm_front': 'arms',
-            'armor_body_front_sleeve': 'armor_body',
-            'armor_body_collar': 'armor_body',
-            'head': 'head',
-            'ears': 'ears',
-            'face': 'face',
-            'headband': 'headband',
-            'hair_front': 'hair',
-        };
-
         this.character = new StaticCompositeSprite(this, 150, 430, textureMap);
         this.character.setScale(0.9);
         const getCharacterPreviewState = state => state.characterPreview;
@@ -88,66 +87,49 @@ class characterPreview extends Phaser.Scene {
     }
 }
 
+const config = {
+    type: Phaser.AUTO,
+    scale: {
+      width: 300,
+      height: 440,
+    },
+    physics: {
+        default: 'arcade',
+        arcade: {
+          debug: false,
+        }
+    },
+    scene: [characterPreview],
+    parent: 'character-preview-container',
+};
+
 const CharacterMenu = () => {
     const ref = useRef();
     const characterPreviewRef = useRef();
-
-    var config = {
-        type: Phaser.AUTO,
-        scale: {
-          width: 300,
-          height: 440,
-        },
-        physics: {
-            default: 'arcade',
-            arcade: {
-              debug: false,
-            }
-        },
-        scene: [characterPreview],
-        parent: 'character-preview-container',
-    };
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const game = new Phaser.Game(config)
     }, [])
 
-    const position = useSelector(state => state.menuStates.character);
-    const dispatch = useDispatch();
-
-    const width = 412;
     const height = 512;
 
+    const position = useSelector(state => state.menuStates.character);
     const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
 
-    const [zIndex, setZIndex] = useState(1);
-    const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const dragState = useDrag(ref,
-        event => {
-            setTranslate({
-                x: translate.x + event.movementX,
-                y: translate.y + event.movementY,
-            });
-        },
-        event => {
-            const data = calculatePosition('character', ref);
-            dispatch(setMenuPosition(data));
-            setTranslate({ x: 0, y: 0 });
-        },
+        event => {},
+        event => {},
         event => {
             dispatch(pushToFront('character'));
         }
     );
 
     const characterMenuStyles = {
-        display: position.visible ? 'block' : 'none',
-        width: `${ width }px`,
+        display: 'flex',
         height: `${ height }px`,
-        left: `calc(${ position.left }vw - ${ width / 2 }px)`,
-        bottom: `${ position.bottom }vh`,
-        transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
         flexDirection: `column`,
-        zIndex: position.zIndex,
+        paddingBottom: '12px',
     };
 
     const labelStyle = {
@@ -161,6 +143,13 @@ const CharacterMenu = () => {
         gap: '12px',
     }
 
+    const contentContainer = {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        margin: '0px 16px',
+    }
+
     return (
         <div
             ref={ ref }
@@ -171,14 +160,7 @@ const CharacterMenu = () => {
         >
             <h3 style={ labelStyle }> Character </h3>
 
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    margin: '0px 16px',
-                }}
-            >
+            <div style={ contentContainer }>
                 <div
                     ref={ characterPreviewRef }
                     id="character-preview-container"
@@ -196,6 +178,7 @@ const CharacterMenu = () => {
         </div>
     )
 }
+
 
 const EquipmentSlot = (props) => {
     const ref = useRef();
@@ -221,25 +204,8 @@ const EquipmentSlot = (props) => {
 
     const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const dragState = useDrag(ref,
-        event => {
-            if (!itemData) return;
-            setTranslate({
-                x: translate.x + event.movementX,
-                y: translate.y + event.movementY,
-            });
-            dispatch(setDragging({
-                name: itemData.label,
-                type: itemData.type,
-                hotbar: null,
-                index: null,
-            }));
-            document.body.style.cursor = "grabbing";
-        },
-        event => {
-            setTranslate({ x: 0, y: 0 });
-            dispatch(clearDragging());
-            document.body.style.cursor = "unset";
-        },
+        event => {},
+        event => {},
         event => {
             dispatch(pushToFront('character'));
         }
@@ -311,7 +277,6 @@ const EquipmentSlot = (props) => {
 
     const labelStyle = {
         top: '0px',
-        // position: 'absolute',
     };
 
     return (

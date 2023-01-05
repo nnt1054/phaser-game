@@ -13,6 +13,7 @@ const flexColumn = {
     flexDirection: 'column',
 }
 
+
 const Tooltip = () => {
     const abilityKey = useSelector(state => state.hotBars.hoverKey);
     const ability = actionMap[abilityKey];
@@ -20,15 +21,11 @@ const Tooltip = () => {
     const dragging = useSelector(state => state.hotBars.dragging)
     const empty = (abilityKey === 'empty');
 
-    const castBarContainerStyles = {
-        visibility: ability ? 'visible' : 'hidden',
-        display: (dragging || empty) ? 'none' : 'flex',
+    const tooltipContainerStyles = {
+        visibility: (ability && !empty) ? 'visible' : 'hidden',
+        flex: 'flex',
         flexDirection: 'column',
-        position: 'absolute',
-        right: '0vw',
-        bottom: '0vh',
-        width: '420px',
-        minHeight: '256px',
+        height: '360px',
         padding: '4px',
         border:  '4px solid black',
         borderRadius: '12px',
@@ -60,7 +57,7 @@ const Tooltip = () => {
     }
 
     return (
-        <div style={ castBarContainerStyles }>
+        <div style={ tooltipContainerStyles }>
             <div style={ flexRow }>
                 <button style={ iconContainerStyles }>
                     <img draggable={ false } style={ iconStyle } src={ icon }/>
