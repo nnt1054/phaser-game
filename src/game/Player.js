@@ -411,16 +411,13 @@ export class Player extends ArcadeContainer {
     }
 
     setWidth(width) {
-        this.setSize(width, 48);
-        this.ref_x = this.body.width / 2;
-        // this.name.setPosition(
+        // TODO: find way to keep all container children centered after increasing width
+        // this.setSize(width, 48);
+        // this.ref_x = this.body.width / 2;
+        // this.character.setPosition(
         //     this.ref_x,
-        //     this.ref_y - this.body.height,
-        // )
-        this.character.setPosition(
-            this.ref_x,
-            this.ref_y + 1.5,
-        );
+        //     this.ref_y + 1.5,
+        // );
     }
 
     handleClick() {
