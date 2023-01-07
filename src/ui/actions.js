@@ -25,6 +25,7 @@ import {
     doNothing,
     setPosition,
     setHoverKey,
+    clearSetting,
 } from '../store/hotBars';
 
 import {
@@ -134,6 +135,10 @@ const shortcutActions = {
         label: 'menu',
         action: () => {
             const state = store.getState();
+            const isVisible = state.menuStates.character.visible;
+            if (isVisible) {
+                store.dispatch(setHoverKey(null));
+            }
             store.dispatch(toggleMenuVisible('character'))
         },
     },
@@ -152,7 +157,11 @@ const systemActions = {
         label: 'close',
         action: () => {
             const state = store.getState();
-            if (state.menuStates.activeMenus.length) {
+            if (state.hotBars.isSetting) {
+                store.dispatch(clearSetting());
+            } else if (state.hotBars.hoverKey) {
+                store.dispatch(setHoverKey(null));
+            } else if (state.menuStates.activeMenus.length) {
                 store.dispatch(closeMenus());
                 store.dispatch(setHoverKey(null));
             } else {

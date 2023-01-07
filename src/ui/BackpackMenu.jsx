@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import actionMap from './actions';
 import {
     setHoverKey,
+    startSetting,
+    clearSetting,
 } from '../store/hotBars';
 
 import CharacterMenu from './CharacterMenu';
@@ -46,7 +48,9 @@ const buttonStyle = {
 const BackpackMenu = () => {
     const ref = useRef();
     const dispatch = useDispatch();
-    const shouldDisplay = useSelector(state => state.menuStates.character.visible);
+    const visible = useSelector(state => state.menuStates.character.visible);
+    const isSetting = useSelector(state => state.hotBars.isSetting);
+    const shouldDisplay = visible && !isSetting;
 
 	const backpackContainer = {
 		display: shouldDisplay ? 'block' : 'none',
@@ -75,6 +79,10 @@ const BackpackMenu = () => {
 		if (itemData.equip) itemData.equip();
 		dispatch(setHoverKey(null));
 	}
+	const onClickSet = (event) => {
+		event.stopPropagation();
+		dispatch(startSetting(abilityKey));
+	}
 
 	return (
         <div style={ backpackContainer }>
@@ -89,7 +97,7 @@ const BackpackMenu = () => {
 	        			<button style={ buttonStyle } onClick={ onClickUse }> Use </button>
 	        			<button style={ buttonStyle } onClick={ onClickEquip }> Equip </button>
 	        			<button style={ buttonStyle }> Discard </button>
-	        			<button style={ buttonStyle }> Set </button>
+	        			<button style={ buttonStyle } onClick={ onClickSet }> Set </button>
 	        		</div>
         		</div>
         	</div>

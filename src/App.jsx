@@ -23,6 +23,7 @@ import DialogueBox from './ui/DialogueBox';
 import Alert from './ui/Alert';
 
 import BackpackMenu from './ui/BackpackMenu';
+import SetPopup from './ui/SetPopup';
 
 var config = {
     type: Phaser.WEBGL,
@@ -92,6 +93,7 @@ const App = () => {
                 <Alert />
 
                 <BackpackMenu />
+                <SetPopup />
             </div>
         </div>
     )

@@ -4,7 +4,9 @@ import * as styles from './../App.module.css';
 import actionMap from './actions';
 import {
     setSlotActive,
+    setSetting,
 } from '../store/hotBars';
+import store from '../store/store';
 
 import Phaser from 'phaser';
 const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
@@ -173,6 +175,22 @@ const InputManager = () => {
         let keybind, action;
         switch (eventType) {
           case 'keydown':
+
+            // check if attempting to set ability to hotbar
+            const state = store.getState();
+            if (state.hotBars.isSetting) {
+              const keybind = getKeybindFromInput(input);
+              if (!keybind) break;
+              if (keybind.type === 'hotbar') {
+                dispatch(setSetting({
+                    hotbar: keybind.hotbar,
+                    slot: keybind.slot,
+                }));
+                break;
+              }
+            }
+
+            // if not then continue as normal
             setHotbarSlotState(input, true);
             action = getActionFromInput(input);
             if (action && action.action) {
