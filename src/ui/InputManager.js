@@ -11,9 +11,8 @@ import store from '../store/store';
 import Phaser from 'phaser';
 const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
 
-const TARGET_CONSTANTS = {
-    CURRENT_TARGET: 'CURRENT_TARGET',
-}
+import { TARGET_CONSTANTS } from './../constants'; 
+
 
 // Hook
 const useKeyPress = callback => {
@@ -35,6 +34,8 @@ const useKeyPress = callback => {
       }
 
       // if (event.ctrlKey) {
+      //   event.preventDefault();
+      // }
       if (event.keyCode == KeyCodes.SPACE) {
         event.preventDefault();
       }

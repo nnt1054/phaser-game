@@ -317,6 +317,33 @@ export const equipment = {
     },
 };
 
+const navigationActions = {
+    'navUp': {
+        label: 'navUp',
+        action: () => {
+            console.log('up');
+        },
+    },
+    'navLeft': {
+        label: 'navLeft',
+        action: () => {
+            console.log('left');
+        },
+    },
+    'navRight': {
+        label: 'navRight',
+        action: () => {
+            console.log('right');
+        },
+    },
+    'navDown': {
+        label: 'navDown',
+        action: () => {
+            console.log('down');
+        },
+    },
+}
+
 const reducerMap = {
     ...movementActions,
     ...shortcutActions,
@@ -324,7 +351,8 @@ const reducerMap = {
     ...targetingActions,
     ...abilities,
     ...items,
-    ...equipment, 
+    ...equipment,
+    ...navigationActions,
 };
 
 export default reducerMap;

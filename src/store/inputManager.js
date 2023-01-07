@@ -26,22 +26,6 @@ const movementOnly = {
       type: 'cursor',
       cursor: 'right',
     },
-    [KeyCodes.UP]: {
-      type: 'cursor',
-      cursor: 'up',
-    },
-    [KeyCodes.LEFT]: {
-      type: 'cursor',
-      cursor: 'left',
-    },
-    [KeyCodes.DOWN]: {
-      type: 'cursor',
-      cursor: 'down',
-    },
-    [KeyCodes.RIGHT]: {
-      type: 'cursor',
-      cursor: 'right',
-    },
 
     // menus
     [KeyCodes.C]: {
@@ -63,6 +47,24 @@ const movementOnly = {
     [KeyCodes.TAB]: {
       type: 'simple',
       key: 'cycleTarget',
+    },
+
+    // navigation keys
+    [KeyCodes.UP]: {
+      type: 'simple',
+      key: 'navUp',
+    },
+    [KeyCodes.LEFT]: {
+      type: 'simple',
+      key: 'navLeft',
+    },
+    [KeyCodes.DOWN]: {
+      type: 'simple',
+      key: 'navDown',
+    },
+    [KeyCodes.RIGHT]: {
+      type: 'simple',
+      key: 'navRight',
     },
 
     // basic keybinds
