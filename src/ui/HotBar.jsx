@@ -69,7 +69,7 @@ const HotBar = (props) => {
         bottom: `${ position.bottom }vh`,
         flexDirection: props.vertical ? `column` : `row`,
         transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
-        zIndex: zIndex,
+        // zIndex: zIndex,
     };
 
     return (

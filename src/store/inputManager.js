@@ -28,10 +28,6 @@ const movementOnly = {
     },
 
     // menus
-    [KeyCodes.C]: {
-      type: 'simple',
-      key: 'characterMenu',
-    },
     [KeyCodes.I]: {
       type: 'simple',
       key: 'inventoryMenu',

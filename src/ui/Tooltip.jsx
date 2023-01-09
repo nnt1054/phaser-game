@@ -15,7 +15,13 @@ const flexColumn = {
 
 
 const Tooltip = () => {
-    const abilityKey = useSelector(state => state.hotBars.hoverKey);
+    const activeMenu = useSelector(state => state.menuStates.activeMenu);
+    const activeIndex = useSelector(state => state.menuStates.activeIndex);
+    const inventory = useSelector(state => state.inventory.items);
+    const item = inventory[activeIndex];
+    const abilityKey = item.name;
+
+    // const abilityKey = useSelector(state => state.hotBars.hoverKey);
     const ability = actionMap[abilityKey];
     const icon = ability  ? icons[ability.icon] : null;
     const dragging = useSelector(state => state.hotBars.dragging)

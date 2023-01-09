@@ -113,16 +113,10 @@ const CharacterMenu = () => {
     }, [])
 
     const height = 512;
-
-    const position = useSelector(state => state.menuStates.character);
-    const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
-
     const dragState = useDrag(ref,
         event => {},
         event => {},
-        event => {
-            dispatch(pushToFront('character'));
-        }
+        event => {}
     );
 
     const characterMenuStyles = {
@@ -150,6 +144,7 @@ const CharacterMenu = () => {
         margin: '0px 16px',
     }
 
+
     return (
         <div
             ref={ ref }
@@ -158,7 +153,7 @@ const CharacterMenu = () => {
             onMouseDown={ e => e.stopPropagation() }
             onMouseUp={ e => e.stopPropagation() }
         >
-            <h3 style={ labelStyle }> Character </h3>
+            <h3 style={ labelStyle }> Equipment </h3>
 
             <div style={ contentContainer }>
                 <div
@@ -187,64 +182,16 @@ const EquipmentSlot = (props) => {
     const type = props.type;
     const itemName = useSelector(state => state.inventory[type]);
     const itemData = equipment[itemName];
-
     const icon = itemData ? icons[itemData.icon] : '';
 
-    const dragging = useSelector(state => state.hotBars.dragging);
-    const draggingSource = useSelector(state => state.hotBars.draggingSource);
-
-    const isHovering = useHover(ref,
-        event => {
-            dispatch(setHoverKey(itemName));
-        },
-        event => {
-            dispatch(setHoverKey(null));
-        }
-    );
-
-    const [translate, setTranslate] = useState({ x: 0, y: 0 });
     const dragState = useDrag(ref,
         event => {},
         event => {},
-        event => {
-            dispatch(pushToFront('character'));
-        }
+        event => {}
     );
-
-    const isDragging = dragState.isDragging;
-    const isPointerDown = dragState.isPointerDown;
-    const dragStarted = (isDragging && (translate.x || translate.y));
-    const droppable = (dragging && draggingSource.type === 'item' && isHovering);
-
-    useEffect(() => {
-        const element = ref.current;
-
-        const handlePointerUp = event => {
-            const item = equipment[dragging];
-            if (!item) return;
-            let action;
-            switch(type) {
-                case 'helmet':
-                    action = 'equipHelmet';
-                    break;
-            }
-            if (!action) return;
-            dispatch(setSystemActionAndTarget({
-                action: 'equipHelmet',
-                target: item.itemId,
-            }))
-        }
-        element.addEventListener('pointerup', handlePointerUp);
-
-        return () => {
-            element.removeEventListener('pointerup', handlePointerUp);
-        }
-    }, [dragging])
 
     const itemContainerStyles = {
         position: 'relative',
-        // width: `48px`,
-        // height: `48px`,
         display: 'flex',
         justifyContent: 'center',
         flexDirection: 'column',
@@ -257,7 +204,6 @@ const EquipmentSlot = (props) => {
         height: `48px`,
         position: `absolute`,
         pointerEvents: `none`,
-        transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
     }
 
     const iconContainerStyles = {
@@ -267,17 +213,22 @@ const EquipmentSlot = (props) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        overflow: dragStarted ? 'visible': 'hidden',
-        border: (droppable && !dragStarted) ? '4px solid white' : '4px solid black',
+        overflow: 'hidden',
+        border: '4px solid black',
         position: 'relative',
         marginRight: '4px',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        zIndex: isDragging ? 10 : 1,
     }
 
     const labelStyle = {
         top: '0px',
     };
+
+    const onClick = (event) => {
+        if (itemName) {
+            dispatch(setHoverKey(itemName));
+        }
+    }
 
     return (
         <div style={ itemContainerStyles }>
@@ -286,6 +237,7 @@ const EquipmentSlot = (props) => {
                 ref={ ref }
                 className={ styles.ItemSlot }
                 style={ iconContainerStyles }
+                onClick={ onClick }
             >
                 <img draggable={ false } style={ iconStyle } src={ icon }/>
             </button>

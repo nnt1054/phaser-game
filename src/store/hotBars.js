@@ -1,7 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import CONSTANTS from '../constants';
-
-const animationToggle = CONSTANTS.animationToggle;
 
 const hotBarsSlice = createSlice({
   name: 'hotBars',
@@ -16,62 +13,8 @@ const hotBarsSlice = createSlice({
         index: null,
     },
     hoverKey: null,
-    1: {
-        visible: animationToggle,
-        left: 50,
-        bottom: 8,
-        slots: animationToggle ? [
-            { name: 'frameIndex0', active: false, },
-            { name: 'frameIndex1', active: false, },
-            { name: 'frameIndex2', active: false, },
-            { name: 'frameIndex3', active: false, },
-            { name: 'frameIndex4', active: false, },
-            { name: 'frameIndex5', active: false, },
-            { name: 'frameIndex6', active: false, },
-            { name: 'frameIndex7', active: false, },
-            { name: 'frameIndex8', active: false, },
-            { name: 'frameIndex9', active: false, },
-            { name: 'frameIndex10', active: false, },
-            { name: 'frameIndex11', active: false, },
-            { name: 'resume', active: false, },
-            { name: 'pause', active: false, },
-            { name: 'copy_anim_to_clipboard', active: false, },
-            { name: 'decrementTranslateX', active: false, },
-            { name: 'decrementTranslateY', active: false, },
-            { name: 'incrementTranslateX', active: false, },
-            { name: 'decrementFrameKey', active: false, },
-            { name: 'empty', active: false, },
-        ] : [],
-    },
-    2: {
-        visible: animationToggle,
-        left: 50,
-        bottom: 13,
-        slots: animationToggle ? [
-            { name: 'composite_hair_back', active: false, },
-            { name: 'composite_legs', active: false, },
-            { name: 'composite_arm_back', active: false, },
-            { name: 'composite_armor_body_back_sleeve', active: false, },
-            { name: 'composite_torso', active: false, },
-            { name: 'composite_armor_body', active: false, },
-            { name: 'composite_arm_front', active: false, },
-            { name: 'composite_armor_body_front_sleeve', active: false, },
-            { name: 'composite_armor_body_collar', active: false, },
-            { name: 'composite_head', active: false, },
-            { name: 'composite_ears', active: false, },
-            { name: 'composite_face', active: false, },
-            { name: 'composite_hair_front', active: false, },
-            { name: 'select_all_composite_state', active: false, },
-            { name: 'unselect_all_composite_state', active: false, },
-            { name: 'decrementRotate', active: false, },
-            { name: 'incrementTranslateY', active: false, },
-            { name: 'incrementRotate', active: false, },
-            { name: 'incrementFrameKey', active: false, },
-            { name: 'empty', active: false, },
-        ] : [],
-    },
     3: {
-        visible: !animationToggle,
+        visible: true,
         left: 50,
         bottom: 9,
         slots: [
@@ -88,7 +31,7 @@ const hotBarsSlice = createSlice({
         ]
     },
     4: {
-        visible: !animationToggle,
+        visible: true,
         left: 50,
         bottom: 15,
         slots: [
@@ -98,10 +41,10 @@ const hotBarsSlice = createSlice({
             { name: 'empty', active: false, keybind: '↑4'},
             { name: 'empty', active: false, keybind: '↑5'},
             { name: 'empty', active: false, keybind: '↑Q'},
+            { name: 'empty', active: false, keybind: '↑W'},
             { name: 'empty', active: false, keybind: '↑E'},
             { name: 'empty', active: false, keybind: '↑R'},
             { name: 'empty', active: false, keybind: '↑F'},
-            { name: 'empty', active: false, keybind: '↑G'},
         ]
     },
   },
@@ -185,3 +128,62 @@ export const {
 } = hotBarsSlice.actions;
 
 export default hotBarsSlice;
+
+
+// import CONSTANTS from '../constants';
+// const animationToggle = CONSTANTS.animationToggle;
+// leftover anim code
+    // 1: {
+    //     visible: animationToggle,
+    //     left: 50,
+    //     bottom: 8,
+    //     slots: animationToggle ? [
+    //         { name: 'frameIndex0', active: false, },
+    //         { name: 'frameIndex1', active: false, },
+    //         { name: 'frameIndex2', active: false, },
+    //         { name: 'frameIndex3', active: false, },
+    //         { name: 'frameIndex4', active: false, },
+    //         { name: 'frameIndex5', active: false, },
+    //         { name: 'frameIndex6', active: false, },
+    //         { name: 'frameIndex7', active: false, },
+    //         { name: 'frameIndex8', active: false, },
+    //         { name: 'frameIndex9', active: false, },
+    //         { name: 'frameIndex10', active: false, },
+    //         { name: 'frameIndex11', active: false, },
+    //         { name: 'resume', active: false, },
+    //         { name: 'pause', active: false, },
+    //         { name: 'copy_anim_to_clipboard', active: false, },
+    //         { name: 'decrementTranslateX', active: false, },
+    //         { name: 'decrementTranslateY', active: false, },
+    //         { name: 'incrementTranslateX', active: false, },
+    //         { name: 'decrementFrameKey', active: false, },
+    //         { name: 'empty', active: false, },
+    //     ] : [],
+    // },
+    // 2: {
+    //     visible: animationToggle,
+    //     left: 50,
+    //     bottom: 13,
+    //     slots: animationToggle ? [
+    //         { name: 'composite_hair_back', active: false, },
+    //         { name: 'composite_legs', active: false, },
+    //         { name: 'composite_arm_back', active: false, },
+    //         { name: 'composite_armor_body_back_sleeve', active: false, },
+    //         { name: 'composite_torso', active: false, },
+    //         { name: 'composite_armor_body', active: false, },
+    //         { name: 'composite_arm_front', active: false, },
+    //         { name: 'composite_armor_body_front_sleeve', active: false, },
+    //         { name: 'composite_armor_body_collar', active: false, },
+    //         { name: 'composite_head', active: false, },
+    //         { name: 'composite_ears', active: false, },
+    //         { name: 'composite_face', active: false, },
+    //         { name: 'composite_hair_front', active: false, },
+    //         { name: 'select_all_composite_state', active: false, },
+    //         { name: 'unselect_all_composite_state', active: false, },
+    //         { name: 'decrementRotate', active: false, },
+    //         { name: 'incrementTranslateY', active: false, },
+    //         { name: 'incrementRotate', active: false, },
+    //         { name: 'incrementFrameKey', active: false, },
+    //         { name: 'empty', active: false, },
+    //     ] : [],
+    // },

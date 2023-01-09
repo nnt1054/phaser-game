@@ -15,13 +15,13 @@ import Tooltip from './Tooltip';
 const backpackContainer = {
     height: `100vh`,
     right: '12px',
+    zIndex: '10',
 }
 
 const flexRowReverse = {
 	display: 'flex',
 	flexDirection: 'row-reverse',
 	columnGap: '12px',
-
 	height: '100vh',
 }
 
@@ -48,7 +48,14 @@ const buttonStyle = {
 const BackpackMenu = () => {
     const ref = useRef();
     const dispatch = useDispatch();
-    const visible = useSelector(state => state.menuStates.character.visible);
+
+    const activeMenu = useSelector(state => state.menuStates.activeMenu);
+    const activeIndex = useSelector(state => state.menuStates.activeIndex);
+    const visible = (activeMenu === 'inventory');
+    const inventory = useSelector(state => state.inventory.items);
+    const item = inventory[activeIndex];
+    const abilityKey = item.name;
+
     const isSetting = useSelector(state => state.hotBars.isSetting);
     const shouldDisplay = visible && !isSetting;
 
@@ -58,7 +65,7 @@ const BackpackMenu = () => {
 	    right: '12px',
 	}
 
-    const abilityKey = useSelector(state => state.hotBars.hoverKey);
+    // const abilityKey = useSelector(state => state.hotBars.hoverKey);
     const itemData = actionMap[abilityKey];
     const empty = (abilityKey === 'empty' || !abilityKey);
 	const buttonsContainerStyle = {

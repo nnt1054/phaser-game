@@ -37,6 +37,13 @@ import {
 import {
     toggleMenuVisible,
     closeMenus,
+    openMenu,
+    closeMenu,
+    confirmMenu,
+    navigateUp,
+    navigateLeft,
+    navigateRight,
+    navigateDown,
 } from '../store/menuStates';
 
 import {
@@ -46,6 +53,7 @@ import {
 import * as styles from '../App.module.css';
 
 // TODO: separate dictionaries into separate files
+// TODO: should specify here if something is a simple action or cursor
 const movementActions = {
     'jump': {
         label: 'jump',
@@ -131,20 +139,20 @@ const movementActions = {
 };
 
 const shortcutActions = {
-    'characterMenu': {
-        label: 'menu',
-        action: () => {
-            const state = store.getState();
-            const isVisible = state.menuStates.character.visible;
-            if (isVisible) {
-                store.dispatch(setHoverKey(null));
-            }
-            store.dispatch(toggleMenuVisible('character'))
-        },
-    },
     'inventoryMenu': {
         label: 'inventory',
-        action: () => { store.dispatch(toggleMenuVisible('inventory')) },
+        action: () => {
+            const state = store.getState();
+
+            const activeMenu = state.menuStates.activeMenu;
+            const isActive = (activeMenu == 'inventory');
+
+            if (isActive) {
+                store.dispatch(closeMenu());
+            } else {
+                store.dispatch(openMenu('inventory'));
+            }
+        },
     },
 };
 
@@ -164,8 +172,12 @@ const systemActions = {
             } else if (state.menuStates.activeMenus.length) {
                 store.dispatch(closeMenus());
                 store.dispatch(setHoverKey(null));
-            } else {
+            } else if (state.menuStates.activeMenu === 'gameMenu') {
+                store.dispatch(closeMenu());
+            } else if (state.targetInfo.display) {
                 store.dispatch(setSystemAction('untarget'));
+            } else {
+                store.dispatch(openMenu('gameMenu'));
             }
         },
     },
@@ -175,6 +187,8 @@ const systemActions = {
             const state = store.getState();
             if (state.dialogueBox.display) {
                 store.dispatch(getNextMessage());
+            } else if (state.menuStates.activeMenu) {
+                store.dispatch(confirmMenu());
             } else {
                 store.dispatch(setSystemAction('confirm'));
             }
@@ -321,25 +335,25 @@ const navigationActions = {
     'navUp': {
         label: 'navUp',
         action: () => {
-            console.log('up');
+            store.dispatch(navigateUp());
         },
     },
     'navLeft': {
         label: 'navLeft',
         action: () => {
-            console.log('left');
+            store.dispatch(navigateLeft());
         },
     },
     'navRight': {
         label: 'navRight',
         action: () => {
-            console.log('right');
+            store.dispatch(navigateRight());
         },
     },
     'navDown': {
         label: 'navDown',
         action: () => {
-            console.log('down');
+            store.dispatch(navigateDown());
         },
     },
 }

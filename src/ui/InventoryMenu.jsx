@@ -8,6 +8,10 @@ import icons from './icons';
 import {
     setHoverKey,
 } from '../store/hotBars';
+import {
+    setActiveIndex
+} from '../store/menuStates';
+
 
 import * as styles from './../App.module.css';
 
@@ -16,6 +20,36 @@ const labelStyle = {
     marginTop: `16px`,
     marginLeft: `16px`,
 }
+
+const itemContainerStyles = {
+    position: 'relative',
+    width: `48px`,
+    height: `48px`,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+}
+
+const inventoryStyles = {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: '16px',
+    justifyContent: 'space-between',
+    padding: '0px 8px',
+    overflow: 'auto',
+};
+
+const inventoryMenuStyles = {
+    display: 'flex',
+    flexDirection: `column`,
+    flexGrow: 3,
+    overflow: 'hidden',
+    border: '4px solid black',
+    borderRadius: '12px',
+    color: 'white',
+    backgroundColor: 'rgba(0, 0, 0, .5)',
+};
 
 const iconContainerStyles = {
     width: '48px',
@@ -31,40 +65,13 @@ const iconContainerStyles = {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
 }
 
-const itemContainerStyles = {
-    position: 'relative',
-    width: `48px`,
-    height: `48px`,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-}
-
-const inventoryMenuStyles = {
-    display: 'flex',
-    flexDirection: `column`,
-    flexGrow: 3,
-    overflow: 'hidden',
-
-    border:  '4px solid black',
-    borderRadius: '12px',
-    color: 'white',
-    backgroundColor: 'rgba(0, 0, 0, .5)',
-};
-
-const inventoryStyles = {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: '16px',
-    justifyContent: 'space-between',
-    padding: '0px 8px',
-    overflow: 'auto',
-};
 
 const InventoryItem = (props) => {
     const ref = useRef();
     const dispatch = useDispatch();
+
+    const activeIndex = useSelector(state => state.menuStates.activeIndex);
+    const isActive = (activeIndex === props.index);
 
     const item = props.item;
     const itemData = actionMap[item.name];
@@ -77,6 +84,7 @@ const InventoryItem = (props) => {
         height: `48px`,
         position: `absolute`,
         pointerEvents: `none`,
+        filter: isActive ? 'brightness(100%)' : 'brightness(50%)',
     }
 
     const itemCountStyles = {
@@ -92,12 +100,37 @@ const InventoryItem = (props) => {
         zIndex: 2,
     }
 
+    const iconContainerStyles = {
+        width: '48px',
+        height: '48px',
+        borderRadius: `12px`,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        border: '4px solid black',
+        position: 'relative',
+        marginRight: '4px',
+        backgroundColor: isActive ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+    }
+
+    const executeScroll = () => ref.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+    })
+    useEffect(() => {
+        if (isActive) {
+            executeScroll();
+        }
+    }, [isActive])
+
     const onClick = (event) => {
-        dispatch(setHoverKey(item.name));
+        // dispatch(setHoverKey(item.name));
+        dispatch(setActiveIndex(props.index));
     }
 
     return (
-        <div style={ itemContainerStyles }>
+        <div ref={ ref } style={ itemContainerStyles }>
             <span style={ itemCountStyles }> x{ item.count } </span>
             <button
                 ref={ ref }

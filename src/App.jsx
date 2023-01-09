@@ -22,6 +22,7 @@ import TargetInfo from './ui/TargetInfo';
 import DialogueBox from './ui/DialogueBox';
 import Alert from './ui/Alert';
 
+import GameMenu from './ui/GameMenu';
 import BackpackMenu from './ui/BackpackMenu';
 import SetPopup from './ui/SetPopup';
 
@@ -78,8 +79,6 @@ const App = () => {
                 style={ uiContainerStyles }
             >
                 <InputManager />
-                <HotBar index='1' />
-                <HotBar index='2' />
                 <HotBar index='3' />
                 <HotBar index='4' />
                 <div className={ styles.PlayerBars }>
@@ -94,6 +93,7 @@ const App = () => {
 
                 <BackpackMenu />
                 <SetPopup />
+                <GameMenu />
             </div>
         </div>
     )
