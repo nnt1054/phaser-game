@@ -1,17 +1,4 @@
 import store from '../store/store';
-
-import {
-    incrementMana,
-    decrementMana,
-    setPlayerCurrentMana,
-} from '../store/playerMana';
-
-import {
-    incrementHealth,
-    decrementHealth,
-    setPlayerCurrentHealth,
-} from '../store/playerHealth';
-
 import {
     setQueuedAbility,
     setQueuedAbilityAndTarget,
@@ -20,40 +7,72 @@ import {
     setSystemAction,
     setSystemActionAndTarget,
 } from '../store/playerState';
-
 import {
-    doNothing,
-    setPosition,
-    setHoverKey,
+    startSetting,
     clearSetting,
 } from '../store/hotBars';
-
 import {
-    setFrameIndex,
-    toggleCompositeState,
-    clearCompositeStates,
-} from '../store/aniEditor';
-
-import {
-    toggleMenuVisible,
-    closeMenus,
     openMenu,
     closeMenu,
-    confirmMenu,
-    navigateUp,
-    navigateLeft,
-    navigateRight,
-    navigateDown,
 } from '../store/menuStates';
-
 import {
     getNextMessage,
 } from '../store/dialogueBox';
-
+import navActions from './navActions';
 import * as styles from '../App.module.css';
 
 // TODO: separate dictionaries into separate files
 // TODO: should specify here if something is a simple action or cursor
+const _getActiveItemKey = (state) => {
+    const activeIndex = state.inventory.activeIndex;
+    const inventory = state.inventory.items;
+
+    const itemKey = inventory[activeIndex]?.name;
+    return itemKey;
+}
+
+const _getActiveItem = (state) => {
+    const activeIndex = state.inventory.activeIndex;
+    const inventory = state.inventory.items;
+
+    const itemKey = inventory[activeIndex]?.name;
+    if (!itemKey) return;
+
+    // hmmm
+    const item = items[itemKey] || equipment[itemKey];
+
+    return item;
+}
+
+export const inventoryActions = {
+    'useActiveItem': {
+        label: 'Use',
+        action: () => {
+            const state = store.getState();
+            const item = _getActiveItem(state);
+            if (item.action) item.action();
+        },
+    },
+    'equipActiveItem': {
+        label: 'Equip',
+        action: () => {
+            const state = store.getState();
+            const item = _getActiveItem(state);
+            if (item.equip) item.equip();
+        },
+    },
+    'setActiveItem': {
+        label: 'Set',
+        action: () => {
+            const state = store.getState();
+            const itemName = _getActiveItemKey(state);
+            if (itemName) {
+                store.dispatch(startSetting(itemName));
+            }
+        },
+    },
+};
+
 const movementActions = {
     'jump': {
         label: 'jump',
@@ -138,9 +157,9 @@ const movementActions = {
     },
 };
 
-const shortcutActions = {
-    'inventoryMenu': {
-        label: 'inventory',
+export const shortcutActions = {
+    'inventory': {
+        label: 'Inventory',
         action: () => {
             const state = store.getState();
 
@@ -154,6 +173,12 @@ const shortcutActions = {
             }
         },
     },
+    'settings': {
+        label: 'Settings',
+        action: () => {
+            console.log('nice');
+        }
+    }
 };
 
 const systemActions = {
@@ -167,13 +192,11 @@ const systemActions = {
             const state = store.getState();
             if (state.hotBars.isSetting) {
                 store.dispatch(clearSetting());
-            } else if (state.hotBars.hoverKey) {
-                store.dispatch(setHoverKey(null));
-            } else if (state.menuStates.activeMenus.length) {
-                store.dispatch(closeMenus());
-                store.dispatch(setHoverKey(null));
-            } else if (state.menuStates.activeMenu === 'gameMenu') {
-                store.dispatch(closeMenu());
+            } else if (state.menuStates.activeMenu) {
+                const menuKey = state.menuStates.activeMenu;
+                const config = navActions[menuKey];
+                if (!config || !config.close) return;
+                config.close();
             } else if (state.targetInfo.display) {
                 store.dispatch(setSystemAction('untarget'));
             } else {
@@ -188,7 +211,15 @@ const systemActions = {
             if (state.dialogueBox.display) {
                 store.dispatch(getNextMessage());
             } else if (state.menuStates.activeMenu) {
-                store.dispatch(confirmMenu());
+                const state = store.getState();
+
+                const menuKey = state.menuStates.activeMenu;
+                if (!menuKey) return;
+
+                const config = navActions[menuKey];
+                if (!config) return;
+
+                config.confirm();
             } else {
                 store.dispatch(setSystemAction('confirm'));
             }
@@ -276,7 +307,7 @@ const abilities = {
     },
 };
 
-const items = {
+export const items = {
     'potion': {
         label: 'potion',
         action: () => { store.dispatch(setQueuedAbility('potion')) },
@@ -331,29 +362,62 @@ export const equipment = {
     },
 };
 
+
 const navigationActions = {
     'navUp': {
         label: 'navUp',
         action: () => {
-            store.dispatch(navigateUp());
+            const state = store.getState();
+
+            const menuKey = state.menuStates.activeMenu;
+            if (!menuKey) return;
+
+            const config = navActions[menuKey];
+            if (!config) return;
+
+            config.up();
         },
     },
     'navLeft': {
         label: 'navLeft',
         action: () => {
-            store.dispatch(navigateLeft());
+            const state = store.getState();
+
+            const menuKey = state.menuStates.activeMenu;
+            if (!menuKey) return;
+
+            const config = navActions[menuKey];
+            if (!config) return;
+
+            config.left();
         },
     },
     'navRight': {
         label: 'navRight',
         action: () => {
-            store.dispatch(navigateRight());
+            const state = store.getState();
+
+            const menuKey = state.menuStates.activeMenu;
+            if (!menuKey) return;
+
+            const config = navActions[menuKey];
+            if (!config) return;
+
+            config.right();
         },
     },
     'navDown': {
         label: 'navDown',
         action: () => {
-            store.dispatch(navigateDown());
+            const state = store.getState();
+
+            const menuKey = state.menuStates.activeMenu;
+            if (!menuKey) return;
+
+            const config = navActions[menuKey];
+            if (!config) return;
+
+            config.down();
         },
     },
 }
@@ -364,6 +428,7 @@ const reducerMap = {
     ...systemActions,
     ...targetingActions,
     ...abilities,
+    ...inventoryActions,
     ...items,
     ...equipment,
     ...navigationActions,

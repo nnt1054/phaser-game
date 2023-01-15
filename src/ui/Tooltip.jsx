@@ -16,7 +16,7 @@ const flexColumn = {
 
 const Tooltip = () => {
     const activeMenu = useSelector(state => state.menuStates.activeMenu);
-    const activeIndex = useSelector(state => state.menuStates.activeIndex);
+    const activeIndex = useSelector(state => state.inventory.activeIndex);
     const inventory = useSelector(state => state.inventory.items);
     const item = inventory[activeIndex];
     const abilityKey = item.name;

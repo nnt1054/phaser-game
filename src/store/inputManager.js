@@ -30,7 +30,7 @@ const movementOnly = {
     // menus
     [KeyCodes.I]: {
       type: 'simple',
-      key: 'inventoryMenu',
+      key: 'inventory',
     },
     [KeyCodes.ESC]: {
       type: 'simple',

@@ -1,9 +1,11 @@
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
 import { clearSetting } from '../store/hotBars';
+import actionMap from './actions';
 
 import {
     openMenu,
+    setActiveIndex,
 } from './../store/menuStates';
 
 const flexRow = {
@@ -61,12 +63,14 @@ const buttonStyle = {
     padding: '4px 0px',
 }
 
+
 const GameMenu = () => {
     const dispatch = useDispatch();
 
     const activeMenu = useSelector(state => state.menuStates.activeMenu);
     const activeIndex = useSelector(state => state.menuStates.activeIndex);
     const options = useSelector(state => state.menuStates.gameMenuOptions);
+
     const isActive = (activeMenu === 'gameMenu');
 
     const containerStyles = {
@@ -83,10 +87,6 @@ const GameMenu = () => {
         backgroundColor: 'rgba(0, 0, 0, .5)',
     }
 
-    const onClickInventory = (event) => {
-        dispatch(openMenu('inventory'));
-    }
-
     return (
         <div style={ containerStyles }>
             <h3 style={ labelStyle }> Main Menu </h3>
@@ -96,7 +96,7 @@ const GameMenu = () => {
                         return <GameMenuOption
                             key={ i }
                             index={ i }
-                            text={ option.label }
+                            option={ option }
                         />
                     })
                 }
@@ -106,8 +106,11 @@ const GameMenu = () => {
 }
 
 const GameMenuOption = (props) => {
+    const dispatch = useDispatch();
     const activeIndex = useSelector(state => state.menuStates.activeIndex);
     const isActive = (activeIndex === props.index);
+
+    const option = actionMap[props.option];
 
     const buttonStyle = {
         fontSize: '12pt',
@@ -119,9 +122,14 @@ const GameMenuOption = (props) => {
         padding: '4px 0px',
     }
 
-    const text = isActive ? `> ${ props.text}` : props.text
+    const onClick = (event) => {
+        dispatch(setActiveIndex(props.index));
+        option.action();
+    }
+
+    const text = isActive ? `> ${ option.label }` : option.label
     return (
-        <button style={ buttonStyle }> { text } </button>
+        <button onClick={ onClick } style={ buttonStyle }> { text } </button>
     )
 }
 

@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-
-import actionMap from './actions';
-import {
-    setHoverKey,
-    startSetting,
-    clearSetting,
-} from '../store/hotBars';
 
 import CharacterMenu from './CharacterMenu';
 import InventoryMenu from './InventoryMenu';
 import Tooltip from './Tooltip';
+import actionMap from './actions';
+import {
+	closeActionsMenu,
+	activeStates,
+	setInventoryActiveActionsIndex,
+} from '../store/inventory';
+
 
 const backpackContainer = {
     height: `100vh`,
@@ -29,66 +29,76 @@ const flexColumn = {
 	display: 'flex',
 	flexDirection: 'column',
 	alignItems: 'stretch',
-
 	padding: '12px 0px',
 	rowGap: '12px',
-
     width: '420px',
 };
 
-const buttonStyle = {
-	height: '48px',
-	width: '128px',
-    border:  '4px solid black',
-    borderRadius: '12px',
-    color: 'white',
-    backgroundColor: 'rgba(0, 0, 0, .5)',
+
+const ItemActionOption = (props) => {
+    const dispatch = useDispatch();
+    const activeIndex = useSelector(state => state.inventory.activeActionsIndex);
+    const isActive = (activeIndex === props.index);
+
+    const option = actionMap[props.option];
+
+	const buttonStyle = {
+		height: '48px',
+		width: '128px',
+	    border:  '4px solid black',
+	    borderRadius: '12px',
+	    color: 'white',
+	    backgroundColor: isActive ? 'rgba(100, 100, 100, .5)' : 'rgba(0, 0, 0, .5)',
+	}
+
+    const onClick = (event) => {
+        dispatch(setInventoryActiveActionsIndex(props.index));
+        option.action();
+        dispatch(closeActionsMenu());
+    }
+
+    return (
+        <button onClick={ onClick } style={ buttonStyle }> { option.label } </button>
+    )
 }
+
 
 const BackpackMenu = () => {
     const ref = useRef();
     const dispatch = useDispatch();
 
     const activeMenu = useSelector(state => state.menuStates.activeMenu);
-    const activeIndex = useSelector(state => state.menuStates.activeIndex);
+    const activeIndex = useSelector(state => state.inventory.activeIndex);
     const visible = (activeMenu === 'inventory');
     const inventory = useSelector(state => state.inventory.items);
     const item = inventory[activeIndex];
     const abilityKey = item.name;
 
+    const itemData = actionMap[abilityKey];
+    const empty = (abilityKey === 'empty' || !abilityKey);
+
+    const inventoryState = useSelector(state => state.inventory.state);
+    const activeActionsIndex = useSelector(state => state.inventory.activeActionsIndex);
+    const shouldDisplayButtons = (inventoryState === activeStates.actions && !empty);
+
     const isSetting = useSelector(state => state.hotBars.isSetting);
     const shouldDisplay = visible && !isSetting;
+
+    const options = useSelector(state => state.inventory.actionOptions);
 
 	const backpackContainer = {
 		display: shouldDisplay ? 'block' : 'none',
 	    height: `100vh`,
 	    right: '12px',
+	    zIndex: 10,
 	}
 
-    // const abilityKey = useSelector(state => state.hotBars.hoverKey);
-    const itemData = actionMap[abilityKey];
-    const empty = (abilityKey === 'empty' || !abilityKey);
 	const buttonsContainerStyle = {
-		visibility: empty ? 'hidden' : 'visible',
+		visibility: shouldDisplayButtons ? 'visible' : 'hidden',
 		display: 'flex',
 		flexDirection: 'column',
 		gap: '12px',
 		alignItems: 'end',
-	}
-
-	const onClickUse = (event) => {
-		event.stopPropagation();
-		if (itemData.action) itemData.action();
-		dispatch(setHoverKey(null));
-	}
-	const onClickEquip = (event) => {
-		event.stopPropagation();
-		if (itemData.equip) itemData.equip();
-		dispatch(setHoverKey(null));
-	}
-	const onClickSet = (event) => {
-		event.stopPropagation();
-		dispatch(startSetting(abilityKey));
 	}
 
 	return (
@@ -101,10 +111,15 @@ const BackpackMenu = () => {
         		<div style={ flexColumn }>
 	        		<Tooltip />
 	        		<div style={ buttonsContainerStyle }>
-	        			<button style={ buttonStyle } onClick={ onClickUse }> Use </button>
-	        			<button style={ buttonStyle } onClick={ onClickEquip }> Equip </button>
-	        			<button style={ buttonStyle }> Discard </button>
-	        			<button style={ buttonStyle } onClick={ onClickSet }> Set </button>
+		                {
+		                    options.map((option, i) => {
+		                        return <ItemActionOption
+		                            key={ i }
+		                            index={ i }
+		                            option={ option }
+		                        />
+		                    })
+		                }
 	        		</div>
         		</div>
         	</div>

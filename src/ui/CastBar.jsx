@@ -1,16 +1,51 @@
 import { useSelector, useDispatch } from 'react-redux';
 import actionMap from './actions';
 import icons from './icons';
+
 import * as styles from './../App.module.css';
 
+
+const castBarStyles = {
+    position: 'relative',
+    height: '12px',
+    width: '196px',
+    border:  '4px solid black',
+    borderRadius: '12px',
+    backgroundColor: 'rgba(0, 0, 0, .5)',
+    overflow: 'hidden',
+}
+
+const iconContainerStyles = {
+    width: '48px',
+    height: '48px',
+    borderRadius: `12px`,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    border: '4px solid black',
+    position: 'relative',
+    marginRight: '4px',
+}
+
+const iconStyle = {
+    width: `48px`,
+    height: `48px`,
+    display: 'block',
+    position: `absolute`,
+    pointerEvents: `none`,
+}
+
+
 const CastBar = () => {
+    const dispatch = useDispatch();
+
     const abilityKey = useSelector(state => state.playerState.castKey);
     const duration = useSelector(state => state.playerState.castDuration)
     const ability = actionMap[abilityKey];
 
     const icon = ability ? icons[ability.icon] : null;
-
-    const dispatch = useDispatch();
 
     const castBarContainerStyles = {
         visibility: duration ? 'visible': 'hidden',
@@ -21,43 +56,11 @@ const CastBar = () => {
         flexDirection: 'row',
     }
 
-    const castBarStyles = {
-        position: 'relative',
-        height: '12px',
-        width: '196px',
-        border:  '4px solid black',
-        borderRadius: '12px',
-        backgroundColor: 'rgba(0, 0, 0, .5)',
-        overflow: 'hidden',
-    }
-
     const barStyles = {
         height: '16px',
         width: (duration > 0) ? '100%' : '0%',
         transition: (duration > 0) ? `width ${ duration / 1000 }s linear` : 'width 0s',
         backgroundColor: 'orange',
-    }
-
-    const iconContainerStyles = {
-        width: '48px',
-        height: '48px',
-        borderRadius: `12px`,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        pointerEvents: 'none',
-        overflow: 'hidden',
-        border: '4px solid black',
-        position: 'relative',
-        marginRight: '4px',
-    }
-
-    const iconStyle = {
-        width: `48px`,
-        height: `48px`,
-        display: 'block',
-        position: `absolute`,
-        pointerEvents: `none`,
     }
 
     return (

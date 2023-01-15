@@ -1,91 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-
-
-const gameMenuConfig = {
-    optionsKey: 'gameMenuOptions',
-    actions: {
-        inventory: (state) => {
-            state.activeMenu = 'inventory';
-            state.activeIndex = 0;
-        },
-        social: (state) => {
-            console.log('social');
-        },
-    },
-    navigation: {
-        up: (state) => {
-            const currentIndex = state.activeIndex;
-            const maxIndex = state.gameMenuOptions.length - 1;
-            if (currentIndex == 0) {
-                state.activeIndex = maxIndex;
-            } else {
-                state.activeIndex = currentIndex - 1;
-            }
-        },
-        down: (state) => {
-            const currentIndex = state.activeIndex;
-            const maxIndex = state.gameMenuOptions.length - 1;
-            if (currentIndex == maxIndex) {
-                state.activeIndex = 0;
-            } else {
-                state.activeIndex = currentIndex + 1;
-            }
-        },
-        left: (state) => {
-            const currentIndex = state.activeIndex;
-            const maxIndex = state.gameMenuOptions.length - 1;
-            if (currentIndex == 0) {
-                state.activeIndex = maxIndex;
-            } else {
-                state.activeIndex = currentIndex - 1;
-            }
-        },
-        right: (state) => {
-            const currentIndex = state.activeIndex;
-            const maxIndex = state.gameMenuOptions.length - 1;
-            if (currentIndex == maxIndex) {
-                state.activeIndex = 0;
-            } else {
-                state.activeIndex = currentIndex + 1;
-            }
-        },
-    },
-};
-
-
-const inventoryConfig = {
-    optionsKey: 'gameMenuOptions',
-    actions: {
-        item: (state) => {
-            console.log('huh');
-        },
-    },
-    navigation: {
-        up: (state) => {
-            const currentIndex = state.activeIndex;
-            state.activeIndex = Math.max(0, currentIndex - 6);
-        },
-        down: (state) => {
-            const currentIndex = state.activeIndex;
-            const maxIndex = 47;
-            state.activeIndex = Math.min(maxIndex, currentIndex + 6);
-        },
-        left: (state) => {
-            const currentIndex = state.activeIndex;
-            state.activeIndex = Math.max(0, currentIndex - 1);
-        },
-        right: (state) => {
-            const currentIndex = state.activeIndex;
-            const maxIndex = 47;
-            state.activeIndex = Math.min(maxIndex, currentIndex + 1);
-        },
-    },
-};
-
-const configMap = {
-    'gameMenu': gameMenuConfig,
-    'inventory': inventoryConfig,
-}
+ 
 
 const menuStatesSlice = createSlice({
   name: 'menus',
@@ -94,11 +8,8 @@ const menuStatesSlice = createSlice({
     activeIndex: 0,
 
     gameMenuOptions: [
-        {label: 'Inventory', action: 'inventory'},
-        {label: 'Social', action: 'social'},
-        {label: 'Skills', action: ''},
-        {label: 'Settings', action: ''},
-        {label: 'Logout', action: ''},
+        'inventory',
+        'settings',
     ],
 
     // deprecating everything underneath here
@@ -161,51 +72,6 @@ const menuStatesSlice = createSlice({
         state.activeIndex = 0;
     },
 
-    confirmMenu: (state) => {
-        const config = configMap[state.activeMenu];
-        if (!config) return;
-
-        const options = state[config.optionsKey];
-        if (!options) return;
-
-        const option = options[state.activeIndex];
-        if (!option) return;
-
-        const action = config.actions[option.action];
-        if (!action) return;
-
-        action(state);
-    },
-
-    navigateUp: (state) => {
-        const config = configMap[state.activeMenu];
-        if (!config) return;
-
-        const action = config.navigation.up;
-        action(state);
-    },
-    navigateLeft: (state) => {
-        const config = configMap[state.activeMenu];
-        if (!config) return;
-
-        const action = config.navigation.left;
-        action(state);
-    },
-    navigateRight: (state) => {
-        const config = configMap[state.activeMenu];
-        if (!config) return;
-
-        const action = config.navigation.right;
-        action(state);
-    },
-    navigateDown: (state) => {
-        const config = configMap[state.activeMenu];
-        if (!config) return;
-
-        const action = config.navigation.down;
-        action(state);
-    },
-
     setActiveIndex: (state, action) => {
         state.activeIndex = action.payload;
     },
@@ -222,7 +88,6 @@ export const {
 
     openMenu,
     closeMenu,
-    confirmMenu,
     navigateUp,
     navigateLeft,
     navigateRight,

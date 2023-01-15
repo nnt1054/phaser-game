@@ -13,6 +13,7 @@ import targetInfoSlice from './targetInfo';
 import dialogueBoxSlice from './dialogueBox';
 import alertSlice from './alert';
 
+
 export default configureStore({
     reducer: {
         playerHealth: playerHealthSlice.reducer,
@@ -27,5 +28,5 @@ export default configureStore({
         targetInfo: targetInfoSlice.reducer,
         dialogueBox: dialogueBoxSlice.reducer,
         alert: alertSlice.reducer,
-    }
+    },
 })

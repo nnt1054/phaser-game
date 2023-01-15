@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import * as styles from './../App.module.css';
+import Phaser from 'phaser';
+const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
+
 import actionMap from './actions';
 import {
     setSlotActive,
     setSetting,
 } from '../store/hotBars';
 import store from '../store/store';
-
-import Phaser from 'phaser';
-const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
-
 import { TARGET_CONSTANTS } from './../constants'; 
 
 

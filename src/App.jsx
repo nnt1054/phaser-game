@@ -52,7 +52,6 @@ var config = {
 
 
 const App = () => {
-
     useEffect(() => {
         const game = new Phaser.Game(config);
     }, [])

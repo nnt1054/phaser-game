@@ -1,17 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import useDrag from '../hooks/useDrag';
-import useHover from '../hooks/useHover';
-import store from '../store/store';
+
 import actionMap from './actions';
 import icons from './icons';
 import {
-    setHoverKey,
-} from '../store/hotBars';
-import {
-    setActiveIndex
-} from '../store/menuStates';
-
+    openActionsMenu,
+    setInventoryActiveIndex,
+} from '../store/inventory';
 
 import * as styles from './../App.module.css';
 
@@ -70,7 +65,7 @@ const InventoryItem = (props) => {
     const ref = useRef();
     const dispatch = useDispatch();
 
-    const activeIndex = useSelector(state => state.menuStates.activeIndex);
+    const activeIndex = useSelector(state => state.inventory.activeIndex);
     const isActive = (activeIndex === props.index);
 
     const item = props.item;
@@ -114,10 +109,18 @@ const InventoryItem = (props) => {
         backgroundColor: isActive ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
     }
 
-    const executeScroll = () => ref.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-    })
+    const executeScroll = () => {
+        ref.current.scrollIntoView({
+            // behavior: 'smooth',
+            block: 'center',
+            inline: 'nearest',
+        })
+        
+        // bug where scrollIntoView shifts whole page
+        // prevents smooth behavior due to correction
+        document.documentElement.scrollTop = 0;
+    }
+
     useEffect(() => {
         if (isActive) {
             executeScroll();
@@ -125,12 +128,15 @@ const InventoryItem = (props) => {
     }, [isActive])
 
     const onClick = (event) => {
-        // dispatch(setHoverKey(item.name));
-        dispatch(setActiveIndex(props.index));
+        if (isActive) {
+            dispatch(openActionsMenu());
+        } else {
+            dispatch(setInventoryActiveIndex(props.index));
+        }
     }
 
     return (
-        <div ref={ ref } style={ itemContainerStyles }>
+        <div style={ itemContainerStyles }>
             <span style={ itemCountStyles }> x{ item.count } </span>
             <button
                 ref={ ref }
@@ -148,6 +154,10 @@ const InventoryMenu = () => {
     const ref = useRef();
     const dispatch = useDispatch();
     const inventory = useSelector(state => state.inventory.items);
+
+    const scrollTo = (child) => {
+        // ref.current.scrollTo(child)
+    }
 
     return (
         <div

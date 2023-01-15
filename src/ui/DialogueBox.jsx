@@ -1,16 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import useDrag from '../hooks/useDrag';
-import useHover from '../hooks/useHover';
-import {
-    setMenuPosition,
-    incrementZIndex,
-    pushToFront,
-} from '../store/menuStates';
-import { calculatePosition } from './utils.js';
+
 import store from '../store/store';
-import actionMap from './actions';
-import icons from './icons';
 import {
     getNextMessage,
     setCurrentOption,
@@ -18,6 +9,13 @@ import {
 } from '../store/dialogueBox';
 
 import * as styles from './../App.module.css';
+
+
+const textContainerStyles = {
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '24px',
+}
 
 
 const DialogueBox = () => {
@@ -32,17 +30,6 @@ const DialogueBox = () => {
 
     const width = 720;
     const height = 256;
-
-    const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
-    const dragState = useDrag(ref,
-        event => {},
-        event => {},
-        event => {
-            // need to set zIndex on display not on interaction
-            // then disable all other menus
-            // dispatch(pushToFront('dialogue'));
-        }
-    );
 
     const dialogueContainerStyles = {
         display: display ? 'flex' : 'none',
@@ -62,14 +49,7 @@ const DialogueBox = () => {
         zIndex: zIndex,
     };
 
-    const textContainerStyles = {
-        display: 'flex',
-        flexDirection: 'column',
-
-        padding: '24px',
-    }
-
-    const tempOnClick = (event) => {
+    const onClick = (event) => {
         dispatch(getNextMessage());
     }
 
@@ -79,7 +59,7 @@ const DialogueBox = () => {
             style={ dialogueContainerStyles }
             onMouseDown={ e => e.stopPropagation() }
             onMouseUp={ e => e.stopPropagation() }
-            onClick={ tempOnClick }
+            onClick={ onClick }
         >
             <div style={ textContainerStyles }>
                 <span> { name } </span>
@@ -103,5 +83,6 @@ const DialogueBox = () => {
         </div>
     )
 }
+
 
 export default DialogueBox;

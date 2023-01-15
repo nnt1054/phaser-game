@@ -41,10 +41,10 @@ const hotBarsSlice = createSlice({
             { name: 'empty', active: false, keybind: '↑4'},
             { name: 'empty', active: false, keybind: '↑5'},
             { name: 'empty', active: false, keybind: '↑Q'},
-            { name: 'empty', active: false, keybind: '↑W'},
             { name: 'empty', active: false, keybind: '↑E'},
             { name: 'empty', active: false, keybind: '↑R'},
             { name: 'empty', active: false, keybind: '↑F'},
+            { name: 'empty', active: false, keybind: '↑G'},
         ]
     },
   },
@@ -92,9 +92,6 @@ const hotBarsSlice = createSlice({
         state.draggingSource.hotbar = null;
         state.draggingSource.index = null;
     },
-    setHoverKey: (state, action) => {
-        state.hoverKey = action.payload;
-    },
     startSetting: (state, action) => {
         state.isSetting = true;
         state.settingKey = action.payload;
@@ -121,7 +118,6 @@ export const {
     setSlot,
     setDragging,
     clearDragging,
-    setHoverKey,
     startSetting,
     clearSetting,
     setSetting,
