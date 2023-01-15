@@ -32,6 +32,7 @@ const Alert = () => {
 		color: 'red',
 		fontSize: '16pt',
 		fontWeight: 'bold',
+		zIndex: 100,
 	};
 
 	return (

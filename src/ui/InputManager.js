@@ -5,10 +5,18 @@ const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
 
 import actionMap from './actions';
 import {
+    setSlot,
     setSlotActive,
-    setSetting,
 } from '../store/hotBars';
 import store from '../store/store';
+import {
+  getActiveItemKey,
+  checkIsSetting,
+} from './utils';
+import {
+  activeStates,
+  setInventoryState,
+} from '../store/inventory';
 import { TARGET_CONSTANTS } from './../constants'; 
 
 
@@ -177,19 +185,23 @@ const InputManager = () => {
 
             // check if attempting to set ability to hotbar
             const state = store.getState();
-            if (state.hotBars.isSetting) {
+            const isSetting = checkIsSetting(state);
+            if (isSetting) {
               const keybind = getKeybindFromInput(input);
               if (!keybind) break;
               if (keybind.type === 'hotbar') {
-                dispatch(setSetting({
+                const name = getActiveItemKey(state);
+                dispatch(setSlot({
                     hotbar: keybind.hotbar,
                     slot: keybind.slot,
-                }));
+                    name: name,
+                }))
+                dispatch(setInventoryState(activeStates.default));
                 break;
               }
             }
 
-            // if not then continue as normal
+            // if not then continue as normal? or not?
             setHotbarSlotState(input, true);
             action = getActionFromInput(input);
             if (action && action.action) {

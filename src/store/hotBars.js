@@ -73,40 +73,9 @@ const hotBarsSlice = createSlice({
         state.draggingSource.index = null;
     },
     setSlot: (state, action) => {
-        if (!state.dragging) return;
-        const hotbar = state[action.payload.key];
-        const slot = hotbar.slots[action.payload.index];
-        const targetName = slot.name;
-        slot.name = state.dragging;
-
-        const sourceHotbarKey = state.draggingSource.hotbar;
-        const sourceIndex = state.draggingSource.index;
-
-        if (sourceHotbarKey !== null && sourceIndex !== null) {
-            const sourceHotbar = state[sourceHotbarKey];
-            const sourceSlot = sourceHotbar.slots[sourceIndex];
-            sourceSlot.name = targetName;
-        }
-
-        state.dragging = null;
-        state.draggingSource.hotbar = null;
-        state.draggingSource.index = null;
-    },
-    startSetting: (state, action) => {
-        state.isSetting = true;
-        state.settingKey = action.payload;
-    },
-    clearSetting: (state, action) => {
-        state.isSetting = false;
-        state.settingKey = null;
-    },
-    setSetting: (state, action) => {
         const hotbar = state[action.payload.hotbar];
         const slot = hotbar.slots[action.payload.slot];
-        slot.name = state.settingKey;
-
-        state.isSetting = false;
-        state.settingKey = null; 
+        slot.name = action.payload.name;
     },
   }
 })
@@ -118,9 +87,6 @@ export const {
     setSlot,
     setDragging,
     clearDragging,
-    startSetting,
-    clearSetting,
-    setSetting,
 } = hotBarsSlice.actions;
 
 export default hotBarsSlice;

@@ -70,7 +70,7 @@ const Tooltip = () => {
                 </button>
                 <div style={ flexColumn }>
                     <span> { ability ? ability.label : '' } </span>
-                    <span> spell </span>
+                    <span> { ability.itemType } </span>
                 </div>
             </div>
             <div style={ {...flexRow, marginTop: '12px'} }>

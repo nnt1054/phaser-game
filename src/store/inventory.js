@@ -17,6 +17,7 @@ const _subractItemCount = (state, name, value) => {
 export const activeStates = {
     default: 'default',
     actions: 'actions',
+    setting: 'setting',
 }
 
 const inventorySlice = createSlice({

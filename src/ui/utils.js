@@ -1,3 +1,10 @@
+import {
+    items,
+    equipment,
+} from './actions';
+import {
+    activeStates as inventoryActiveStates,
+} from '../store/inventory';
 
 export function calculatePosition(key, ref) {
     const element = ref.current;
@@ -22,3 +29,31 @@ export function calculatePosition(key, ref) {
         y: newBottom,
     }
 };
+
+export const getActiveItem = (state) => {
+    const activeIndex = state.inventory.activeIndex;
+    const inventory = state.inventory.items;
+
+    const itemKey = inventory[activeIndex]?.name;
+    if (!itemKey) return;
+
+    const item = items[itemKey] || equipment[itemKey];
+    return item;
+}
+
+export const getActiveItemKey = (state) => {
+    const activeIndex = state.inventory.activeIndex;
+    const inventory = state.inventory.items;
+
+    const itemKey = inventory[activeIndex]?.name;
+    return itemKey;
+}
+
+export const checkIsSetting = (state) => {
+    const activeMenu = state.menuStates.activeMenu;
+    const inventoryState = state.inventory.state;
+    return (
+        activeMenu === 'inventory' &&
+        inventoryState === inventoryActiveStates.setting
+    );
+}

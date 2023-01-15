@@ -22,8 +22,11 @@ const DialogueBox = () => {
     const ref = useRef();
     const dispatch = useDispatch();
 
+    const activeMenu = useSelector(state => state.menuStates.activeMenu)
+    const isActive = (activeMenu === 'dialogue');
+
     const dialogue = useSelector(state => state.dialogueBox)
-    const { display, left, bottom, zIndex } = dialogue;
+    const { left, bottom, zIndex } = dialogue;
     const { name, messageIndex, messages } = dialogue;
     const message = messages ? messages[messageIndex] : '';
     const { options, currentOption } = dialogue;
@@ -32,7 +35,7 @@ const DialogueBox = () => {
     const height = 256;
 
     const dialogueContainerStyles = {
-        display: display ? 'flex' : 'none',
+        display: isActive ? 'flex' : 'none',
         flexDirection: `column`,
 
         border: '4px solid black',
@@ -62,7 +65,7 @@ const DialogueBox = () => {
             onClick={ onClick }
         >
             <div style={ textContainerStyles }>
-                <span> { name } </span>
+                <span style={{ fontWeight: 'bold' }}> { name } </span>
                 <p> { message } </p>
                 <div style={ {margin: 'auto'} }>
                     {
@@ -74,6 +77,9 @@ const DialogueBox = () => {
                                 }}
                                 onClick={ event => {
                                     dispatch(submitCurrentOption());
+                                }}
+                                style={{
+                                    fontWeight: (currentOption == i) ? 'bold' : 'normal',
                                 }}
                             > { currentOption == i ? '> ' : ''} { option.text } </p>
                         })

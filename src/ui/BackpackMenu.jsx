@@ -81,7 +81,7 @@ const BackpackMenu = () => {
     const activeActionsIndex = useSelector(state => state.inventory.activeActionsIndex);
     const shouldDisplayButtons = (inventoryState === activeStates.actions && !empty);
 
-    const isSetting = useSelector(state => state.hotBars.isSetting);
+    const isSetting = (inventoryState === activeStates.setting);
     const shouldDisplay = visible && !isSetting;
 
     const options = useSelector(state => state.inventory.actionOptions);

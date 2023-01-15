@@ -1,6 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
-import { clearSetting } from '../store/hotBars';
 import actionMap from './actions';
 
 import {

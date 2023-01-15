@@ -1,6 +1,9 @@
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
-import { clearSetting } from '../store/hotBars';
+import {
+    activeStates,
+    setInventoryState,
+} from '../store/inventory';
 
 const flexRow = {
     display: 'flex',
@@ -38,10 +41,13 @@ const message = `
 
 const SetPopup = () => {
     const dispatch = useDispatch();
-    const isSetting = useSelector(state => state.hotBars.isSetting);
+
+    const activeMenu = useSelector(state => state.menuStates.activeMenu);
+    const inventoryState = useSelector(state => state.inventory.state);
+    const isSetting = (activeMenu === 'inventory' && inventoryState === activeStates.setting);
 
     const onClick = (event) => {
-        dispatch(clearSetting());
+        dispatch(setInventoryState(activeStates.default));
     }
 
     const containerStyles = {

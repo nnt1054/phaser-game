@@ -7,8 +7,15 @@ import icons from './icons';
 import store from '../store/store';
 import useHover from '../hooks/useHover';
 import {
-    setSetting,
+    setSlot,
 } from '../store/hotBars';
+import {
+    activeStates,
+    setInventoryState,
+} from '../store/inventory';
+import {
+    getActiveItemKey,
+} from './utils';
 
 import * as styles from '../App.module.css';
 
@@ -29,7 +36,9 @@ const HotBarItem = (props) => {
         return sum + item.count;
     }, 0)
 
-    const isSetting = useSelector(state => state.hotBars.isSetting);
+    const activeMenu = useSelector(state => state.menuStates.activeMenu);
+    const inventoryState = useSelector(state => state.inventory.state);
+    const isSetting = (activeMenu === 'inventory' && inventoryState === activeStates.setting);
 
     let timer, current, cooldown, duration;
     let useCooldown = false;
@@ -66,7 +75,10 @@ const HotBarItem = (props) => {
         height: `48px`,
         borderRadius: `12px`,
         position: `absolute`,
-        filter: (isHovering || timer > 0 || (isItem && itemCount === 0)) ? `brightness(75%)` : `brightness(100%)`,
+        filter:
+            slot.active ? `brightness(50%)`
+            : (isHovering || timer > 0 || (isItem && itemCount === 0)) ? `brightness(75%)`
+            : `brightness(100%)`,
         pointerEvents: `auto`,
     }
 
@@ -144,11 +156,18 @@ const HotBarItem = (props) => {
         const state = store.getState();
         const targetName = state.targetInfo.targetName;
 
-        if (state.hotBars.isSetting) {
-            dispatch(setSetting({
+        const activeMenu = state.menuStates.activeMenu;
+        const inventoryState = state.inventory.state;
+        const isSetting = (activeMenu === 'inventory' && inventoryState === activeStates.setting);
+
+        if (isSetting) {
+            const name = getActiveItemKey(state);
+            dispatch(setSlot({
                 hotbar: props.hotbar,
                 slot: props.index,
-            }));
+                name: name,
+            }))
+            dispatch(setInventoryState(activeStates.default));
         } else {
             if (tile.action) {
                 if (targetName) {

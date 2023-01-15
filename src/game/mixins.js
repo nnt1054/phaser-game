@@ -17,6 +17,11 @@ import {
 import {
     setAlert,
 } from '../store/alert';
+import {
+    menus,
+    openMenu,
+    closeMenu,
+} from '../store/menuStates';
 
 
 export const HealthMixin = {
@@ -281,7 +286,9 @@ export const DialogueMixin = {
     },
 
     startDialogue: function(player) {
-        if (this.isPlayerInRange(player) && player.body.onFloor()) {
+        if (player.dialogueTarget) {
+            // do nothing if already in dialogue
+        } else if (this.isPlayerInRange(player) && player.body.onFloor()) {
             player.dialogueTarget = this;
             this.displayMessage(player, this.messages['001']);
         } else {
@@ -292,12 +299,14 @@ export const DialogueMixin = {
     displayMessage: function(player, message) {
         this.currentMessage = message;
         if (this.currentMessage.type == 'simple') {
+            store.dispatch(openMenu(menus.dialogue));
             store.dispatch(setDialogue({
                 name: this.displayName,
                 messages: message.messages,
             }));
             player.dialogueComplete = false;
         } else if (this.currentMessage.type == 'question') {
+            store.dispatch(openMenu(menus.dialogue));
             store.dispatch(setDialogue({
                 name: this.displayName,
                 messages: [message.message],
@@ -334,6 +343,7 @@ export const DialogueMixin = {
         player.dialogueTarget = null;
         player.dialogueComplete = true;
         store.dispatch(clearDialogue());
+        store.dispatch(closeMenu());
     },
 
 }

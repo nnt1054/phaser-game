@@ -7,17 +7,23 @@ import {
 } from './actions';
 import {
 	openActionsMenu,
-	closeActionsMenu,
+    setInventoryState,
 	activeStates as inventoryActiveStates,
 	setActionOptions,
 	setInventoryActiveIndex,
 	setInventoryActiveActionsIndex,
+    closeActionsMenu,
 } from '../store/inventory';
 import {
     openMenu,
     closeMenu,
     setActiveIndex,
 } from '../store/menuStates';
+import {
+    getNextMessage,
+    submitCurrentOption,
+    setCurrentOption,
+} from '../store/dialogueBox';
 
 const gameMenuNavActions = {
     close: () => {
@@ -87,6 +93,8 @@ const inventoryNavActions = {
             store.dispatch(openMenu('gameMenu'));
         } else if (state.inventory.state === inventoryActiveStates.actions) {
             store.dispatch(closeActionsMenu());
+        } else if (state.inventory.state === inventoryActiveStates.setting) {
+            store.dispatch(setInventoryState(inventoryActiveStates.default));
         }
     },
     confirm: () => {
@@ -117,8 +125,6 @@ const inventoryNavActions = {
 
             const action = inventoryActions[actionKey];
             if (action.action) action.action();
-
-            store.dispatch(closeActionsMenu());
         }
     },
     up: () => {
@@ -197,8 +203,53 @@ const inventoryNavActions = {
     },
 }
 
+const dialogueNavActions = {
+    close: () => {
+        store.dispatch(getNextMessage());
+    },
+    confirm: () => {
+        const state = store.getState();
+        if (state.dialogueBox.options.length) {
+            store.dispatch(submitCurrentOption());
+        } else {
+            store.dispatch(getNextMessage());
+        }
+    },
+    up: () => {
+        const state = store.getState();
+        if (state.dialogueBox.options.length) {
+            const currentIndex = state.dialogueBox.currentOption;
+            const maxIndex = state.dialogueBox.options.length - 1;
+            let newIndex = currentIndex;
+            if (currentIndex <= 0) {
+                newIndex = maxIndex;
+            } else {
+                newIndex = currentIndex - 1;
+            }
+            store.dispatch(setCurrentOption(newIndex));
+        }
+    },
+    down: () => {
+        const state = store.getState();
+        if (state.dialogueBox.options.length) {
+            const currentIndex = state.dialogueBox.currentOption;
+            const maxIndex = state.dialogueBox.options.length - 1;
+            let newIndex = currentIndex;
+            if (currentIndex >= maxIndex) {
+                newIndex = 0;
+            } else {
+                newIndex = currentIndex + 1;
+            }
+            store.dispatch(setCurrentOption(newIndex));
+        }
+    },
+    left: () => {},
+    right: () => {},
+}
+
 
 export default {
     'gameMenu': gameMenuNavActions,
     'inventory': inventoryNavActions,
+    'dialogue': dialogueNavActions,
 }

@@ -8,66 +8,52 @@ import {
     setSystemActionAndTarget,
 } from '../store/playerState';
 import {
-    startSetting,
-    clearSetting,
-} from '../store/hotBars';
-import {
     openMenu,
     closeMenu,
 } from '../store/menuStates';
 import {
     getNextMessage,
 } from '../store/dialogueBox';
+import {
+    activeStates as inventoryActiveStates,
+    setInventoryState,
+    closeActionsMenu,
+} from '../store/inventory';
+import {
+    getActiveItem,
+    checkIsSetting,
+} from './utils';
 import navActions from './navActions';
 import * as styles from '../App.module.css';
 
 // TODO: separate dictionaries into separate files
 // TODO: should specify here if something is a simple action or cursor
-const _getActiveItemKey = (state) => {
-    const activeIndex = state.inventory.activeIndex;
-    const inventory = state.inventory.items;
-
-    const itemKey = inventory[activeIndex]?.name;
-    return itemKey;
-}
-
-const _getActiveItem = (state) => {
-    const activeIndex = state.inventory.activeIndex;
-    const inventory = state.inventory.items;
-
-    const itemKey = inventory[activeIndex]?.name;
-    if (!itemKey) return;
-
-    // hmmm
-    const item = items[itemKey] || equipment[itemKey];
-
-    return item;
-}
-
 export const inventoryActions = {
     'useActiveItem': {
         label: 'Use',
         action: () => {
             const state = store.getState();
-            const item = _getActiveItem(state);
+            const item = getActiveItem(state);
             if (item.action) item.action();
+            store.dispatch(closeActionsMenu());
         },
     },
     'equipActiveItem': {
         label: 'Equip',
         action: () => {
             const state = store.getState();
-            const item = _getActiveItem(state);
+            const item = getActiveItem(state);
             if (item.equip) item.equip();
+            store.dispatch(closeActionsMenu());
         },
     },
     'setActiveItem': {
         label: 'Set',
         action: () => {
             const state = store.getState();
-            const itemName = _getActiveItemKey(state);
-            if (itemName) {
-                store.dispatch(startSetting(itemName));
+            const item = getActiveItem(state);
+            if (item) {
+                store.dispatch(setInventoryState(inventoryActiveStates.setting));
             }
         },
     },
@@ -164,20 +150,20 @@ export const shortcutActions = {
             const state = store.getState();
 
             const activeMenu = state.menuStates.activeMenu;
-            const isActive = (activeMenu == 'inventory');
+            const isActive = (activeMenu === 'inventory');
+            const isSetting = checkIsSetting(state);
 
-            if (isActive) {
+            if (isActive && !isSetting) {
                 store.dispatch(closeMenu());
-            } else {
+            } else if (!activeMenu || activeMenu === 'gameMenu') {
                 store.dispatch(openMenu('inventory'));
+                store.dispatch(setInventoryState(inventoryActiveStates.default));
             }
         },
     },
     'settings': {
-        label: 'Settings',
-        action: () => {
-            console.log('nice');
-        }
+        label: 'Lorem Ipsum',
+        action: () => {}
     }
 };
 
@@ -190,9 +176,7 @@ const systemActions = {
         label: 'close',
         action: () => {
             const state = store.getState();
-            if (state.hotBars.isSetting) {
-                store.dispatch(clearSetting());
-            } else if (state.menuStates.activeMenu) {
+            if (state.menuStates.activeMenu) {
                 const menuKey = state.menuStates.activeMenu;
                 const config = navActions[menuKey];
                 if (!config || !config.close) return;
@@ -208,9 +192,7 @@ const systemActions = {
         label: 'confirm',
         action: () => {
             const state = store.getState();
-            if (state.dialogueBox.display) {
-                store.dispatch(getNextMessage());
-            } else if (state.menuStates.activeMenu) {
+            if (state.menuStates.activeMenu) {
                 const state = store.getState();
 
                 const menuKey = state.menuStates.activeMenu;
@@ -314,6 +296,7 @@ export const items = {
         icon: 'vercure',
         gcd: false,
         type: 'item',
+        itemType: 'consumable',
         description: `
             THIS IS AN ITEM NOT AN ABILITY !!!! Restores self HP by 100. Press "I" to open your inventory.
         `
@@ -327,6 +310,7 @@ export const equipment = {
         label: 'foxears',
         icon: 'verflare',
         type: 'item',
+        itemType: 'helmet',
         description: `fox ears! ripped out of a real live fox.`,
         action: () => {
             store.dispatch(setSystemActionAndTarget({
@@ -346,6 +330,7 @@ export const equipment = {
         label: 'halo',
         icon: 'verholy',
         type: 'item',
+        itemType: 'helmet',
         description: `this is a helmet thing`,
         action: () => {
             store.dispatch(setSystemActionAndTarget({

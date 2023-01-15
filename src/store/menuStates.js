@@ -1,14 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
  
+export const menus = {
+    inventory: 'inventory',
+    gameMenu: 'gameMenu',
+    dialogue: 'dialogue',
+}
 
 const menuStatesSlice = createSlice({
   name: 'menus',
   initialState: {
     activeMenu: null,
-    activeIndex: 0,
 
+    activeIndex: 0,
     gameMenuOptions: [
         'inventory',
+        'settings',
         'settings',
     ],
 

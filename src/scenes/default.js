@@ -102,9 +102,6 @@ class defaultScene extends Phaser.Scene {
         this.booma1 = new Booma(this, 32 * 12, 32 * 58, 'Hostile Enemy A');
         this.booma2 = new Booma(this, 32 * 14.5, 32 * 58, 'Hostile Enemy B');
         this.booma3 = new Booma(this, 32 * 17, 32 * 58, 'Hostile Enemy C');
-        // this.booma1 = new Booma(this, 32 * 12, 32 * 58.5, 'Hostile Enemy A');
-        // this.booma2 = new Booma(this, 32 * 14.5, 32 * 58.5, 'Hostile Enemy B');
-        // this.booma3 = new Booma(this, 32 * 17, 32 * 58.5, 'Hostile Enemy C');
 
         this.npcs = [
             this.sign,

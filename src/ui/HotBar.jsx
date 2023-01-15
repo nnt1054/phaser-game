@@ -12,9 +12,10 @@ const HotBar = (props) => {
     const dispatch = useDispatch();
 
     const position = useSelector(state => state.hotBars[props.index]);
-    const dialogueDisplay = useSelector(state => state.dialogueBox.display);
+    const activeMenu = useSelector(state => state.menuStates.activeMenu)
 
-    const isVisible = (position.visible && !dialogueDisplay);
+    const dialogueActive = (activeMenu === 'dialogue');
+    const isVisible = (position.visible && !dialogueActive);
     const num_slots = position.slots.length;
     const width = props.vertical ? 48: 52 * num_slots;
     const height = props.vertical ? 540 : 48;
