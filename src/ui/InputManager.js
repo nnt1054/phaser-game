@@ -12,11 +12,16 @@ import store from '../store/store';
 import {
   getActiveItemKey,
   checkIsSetting,
+  getSettingName,
 } from './utils';
 import {
   activeStates,
   setInventoryState,
 } from '../store/inventory';
+import {
+    activeStates as skillsActiveStates,
+    setActiveState as setSkillsActiveState,
+} from '../store/skillsMenu';
 import { TARGET_CONSTANTS } from './../constants'; 
 
 
@@ -190,13 +195,14 @@ const InputManager = () => {
               const keybind = getKeybindFromInput(input);
               if (!keybind) break;
               if (keybind.type === 'hotbar') {
-                const name = getActiveItemKey(state);
+                const name = getSettingName(state);
                 dispatch(setSlot({
                     hotbar: keybind.hotbar,
                     slot: keybind.slot,
                     name: name,
                 }))
                 dispatch(setInventoryState(activeStates.default));
+                dispatch(setSkillsActiveState(skillsActiveStates.default));
                 break;
               }
             }

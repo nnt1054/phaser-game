@@ -16,6 +16,15 @@ import {
 import {
     getActiveItemKey,
 } from './utils';
+import { menus } from '../store/menuStates';
+import {
+    activeStates as activeSkillStates,
+    setActiveState as setSkillsActiveState,
+} from '../store/skillsMenu';
+import {
+    checkIsSetting,
+    getSettingName,
+} from './utils';
 
 import * as styles from '../App.module.css';
 
@@ -38,7 +47,11 @@ const HotBarItem = (props) => {
 
     const activeMenu = useSelector(state => state.menuStates.activeMenu);
     const inventoryState = useSelector(state => state.inventory.state);
-    const isSetting = (activeMenu === 'inventory' && inventoryState === activeStates.setting);
+    const skillsState = useSelector(state => state.skills.state);
+
+    const isSettingItem = (activeMenu === menus.inventory && inventoryState === activeStates.setting);
+    const isSettingSkill = (activeMenu === menus.skills && skillsState === activeSkillStates.setting);
+    const isSetting = isSettingItem || isSettingSkill;
 
     let timer, current, cooldown, duration;
     let useCooldown = false;
@@ -158,16 +171,19 @@ const HotBarItem = (props) => {
 
         const activeMenu = state.menuStates.activeMenu;
         const inventoryState = state.inventory.state;
-        const isSetting = (activeMenu === 'inventory' && inventoryState === activeStates.setting);
+        const skillsState = state.skills.state
+
+        const isSetting = checkIsSetting(state);
 
         if (isSetting) {
-            const name = getActiveItemKey(state);
+            const name = getSettingName(state);
             dispatch(setSlot({
                 hotbar: props.hotbar,
                 slot: props.index,
                 name: name,
             }))
-            dispatch(setInventoryState(activeStates.default));
+            dispatch(setInventoryState(activeStates.actions));
+            dispatch(setSkillsActiveState(activeSkillStates.actions));
         } else {
             if (tile.action) {
                 if (targetName) {

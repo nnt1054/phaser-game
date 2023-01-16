@@ -1,9 +1,16 @@
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
 import {
+    menus
+} from '../store/menuStates';
+import {
     activeStates,
     setInventoryState,
 } from '../store/inventory';
+import {
+    activeStates as activeSkillStates,
+    setActiveState as setSkillsActiveState,
+} from '../store/skillsMenu';
 
 const flexRow = {
     display: 'flex',
@@ -44,10 +51,18 @@ const SetPopup = () => {
 
     const activeMenu = useSelector(state => state.menuStates.activeMenu);
     const inventoryState = useSelector(state => state.inventory.state);
-    const isSetting = (activeMenu === 'inventory' && inventoryState === activeStates.setting);
+    const skillsState = useSelector(state => state.skills.state);
+
+    const isSettingItem = (activeMenu === 'inventory' && inventoryState === activeStates.setting);
+    const isSettingSkill = (activeMenu === menus.skills && skillsState === activeSkillStates.setting);
+    const isSetting = isSettingItem || isSettingSkill;
 
     const onClick = (event) => {
-        dispatch(setInventoryState(activeStates.default));
+        if (isSettingItem) {
+            dispatch(setInventoryState(activeStates.actions));
+        } else if (isSettingSkill) {
+            dispatch(setSkillsActiveState(activeSkillStates.actions))
+        }
     }
 
     const containerStyles = {

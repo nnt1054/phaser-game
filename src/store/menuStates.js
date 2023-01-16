@@ -4,6 +4,7 @@ export const menus = {
     inventory: 'inventory',
     gameMenu: 'gameMenu',
     dialogue: 'dialogue',
+    skills: 'skills',
 }
 
 const menuStatesSlice = createSlice({
@@ -14,8 +15,7 @@ const menuStatesSlice = createSlice({
     activeIndex: 0,
     gameMenuOptions: [
         'inventory',
-        'settings',
-        'settings',
+        'skills',
     ],
 
     // deprecating everything underneath here

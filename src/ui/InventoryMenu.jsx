@@ -155,10 +155,6 @@ const InventoryMenu = () => {
     const dispatch = useDispatch();
     const inventory = useSelector(state => state.inventory.items);
 
-    const scrollTo = (child) => {
-        // ref.current.scrollTo(child)
-    }
-
     return (
         <div
             ref={ ref }

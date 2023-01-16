@@ -12,6 +12,7 @@ import inventorySlice from './inventory';
 import targetInfoSlice from './targetInfo';
 import dialogueBoxSlice from './dialogueBox';
 import alertSlice from './alert';
+import skillsMenuSlice from './skillsMenu';
 
 
 export default configureStore({
@@ -28,5 +29,6 @@ export default configureStore({
         targetInfo: targetInfoSlice.reducer,
         dialogueBox: dialogueBoxSlice.reducer,
         alert: alertSlice.reducer,
+        skills: skillsMenuSlice.reducer,
     },
 })

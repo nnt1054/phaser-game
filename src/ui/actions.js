@@ -8,6 +8,7 @@ import {
     setSystemActionAndTarget,
 } from '../store/playerState';
 import {
+    menus,
     openMenu,
     closeMenu,
 } from '../store/menuStates';
@@ -21,8 +22,14 @@ import {
 } from '../store/inventory';
 import {
     getActiveItem,
+    getActiveSkill,
     checkIsSetting,
 } from './utils';
+import {
+    activeStates as skillsActiveStates,
+    setActiveState as setSkillsActiveState,
+    setActiveIndex as setSkillsActiveIndex,
+} from '../store/skillsMenu';
 import navActions from './navActions';
 import * as styles from '../App.module.css';
 
@@ -54,6 +61,19 @@ export const inventoryActions = {
             const item = getActiveItem(state);
             if (item) {
                 store.dispatch(setInventoryState(inventoryActiveStates.setting));
+            }
+        },
+    },
+};
+
+export const skillActions = {
+    'setActiveSkill': {
+        label: 'Set',
+        action: () => {
+            const state = store.getState();
+            const skill = getActiveSkill(state);
+            if (skill) {
+                store.dispatch(setSkillsActiveState(skillsActiveStates.setting));
             }
         },
     },
@@ -155,7 +175,7 @@ export const shortcutActions = {
 
             if (isActive && !isSetting) {
                 store.dispatch(closeMenu());
-            } else if (!activeMenu || activeMenu === 'gameMenu') {
+            } else if (activeMenu !== 'dialogue') {
                 store.dispatch(openMenu('inventory'));
                 store.dispatch(setInventoryState(inventoryActiveStates.default));
             }
@@ -164,7 +184,23 @@ export const shortcutActions = {
     'settings': {
         label: 'Lorem Ipsum',
         action: () => {}
-    }
+    },
+    'skills': {
+        label: 'Skills',
+        action: () => {
+            const state = store.getState();
+
+            const activeMenu = state.menuStates.activeMenu;
+            const isActive = (activeMenu === menus.skills);
+
+            if (isActive) {
+                store.dispatch(closeMenu());
+            } else if (activeMenu !== 'dialogue') {
+                store.dispatch(openMenu(menus.skills));
+                store.dispatch(setSkillsActiveState(skillsActiveStates.default));
+            }
+        },
+    },
 };
 
 const systemActions = {
@@ -225,7 +261,7 @@ const targetingActions = {
     },
 };
 
-const abilities = {
+export const abilities = {
     'jolt': {
         label: 'jolt',
         action: (target) => {
@@ -414,6 +450,7 @@ const reducerMap = {
     ...targetingActions,
     ...abilities,
     ...inventoryActions,
+    ...skillActions,
     ...items,
     ...equipment,
     ...navigationActions,

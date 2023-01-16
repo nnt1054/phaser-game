@@ -25,6 +25,7 @@ import Alert from './ui/Alert';
 import GameMenu from './ui/GameMenu';
 import BackpackMenu from './ui/BackpackMenu';
 import SetPopup from './ui/SetPopup';
+import SkillsMenu from './ui/SkillsMenu';
 
 var config = {
     type: Phaser.WEBGL,
@@ -93,6 +94,7 @@ const App = () => {
                 <BackpackMenu />
                 <SetPopup />
                 <GameMenu />
+                <SkillsMenu />
             </div>
         </div>
     )

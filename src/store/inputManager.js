@@ -32,6 +32,10 @@ const movementOnly = {
       type: 'simple',
       key: 'inventory',
     },
+    [KeyCodes.K]: {
+      type: 'simple',
+      key: 'skills',
+    },
     [KeyCodes.ESC]: {
       type: 'simple',
       key: 'close',

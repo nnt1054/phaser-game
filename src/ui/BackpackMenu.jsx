@@ -78,7 +78,6 @@ const BackpackMenu = () => {
     const empty = (abilityKey === 'empty' || !abilityKey);
 
     const inventoryState = useSelector(state => state.inventory.state);
-    const activeActionsIndex = useSelector(state => state.inventory.activeActionsIndex);
     const shouldDisplayButtons = (inventoryState === activeStates.actions && !empty);
 
     const isSetting = (inventoryState === activeStates.setting);

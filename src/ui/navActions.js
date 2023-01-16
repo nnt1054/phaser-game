@@ -4,6 +4,7 @@ import {
 	items,
 	equipment,
 	inventoryActions,
+    skillActions,
 } from './actions';
 import {
 	openActionsMenu,
@@ -24,6 +25,12 @@ import {
     submitCurrentOption,
     setCurrentOption,
 } from '../store/dialogueBox';
+import {
+    activeStates as skillsActiveStates,
+    setActiveState as setSkillsActiveState,
+    setActiveIndex as setSkillsActiveIndex,
+    setActiveActionsIndex as setSkillsActiveActionsIndex,
+} from '../store/skillsMenu';
 
 const gameMenuNavActions = {
     close: () => {
@@ -94,7 +101,7 @@ const inventoryNavActions = {
         } else if (state.inventory.state === inventoryActiveStates.actions) {
             store.dispatch(closeActionsMenu());
         } else if (state.inventory.state === inventoryActiveStates.setting) {
-            store.dispatch(setInventoryState(inventoryActiveStates.default));
+            store.dispatch(setInventoryState(inventoryActiveStates.actions));
         }
     },
     confirm: () => {
@@ -247,9 +254,117 @@ const dialogueNavActions = {
     right: () => {},
 }
 
+const skillsMenuNavActions = {
+    close: () => {
+        const state = store.getState();
+        if (state.skills.state === skillsActiveStates.default) {
+            store.dispatch(openMenu('gameMenu'));
+        } else if (state.skills.state === skillsActiveStates.actions) {
+            store.dispatch(setSkillsActiveState(skillsActiveStates.default));
+        } else if (state.skills.state === skillsActiveStates.setting) {
+            store.dispatch(setSkillsActiveState(skillsActiveStates.actions));
+        }
+
+    },
+    confirm: () => {
+
+        const state = store.getState();
+        if (state.skills.state === skillsActiveStates.default) {
+            const currentIndex = state.skills.activeIndex;
+            const skill = state.skills.options[currentIndex];
+            store.dispatch(setSkillsActiveState(skillsActiveStates.actions));
+        } else if (state.skills.state === skillsActiveStates.actions) {
+            const actionsIndex = state.skills.activeActionsIndex;
+            const actionOptions = state.skills.actionOptions;
+            const actionKey = actionOptions[actionsIndex];
+            const action = skillActions[actionKey];
+            if (action.action) action.action();
+        }
+
+    },
+    up: () => {
+        const state = store.getState();
+        if (state.skills.state === skillsActiveStates.default) {
+            const currentIndex = state.skills.activeIndex;
+            const maxIndex = state.skills.options.length - 1;
+            let newIndex = currentIndex;
+            if (currentIndex == 0) {
+                newIndex = maxIndex;
+            } else {
+                newIndex = currentIndex - 1;
+            }
+            store.dispatch(setSkillsActiveIndex(newIndex));
+        } else if (state.skills.state === skillsActiveStates.actions) {
+            const currentIndex = state.skills.activeActionsIndex;
+            const maxIndex = state.skills.actionOptions.length - 1;
+            let newIndex = currentIndex;
+            if (currentIndex == 0) {
+                newIndex = maxIndex;
+            } else {
+                newIndex = currentIndex - 1;
+            }
+            store.dispatch(setSkillsActiveActionsIndex(newIndex));
+        }
+    },
+    down: () => {
+        const state = store.getState();
+        if (state.skills.state === skillsActiveStates.default) {
+            const currentIndex = state.skills.activeIndex;
+            const maxIndex = state.skills.options.length - 1;
+            let newIndex = currentIndex;
+            if (currentIndex == maxIndex) {
+                newIndex = 0;
+            } else {
+                newIndex = currentIndex + 1;
+            }
+            store.dispatch(setSkillsActiveIndex(newIndex));
+        } else if (state.skills.state === skillsActiveStates.actions) {
+            const currentIndex = state.skills.activeActionsIndex;
+            const maxIndex = state.skills.actionOptions.length - 1;
+            let newIndex = currentIndex;
+            if (currentIndex == maxIndex) {
+                newIndex = 0;
+            } else {
+                newIndex = currentIndex + 1;
+            }
+            store.dispatch(setSkillsActiveActionsIndex(newIndex));
+        }
+    },
+    left: () => {
+        const state = store.getState();
+        if (state.skills.state === skillsActiveStates.default) {
+            const currentIndex = state.skills.activeIndex;
+            const maxIndex = state.skills.options.length - 1;
+            let newIndex = currentIndex;
+            if (currentIndex == 0) {
+                newIndex = maxIndex;
+            } else {
+                newIndex = currentIndex - 1;
+            }
+            store.dispatch(setSkillsActiveIndex(newIndex));
+        } else if (state.skills.state === skillsActiveStates.actions) {
+        }
+    },
+    right: () => {
+        const state = store.getState();
+        if (state.skills.state === skillsActiveStates.default) {
+            const currentIndex = state.skills.activeIndex;
+            const maxIndex = state.skills.options.length - 1;
+            let newIndex = currentIndex;
+            if (currentIndex == maxIndex) {
+                newIndex = 0;
+            } else {
+                newIndex = currentIndex + 1;
+            }
+            store.dispatch(setSkillsActiveIndex(newIndex));
+        } else if (state.skills.state === skillsActiveStates.actions) {
+        }
+    },
+}
 
 export default {
     'gameMenu': gameMenuNavActions,
     'inventory': inventoryNavActions,
     'dialogue': dialogueNavActions,
+    'skills': skillsMenuNavActions,
 }
