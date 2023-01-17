@@ -8,6 +8,7 @@ import store from '../store/store';
 import useHover from '../hooks/useHover';
 import {
     setSlot,
+    setHoverKey,
 } from '../store/hotBars';
 import {
     activeStates,
@@ -65,7 +66,10 @@ const HotBarItem = (props) => {
 
     // might be good to replace useHover with css classes
     // slot.active should already handle the third tier press
-    const isHovering = useHover(ref);
+    const isHovering = useHover(ref,
+        () => dispatch(setHoverKey(slot.name)),
+        () => dispatch(setHoverKey(null)),
+    );
 
     const icon = icons[tile.icon];
 

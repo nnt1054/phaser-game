@@ -26,6 +26,8 @@ import GameMenu from './ui/GameMenu';
 import BackpackMenu from './ui/BackpackMenu';
 import SetPopup from './ui/SetPopup';
 import SkillsMenu from './ui/SkillsMenu';
+import Tooltip from './ui/Tooltip';
+
 
 var config = {
     type: Phaser.WEBGL,
@@ -66,6 +68,21 @@ const App = () => {
         overflow: 'hidden',
     }
 
+    // tooltip logic
+    const activeMenu = useSelector(state => state.menuStates.activeMenu);
+    const hoverKey = useSelector(state => state.hotBars.hoverKey);
+    const isDefault = (activeMenu === null);
+    let abilityKey = 'empty';
+    if (isDefault && hoverKey) {
+        abilityKey = hoverKey;
+    }
+    const tooltipContainerStyles = {
+        top: '12px',
+        right: '12px',
+        zIndex: '1000',
+        width: '420px',
+    }
+
     return (
         <div
             id="game-container"
@@ -95,6 +112,9 @@ const App = () => {
                 <SetPopup />
                 <GameMenu />
                 <SkillsMenu />
+                <div style={ tooltipContainerStyles }>
+                    <Tooltip abilityKey={ abilityKey } />
+                </div>
             </div>
         </div>
     )

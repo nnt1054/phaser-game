@@ -274,6 +274,11 @@ export const abilities = {
         },
         icon: 'jolt',
         gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: `
+            Deals 25 Magic Damage to Target.
+        `,
     },
     'verthunder': {
         label: 'verthunder',
@@ -287,6 +292,8 @@ export const abilities = {
         },
         icon: 'verthunder',
         gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
     },
     'fleche': {
         label: 'fleche',
@@ -299,6 +306,10 @@ export const abilities = {
             );
         },
         icon: 'fleche',
+        cooldown: '12.0s',
+        description: `
+            Ranged OGCD; Deals 10 Damage to Target.
+        `,
     },
     'vercure': {
         label: 'vercure',
@@ -312,9 +323,10 @@ export const abilities = {
         },
         icon: 'vercure',
         gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
         description: `
             Restores target HP by 10.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
         `,
     },
     'slice': {
@@ -322,6 +334,11 @@ export const abilities = {
         action: () => { store.dispatch(setQueuedAbility('slice')) },
         icon: 'melee1',
         gcd: true,
+        castTime: '0s',
+        cooldown: '1.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,  
     },
 };
 

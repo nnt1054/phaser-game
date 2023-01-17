@@ -12,7 +12,9 @@ const hotBarsSlice = createSlice({
         hotbar: null,
         index: null,
     },
+
     hoverKey: null,
+
     3: {
         visible: true,
         left: 50,
@@ -77,6 +79,9 @@ const hotBarsSlice = createSlice({
         const slot = hotbar.slots[action.payload.slot];
         slot.name = action.payload.name;
     },
+    setHoverKey: (state, action) => {
+        state.hoverKey = action.payload;
+    },
   }
 })
 
@@ -87,6 +92,7 @@ export const {
     setSlot,
     setDragging,
     clearDragging,
+    setHoverKey,
 } = hotBarsSlice.actions;
 
 export default hotBarsSlice;

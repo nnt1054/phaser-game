@@ -108,7 +108,7 @@ const BackpackMenu = () => {
         			<InventoryMenu />
         		</div>
         		<div style={ flexColumn }>
-	        		<Tooltip />
+	        		<Tooltip abilityKey={ abilityKey }/>
 	        		<div style={ buttonsContainerStyle }>
 		                {
 		                    options.map((option, i) => {

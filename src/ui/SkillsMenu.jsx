@@ -7,6 +7,7 @@ import {
     setActiveIndex,
 } from '../store/skillsMenu';
 import { menus } from '../store/menuStates';
+import Tooltip from './Tooltip';
 
 import * as styles from './../App.module.css';
 
@@ -98,10 +99,11 @@ const SkillsMenu = () => {
     const dispatch = useDispatch();
 
     const activeMenu = useSelector(state => state.menuStates.activeMenu);
-    const activeIndex = useSelector(state => state.menuStates.activeIndex);
+    const activeIndex = useSelector(state => state.skills.activeIndex);
     const options = useSelector(state => state.skills.options);
     const actionOptions = useSelector(state => state.skills.actionOptions)
     const skillsState = useSelector(state => state.skills.state);
+    const abilityKey = options[activeIndex];
 
     const isActive = (activeMenu === menus.skills);
     const isSetting = skillsState === activeStates.setting;
@@ -156,6 +158,7 @@ const SkillsMenu = () => {
                     </div>
                 </div>
                 <div style={ flexColumn }>
+                    <Tooltip abilityKey={ abilityKey }/>
                     <div style={ buttonsContainerStyle }>
                         {
                             actionOptions.map((actionOption, i) => {

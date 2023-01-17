@@ -14,17 +14,16 @@ const flexColumn = {
 }
 
 
-const Tooltip = () => {
-    const activeMenu = useSelector(state => state.menuStates.activeMenu);
-    const activeIndex = useSelector(state => state.inventory.activeIndex);
-    const inventory = useSelector(state => state.inventory.items);
-    const item = inventory[activeIndex];
-    const abilityKey = item.name;
+const Tooltip = (props) => {
+    // const activeMenu = useSelector(state => state.menuStates.activeMenu);
+    // const activeIndex = useSelector(state => state.inventory.activeIndex);
+    // const inventory = useSelector(state => state.inventory.items);
+    // const item = inventory[activeIndex];
+    // const abilityKey = item.name;
 
-    // const abilityKey = useSelector(state => state.hotBars.hoverKey);
+    const abilityKey = props.abilityKey;
     const ability = actionMap[abilityKey];
     const icon = ability  ? icons[ability.icon] : null;
-    const dragging = useSelector(state => state.hotBars.dragging)
     const empty = (abilityKey === 'empty');
 
     const tooltipContainerStyles = {
@@ -74,9 +73,9 @@ const Tooltip = () => {
                 </div>
             </div>
             <div style={ {...flexRow, marginTop: '12px'} }>
-                <span style={ {marginRight: '24px'} }> Cast: 2.00s </span>
-                <span style={ {marginRight: '24px'} }> Recast: 2.50s </span>
-                <span style={ {marginRight: '24px'} }> MP Cost: 10MP </span>
+                <span style={ {marginRight: '24px'} }> Cast: { ability.castTime || '--'} </span>
+                <span style={ {marginRight: '24px'} }> Recast: { ability.cooldown || '--'} </span>
+                <span style={ {marginRight: '24px'} }> MP Cost: -- </span>
             </div>
             <p style={ {marginTop: `12px`} }>
                 <span style={{ color: 'green' }}> Description </span>: { ability && ability.description ? ability.description : "This is where I'd put my description... IF I HAD ONE."}
