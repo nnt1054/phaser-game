@@ -41,5 +41,8 @@
   <script>
     // TODO: add custom right click menus later :) OR NOT
     document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // https://stackoverflow.com/questions/65586906/react-and-electron-with-draft-js-global-is-not-defined
+    const global = globalThis;
   </script>
 </html>

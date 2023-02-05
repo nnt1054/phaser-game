@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
  
 export const menus = {
+    default: 'default',
     inventory: 'inventory',
     gameMenu: 'gameMenu',
     dialogue: 'dialogue',
@@ -10,13 +11,15 @@ export const menus = {
 const menuStatesSlice = createSlice({
   name: 'menus',
   initialState: {
-    activeMenu: null,
+    activeMenu: menus.default,
 
     activeIndex: 0,
     gameMenuOptions: [
         'inventory',
         'skills',
     ],
+
+    chatInputIsActive: false,
 
     // deprecating everything underneath here
     activeMenus: [],
@@ -74,7 +77,7 @@ const menuStatesSlice = createSlice({
     },
 
     closeMenu: (state) => {
-        state.activeMenu = null;
+        state.activeMenu = menus.default;
         state.activeIndex = 0;
     },
 
@@ -82,6 +85,11 @@ const menuStatesSlice = createSlice({
         state.activeIndex = action.payload;
     },
 
+    setChatInputIsActive: (state, action) => {
+        if (state.chatInputIsActive !== action.payload) {
+            state.chatInputIsActive = action.payload;
+        }
+    },
   }
 })
 
@@ -100,7 +108,7 @@ export const {
     navigateDown,
 
     setActiveIndex,
-
+    setChatInputIsActive,
 } = menuStatesSlice.actions;
 
 export default menuStatesSlice;

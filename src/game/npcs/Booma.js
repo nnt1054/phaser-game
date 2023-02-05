@@ -217,14 +217,20 @@ export class Booma extends ArcadeContainer {
     }
 
     handleDeath() {
+        const player = this.scene.player;
         this.visible = false;
         if (this.isTargeted) {
-            const player = this.scene.player;
             player.untargetObject();
         }
         this.resetAggro();
         this.cancelCast();
         this.untargetObject();
+
+        // TODO: possibly not friendly for synchronous events
+        // might want to find a way to remove something through the gameloop
+        // maybe like set an isAlive property and then clean up as part of the game loop
+        // can set a 'shouldClean' boolean and do that during the gameloop maybe
+        player.removeEnemyFromEnemyList(this);
     }
 
     updateAutoAttack(target, delta) {

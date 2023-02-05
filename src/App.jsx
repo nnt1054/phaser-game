@@ -27,7 +27,8 @@ import BackpackMenu from './ui/BackpackMenu';
 import SetPopup from './ui/SetPopup';
 import SkillsMenu from './ui/SkillsMenu';
 import Tooltip from './ui/Tooltip';
-
+import EnemyList from './ui/EnemyList';
+import ChatInput from './ui/ChatInput';
 
 var config = {
     type: Phaser.WEBGL,
@@ -81,6 +82,7 @@ const App = () => {
         right: '12px',
         zIndex: '1000',
         width: '420px',
+        pointerEvents: 'none',
     }
 
     return (
@@ -115,6 +117,8 @@ const App = () => {
                 <div style={ tooltipContainerStyles }>
                     <Tooltip abilityKey={ abilityKey } />
                 </div>
+                <EnemyList />
+                <ChatInput />
             </div>
         </div>
     )

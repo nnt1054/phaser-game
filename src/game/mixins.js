@@ -221,6 +221,10 @@ export const TargetMixin = {
                         )
                     }
                 }
+                
+                if (this.hasEnemyList) {
+                    this.updateEnemyListStore();
+                }
 
             } else {
                 this.currentTarget = gameObject;
@@ -265,7 +269,11 @@ export const TargetMixin = {
                     removeCotarget()
                 );
             }
+
             this.currentTarget = null;
+            if (this.isPlayer && this.hasEnemyList) {
+                this.updateEnemyListStore();
+            }
         }
     },
 }
@@ -368,6 +376,10 @@ export const AggroMixin = {
             if (newAggro > currentHighestAggro) {
                 this.highestAggro = gameObject;
             }
+        }
+
+        if (gameObject.hasEnemyList) {
+            gameObject.addToEnemyList(this);
         }
     },
 

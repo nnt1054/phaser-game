@@ -187,6 +187,10 @@ const inputManagerSlice = createSlice({
         type: 'simple',
         key: 'cycleTargetReverse',
       },
+      [KeyCodes.ENTER]: {
+        type: 'simple',
+        key: 'focusChatInput',
+      },
     },
     ctrlKeymap: {},
     altKeymap: {},

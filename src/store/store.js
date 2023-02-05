@@ -1,4 +1,5 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit';
+import EventEmitter from 'events';
 
 import playerHealthSlice from './playerHealth';
 import playerManaSlice from './playerMana';
@@ -13,6 +14,7 @@ import targetInfoSlice from './targetInfo';
 import dialogueBoxSlice from './dialogueBox';
 import alertSlice from './alert';
 import skillsMenuSlice from './skillsMenu';
+import enemyListSlice from './enemyList';
 
 
 export default configureStore({
@@ -30,5 +32,6 @@ export default configureStore({
         dialogueBox: dialogueBoxSlice.reducer,
         alert: alertSlice.reducer,
         skills: skillsMenuSlice.reducer,
+        enemyList: enemyListSlice.reducer,
     },
 })

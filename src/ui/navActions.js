@@ -31,6 +31,35 @@ import {
     setActiveIndex as setSkillsActiveIndex,
     setActiveActionsIndex as setSkillsActiveActionsIndex,
 } from '../store/skillsMenu';
+import {
+    setSystemAction,
+    setSystemActionAndTarget,
+} from '../store/playerState';
+
+
+const defaultNavActions = {
+    close: () => {
+        const state = store.getState();
+        if (state.targetInfo.display) {
+            store.dispatch(setSystemAction('untarget'));
+        } else {
+            store.dispatch(openMenu('gameMenu'));
+        }
+    },
+    confirm: () => {
+        store.dispatch(setSystemAction('confirm'));
+    },
+    up: () => {
+        store.dispatch(setSystemAction('cycleTargetFromEnemyListReverse'));
+    },
+    down: () => {
+        store.dispatch(setSystemAction('cycleTargetFromEnemyList'));
+    },
+    left: () => {
+    },
+    right: () => {
+    },
+}
 
 const gameMenuNavActions = {
     close: () => {
@@ -363,6 +392,7 @@ const skillsMenuNavActions = {
 }
 
 export default {
+    'default': defaultNavActions,
     'gameMenu': gameMenuNavActions,
     'inventory': inventoryNavActions,
     'dialogue': dialogueNavActions,

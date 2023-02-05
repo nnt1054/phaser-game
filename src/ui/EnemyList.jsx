@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
-import actionMap from './actions';
+import { targetingActions } from './actions';
 
 import {
     openMenu,
@@ -48,22 +48,20 @@ const buttonStyle = {
     padding: '4px 0px',
 }
 
+const stopPropagation = e => e.stopPropagation();
 
-const GameMenu = () => {
+const EnemyList = () => {
     const dispatch = useDispatch();
 
     const activeMenu = useSelector(state => state.menuStates.activeMenu);
-    const activeIndex = useSelector(state => state.menuStates.activeIndex);
-    const options = useSelector(state => state.menuStates.gameMenuOptions);
-
-    const isActive = (activeMenu === 'gameMenu');
+    const options = useSelector(state => state.enemyList.enemies);
+    const shouldDisplay = options.length > 0;
 
     const containerStyles = {
-        visibility: isActive ? 'visible' : 'hidden',
-        top: '12px',
+        visibility: shouldDisplay ? 'visible' : 'hidden',
+        bottom: '25vh',
         right: '12px',
 
-        width: '256px',
         padding: '12px 12px',
 
         border:  '4px solid black',
@@ -73,12 +71,16 @@ const GameMenu = () => {
     }
 
     return (
-        <div style={ containerStyles }>
-            <h3 style={ labelStyle }> Main Menu </h3>
+        <div
+            style={ containerStyles}
+            onMouseDown={ stopPropagation }
+            onMouseUp={ stopPropagation }
+        >
+            <h3 style={ labelStyle }> Enemy List </h3>
             <div style={ buttonsContainerStyle }>
                 {
                     options.map((option, i) => {
-                        return <GameMenuOption
+                        return <EnemyListOption
                             key={ i }
                             index={ i }
                             option={ option }
@@ -90,12 +92,11 @@ const GameMenu = () => {
     )
 }
 
-const GameMenuOption = (props) => {
+const EnemyListOption = (props) => {
     const dispatch = useDispatch();
-    const activeIndex = useSelector(state => state.menuStates.activeIndex);
-    const isActive = (activeIndex === props.index);
 
-    const option = actionMap[props.option];
+    const option = props.option;
+    const isActive =  option.isTarget;
 
     const buttonStyle = {
         fontSize: '12pt',
@@ -108,14 +109,19 @@ const GameMenuOption = (props) => {
     }
 
     const onClick = (event) => {
-        dispatch(setActiveIndex(props.index));
-        option.action();
+        const { targetEnemyFromEnemyList } = targetingActions;
+        targetEnemyFromEnemyList.action(props.index);
     }
 
-    const text = isActive ? `> ${ option.label }` : option.label
+    const text = isActive ? `> ${ option.name }` : option.name
     return (
-        <button onClick={ onClick } style={ buttonStyle }> { text } </button>
+        <button
+            onClick={ onClick }
+            style={ buttonStyle }
+        >
+            { text }
+        </button>
     )
 }
 
-export default GameMenu;
+export default EnemyList;

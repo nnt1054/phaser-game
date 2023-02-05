@@ -48,7 +48,7 @@ const useKeyPress = callback => {
       //   event.preventDefault();
       // }
       if (event.keyCode == KeyCodes.SPACE) {
-        event.preventDefault();
+        // event.preventDefault();
       }
       if (event.keyCode == KeyCodes.ENTER) {
         event.preventDefault();
@@ -188,8 +188,9 @@ const InputManager = () => {
         switch (eventType) {
           case 'keydown':
 
-            // check if attempting to set ability to hotbar
             const state = store.getState();
+
+            // check if attempting to set ability to hotbar
             const isSetting = checkIsSetting(state);
             if (isSetting) {
               const keybind = getKeybindFromInput(input);
@@ -207,9 +208,12 @@ const InputManager = () => {
               }
             }
 
-            // if not then continue as normal? or not?
-            setHotbarSlotState(input, true);
             action = getActionFromInput(input);
+            if (action && state.menuStates.chatInputIsActive) {
+              if (!['close', 'confirm'].includes(action.label)) return;
+            }
+
+            setHotbarSlotState(input, true);
             if (action && action.action) {
               if (targetName) {
                 action.action(TARGET_CONSTANTS.CURRENT_TARGET)

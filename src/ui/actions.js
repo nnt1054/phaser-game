@@ -11,6 +11,7 @@ import {
     menus,
     openMenu,
     closeMenu,
+    setChatInputIsActive,
 } from '../store/menuStates';
 import {
     getNextMessage,
@@ -212,7 +213,9 @@ const systemActions = {
         label: 'close',
         action: () => {
             const state = store.getState();
-            if (state.menuStates.activeMenu) {
+            if (state.menuStates.chatInputIsActive) {
+                store.dispatch(setChatInputIsActive(false));
+            } else if (state.menuStates.activeMenu) {
                 const menuKey = state.menuStates.activeMenu;
                 const config = navActions[menuKey];
                 if (!config || !config.close) return;
@@ -228,7 +231,10 @@ const systemActions = {
         label: 'confirm',
         action: () => {
             const state = store.getState();
-            if (state.menuStates.activeMenu) {
+            if (state.menuStates.chatInputIsActive) {
+                const event = new Event('clearChatInput');
+                document.dispatchEvent(event);
+            } else if (state.menuStates.activeMenu) {
                 const state = store.getState();
 
                 const menuKey = state.menuStates.activeMenu;
@@ -243,9 +249,24 @@ const systemActions = {
             }
         },
     },
+    'focusChatInput': {
+        label: 'focusChatInput',
+        action: () => {
+            store.dispatch(setChatInputIsActive(true));
+        },
+    },
+    'sendChat': {
+        label: 'sendChat',
+        action: (text) => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'sendChat',
+                target: text,
+            }));
+        },
+    },
 };
 
-const targetingActions = {
+export const targetingActions = {
     'cycleTarget': {
         label: 'cycleTarget',
         action: () => {
@@ -254,9 +275,30 @@ const targetingActions = {
         icon: 'fleche',
     },
     'cycleTargetReverse': {
-        label: 'cycleTarget',
+        label: 'cycleTargetReverse',
         action: () => {
             store.dispatch(setSystemAction('cycleTargetReverse'));
+        },
+    },
+    'targetEnemyFromEnemyList': {
+        label: 'targetEnemyFromEnemyList',
+        action: (target) => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'targetEnemyFromEnemyList',
+                target: target,
+            }))
+        }
+    },
+    'cycleTargetFromEnemyList': {
+        label: 'cycleTargetFromEnemyList',
+        action: () => {
+            store.dispatch(setSystemAction('cycleTargetFromEnemyList'));
+        },
+    },
+    'cycleTargetFromEnemyListReverse': {
+        label: 'cycleTargetFromEnemyListReverse',
+        action: () => {
+            store.dispatch(setSystemAction('cycleTargetFromEnemyListReverse'));
         },
     },
 };

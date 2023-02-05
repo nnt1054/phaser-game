@@ -45,6 +45,9 @@ import {
 import {
     setAlert,
 } from '../store/alert';
+import {
+    updateEnemyList,
+} from '../store/enemyList';
 
 import helmets from './equipment/helmets';
 import armors from './equipment/armors';
@@ -193,6 +196,78 @@ const InventoryMixin = {
 
 }
 
+const EnemyListMixin = {
+
+    hasEnemyList: true,
+    enemyList: [],
+    enemyAggroMap: new Map(),
+
+    addToEnemyList: function(enemy, aggro) {
+        if (!this.enemyList.includes(enemy)) {
+            this.enemyList.push(enemy);
+            this.enemyAggroMap.set(enemy, aggro);
+            this.updateEnemyListStore();
+        }
+    },
+
+    removeEnemyFromEnemyList: function(enemy) {
+        this.enemyList = this.enemyList.filter(item => !Object.is(item, enemy));
+        this.updateEnemyListStore();
+    },
+
+    updateEnemyListStore: function() {
+        const newState = this.enemyList.map(enemy => {
+            return {
+                name: enemy.displayName,
+                isTarget: Object.is(enemy, this.currentTarget),
+            }
+        })
+        store.dispatch(updateEnemyList(newState));
+    },
+
+    targetEnemyFromEnemyList: function(index) {
+        const enemy = this.enemyList[index]
+        if (!enemy) return;
+
+        this.targetObject(enemy);
+        this.updateEnemyListStore();
+    },
+
+    cycleTargetFromEnemyList: function(isReverse=false) {
+        if (this.enemyList.length === 0) return;
+
+        let index;
+        if (this.currentTarget) {
+
+            const prevIndex = this.enemyList.findIndex(
+                enemy => Object.is(enemy, this.currentTarget)
+            );
+
+            if (isReverse) {
+                index = prevIndex - 1
+            } else {
+                index = prevIndex + 1
+            }
+
+            if (index >= this.enemyList.length) {
+                index = 0;
+            } else if (index < 0) {
+                index = this.enemyList.length - 1
+            }
+
+        } else {
+            index = 0;
+        }
+
+        const enemy = this.enemyList[index];
+        if (!enemy) return;
+
+        this.targetObject(enemy);
+        this.updateEnemyListStore();
+    },
+}
+
+
 class CooldownManager {
     constructor() {
         this._cooldowns = new Map();
@@ -230,6 +305,7 @@ export class Player extends ArcadeContainer {
         TargetMixin,
         EquipmentMixin,
         InventoryMixin,
+        EnemyListMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -268,6 +344,21 @@ export class Player extends ArcadeContainer {
         this.name.on('clicked', (object) => {
             this.handleClick();
         });
+
+        this.message = scene.add.text(
+            this.ref_x, -16,
+            '',
+            {
+                fontFamily: 'Comic Sans MS',
+                fontSize: '22px',
+                fill: '#000',
+                stroke: '#FFF',
+                strokeThickness: 8,
+                wordWrap: { width: 256, useAdvancedWrap: true },
+            },
+        );
+        this.message.setOrigin(0.5, 1);
+        this.messageTimer = 0;
 
         this.character = new CompositeSprite(
             scene,
@@ -311,6 +402,7 @@ export class Player extends ArcadeContainer {
 
         this.add([
             this.name,
+            this.message,
             this.character,
             this.clickRect,
             this.hitboxRect,
@@ -690,6 +782,7 @@ export class Player extends ArcadeContainer {
         this.updateCast(delta);
         this.updateAbilityState(delta);
         this.updateSystemAction(delta);
+        this.updateMessageTimer(delta);
         const anim = this.calculateAnimationState();
         if (!this.paused) {
             this.character.play(anim, true);
@@ -700,6 +793,21 @@ export class Player extends ArcadeContainer {
 
     autoZoom(zoom) {
         this.name.setScale(1 / zoom);
+        this.message.setScale(1 /zoom);
+    }
+
+    updateMessageTimer(delta) {
+        if (this.messageTimer) {
+            this.messageTimer = Math.max(0, this.messageTimer - delta);
+            if (this.messageTimer <= 0) {
+                this.message.text = '';
+            }
+        }
+    }
+
+    displayMessage(text) {
+        this.message.text = text;
+        this.messageTimer = 3000;
     }
 
     doEmote(emote) {

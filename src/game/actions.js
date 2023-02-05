@@ -44,6 +44,13 @@ const confirm = {
     },
 };
 
+const sendChat = {
+    type: 'sendChat',
+    execute: (player, text) => {
+        player.displayMessage(text);
+    },
+};
+
 const cycleTarget = {
     type: 'system',
     execute: (player) => {
@@ -55,6 +62,27 @@ const cycleTargetReverse = {
     type: 'system',
     execute: (player) => {
         player.cycleTargets(true);
+    },
+}
+
+const targetEnemyFromEnemyList = {
+    type: 'system',
+    execute: (player, index) => {
+        player.targetEnemyFromEnemyList(index);
+    },
+}
+
+const cycleTargetFromEnemyList = {
+    type: 'system',
+    execute: (player) => {
+        player.cycleTargetFromEnemyList();
+    },
+}
+
+const cycleTargetFromEnemyListReverse = {
+    type: 'system',
+    execute: (player) => {
+        player.cycleTargetFromEnemyList(true);
     },
 }
 
@@ -339,8 +367,12 @@ const actionMap = {
     // sys actions
     'untarget': untarget,
     'confirm': confirm,
+    'sendChat': sendChat,
     'cycleTarget': cycleTarget,
     'cycleTargetReverse': cycleTargetReverse,
+    'targetEnemyFromEnemyList': targetEnemyFromEnemyList,
+    'cycleTargetFromEnemyList': cycleTargetFromEnemyList,
+    'cycleTargetFromEnemyListReverse': cycleTargetFromEnemyListReverse,
 
     // equip
     'equipHelmet': equipHelmet,
