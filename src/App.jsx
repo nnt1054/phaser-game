@@ -52,6 +52,9 @@ var config = {
             start: true
         }]
     },
+    dom: {
+        createContainer: true,
+    }
 };
 
 

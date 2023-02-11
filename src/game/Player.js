@@ -329,7 +329,7 @@ export class Player extends ArcadeContainer {
 
         this.name = scene.add.text(
             this.ref_x,
-            this.ref_y - this.body.height,
+            this.ref_y,
             this.displayName,
             {
                 fontFamily: 'Comic Sans MS',
@@ -339,26 +339,11 @@ export class Player extends ArcadeContainer {
                 strokeThickness: 8,
             }
         );
-        this.name.setOrigin(0.5, 1);
+        this.name.setOrigin(0.5, 0);
         this.name.setInteractive();
         this.name.on('clicked', (object) => {
             this.handleClick();
         });
-
-        this.message = scene.add.text(
-            this.ref_x, -16,
-            '',
-            {
-                fontFamily: 'Comic Sans MS',
-                fontSize: '22px',
-                fill: '#000',
-                stroke: '#FFF',
-                strokeThickness: 8,
-                wordWrap: { width: 256, useAdvancedWrap: true },
-            },
-        );
-        this.message.setOrigin(0.5, 1);
-        this.messageTimer = 0;
 
         this.character = new CompositeSprite(
             scene,
@@ -400,9 +385,28 @@ export class Player extends ArcadeContainer {
             this.handleClick();
         });
 
+        this.graphics = scene.add.graphics();
+        this.graphics.fillStyle(0x000000, 0.6);
+        this.graphics.lineStyle(2, 0x000000, 1);
+        this.graphics.strokeRoundedRect(-128 + 30, -64, 256, 64, 8);
+        this.graphics.fillRoundedRect(-128 + 30, -64, 256, 64, 8);
+
+        this.currentMessage = ''
+        this.messageTimer = 0;
+        this.chatBubble = scene.add.dom(0, 0,
+            'div',
+            '',
+            this.currentMessage,
+        );
+        this.chatBubble.setClassName('chat-bubble-hidden');
+        this.chatBubble.setOrigin(0.5, 1);
+        this.chatBubble.setPosition(this.ref_x + 0, -8);
+
         this.add([
+            this.chatBubble,
+            // this.graphics,
             this.name,
-            this.message,
+            // this.message,
             this.character,
             this.clickRect,
             this.hitboxRect,
@@ -793,20 +797,24 @@ export class Player extends ArcadeContainer {
 
     autoZoom(zoom) {
         this.name.setScale(1 / zoom);
-        this.message.setScale(1 /zoom);
+        this.graphics.setScale(1 / zoom);
+        this.chatBubble.setScale(1 / zoom);
     }
 
     updateMessageTimer(delta) {
         if (this.messageTimer) {
             this.messageTimer = Math.max(0, this.messageTimer - delta);
             if (this.messageTimer <= 0) {
-                this.message.text = '';
+                this.currentMessage = '';
+                this.chatBubble.setText('');
+                this.chatBubble.setClassName('chat-bubble-hidden');
             }
         }
     }
 
     displayMessage(text) {
-        this.message.text = text;
+        this.chatBubble.setText(`${ this.displayName }: ${ text }`);
+        this.chatBubble.setClassName('chat-bubble');
         this.messageTimer = 3000;
     }
 
