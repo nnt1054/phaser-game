@@ -29,6 +29,7 @@ import SkillsMenu from './ui/SkillsMenu';
 import Tooltip from './ui/Tooltip';
 import EnemyList from './ui/EnemyList';
 import ChatInput from './ui/ChatInput';
+import ChatBox from './ui/ChatBox';
 
 var config = {
     type: Phaser.WEBGL,
@@ -121,7 +122,8 @@ const App = () => {
                     <Tooltip abilityKey={ abilityKey } />
                 </div>
                 <EnemyList />
-                <ChatInput />
+                {/*<ChatInput />*/}
+                <ChatBox />
             </div>
         </div>
     )

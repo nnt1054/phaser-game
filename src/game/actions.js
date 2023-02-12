@@ -16,6 +16,9 @@ import {
 import {
     setAlert,
 } from '../store/alert';
+import {
+    addMessage,
+} from '../store/chatBox';
 
 import helmets from './equipment/helmets';
 
@@ -48,6 +51,7 @@ const sendChat = {
     type: 'sendChat',
     execute: (player, text) => {
         player.displayMessage(text);
+        store.dispatch(addMessage(`${ player.displayName}: ${ text }`));
     },
 };
 

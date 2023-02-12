@@ -14,15 +14,19 @@ const containerStyles = {
     bottom: '4vh',
     // bottom: '64px',
 
+    height: '16px',
     width: '256px',
-    padding: '12px 12px',
+    padding: '16px 12px',
 
     border:  '4px solid black',
     borderRadius: '12px',
     color: 'white',
     backgroundColor: 'rgba(0, 0, 0, .5)',
 
-    zIndex: 10
+    zIndex: 10,
+
+    overflowY: 'hidden',
+    overflowWrap: 'normal',
 }
 
 const ChatInput = () => {
@@ -80,7 +84,7 @@ const ChatInput = () => {
                 ref={ ref }
                 editorState={ editorState }
                 onChange={ onChange }
-                placeholder={ 'Shift + Enter To Type' }
+                placeholder={ '[Shift + Enter] To Type' }
                 handleReturn={ handleReturn  }
                 onFocus={ onFocus }
                 onBlur={ onBlur }
