@@ -10,7 +10,12 @@ const ChatBox = () => {
 	const dispatch = useDispatch();
     const messages = useSelector(state => state.chatBox.messages);
 
+    const activeMenu = useSelector(state => state.menuStates.activeMenu)
+    const dialogueActive = (activeMenu === 'dialogue');
+
 	const chatBoxContainerStyles = {
+		visibility: dialogueActive ? 'hidden' : 'visible',
+
 	    left: '12px',
 	    bottom: '4vh',
 
@@ -31,7 +36,7 @@ const ChatBox = () => {
 
 	    height: '256px',
 	    width: '256px',
-	    padding: '0px 12px',
+	    padding: '4px 12px',
 
 	    border:  '4px solid black',
 	    borderRadius: '12px',

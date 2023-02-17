@@ -68,6 +68,26 @@ function observeStore(store, select, onChange) {
   return unsubscribe;
 }
 
+
+const regenBuff = (target) => {
+    return {
+        target: target,
+        timer: 12000,
+        tickTimer: 3000,
+        apply() {
+            this.target.increaseHealth(10);
+        },
+        unapply() {},
+        update(delta) {
+            this.tickTimer -= delta;
+            if (this.tickTimer <= 0) {
+                this.tickTimer += 3000;
+                this.target.increaseHealth(10);
+            }
+        },
+    }
+}
+
 const TARGET_CONSTANTS = {
     CURRENT_TARGET: 'CURRENT_TARGET',
 }
@@ -193,8 +213,8 @@ const InventoryMixin = {
             return false;
         }
     },
-
 }
+
 
 const EnemyListMixin = {
 
@@ -491,6 +511,10 @@ export class Player extends ArcadeContainer {
         const ears = helmets[1];
         this.equipHelmet(ears);
 
+        // move to mixin later
+        this.buffs = [];
+        this.applyBuff(regenBuff);
+
         // Animation Editor
         this.paused = false;
         this.currentFrame = 0;
@@ -765,6 +789,28 @@ export class Player extends ArcadeContainer {
         }
     }
 
+    applyBuff(buffClass) {
+        const buff = buffClass(this);
+        buff.apply();
+        this.buffs.push(buff);
+    }
+
+    updateBuffs(delta) {
+        for (const buff of this.buffs) {
+            buff.timer = Math.max(0, buff.timer - delta);
+            if (buff.timer <= 0) {
+                buff.unapply(this);
+            }
+        };
+
+        this.buffs = this.buffs.filter((buff) => buff.timer > 0);
+
+        for (const buff of this.buffs) {
+            buff.update(delta);
+        };
+    }
+
+
     update(time, delta) {
 
         // test fall damage
@@ -782,6 +828,7 @@ export class Player extends ArcadeContainer {
             }
         }
 
+        this.updateBuffs(delta);
         this.updateMovement(delta);
         this.updateCast(delta);
         this.updateAbilityState(delta);
