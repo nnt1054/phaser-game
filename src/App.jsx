@@ -30,6 +30,7 @@ import Tooltip from './ui/Tooltip';
 import EnemyList from './ui/EnemyList';
 import ChatInput from './ui/ChatInput';
 import ChatBox from './ui/ChatBox';
+import StatusInfoBar from './ui/StatusInfoBar';
 
 var config = {
     type: Phaser.WEBGL,
@@ -124,6 +125,8 @@ const App = () => {
                 <EnemyList />
                 {/*<ChatInput />*/}
                 <ChatBox />
+
+                <StatusInfoBar />
             </div>
         </div>
     )

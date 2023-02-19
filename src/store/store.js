@@ -16,6 +16,7 @@ import alertSlice from './alert';
 import skillsMenuSlice from './skillsMenu';
 import enemyListSlice from './enemyList';
 import chatBoxSlice from './chatBox';
+import statusInfoSlice from './statusInfo';
 
 
 export default configureStore({
@@ -35,5 +36,6 @@ export default configureStore({
         skills: skillsMenuSlice.reducer,
         enemyList: enemyListSlice.reducer,
         chatBox: chatBoxSlice.reducer,
+        statusInfo: statusInfoSlice.reducer,
     },
 })

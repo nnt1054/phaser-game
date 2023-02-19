@@ -1,5 +1,174 @@
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
+
+import actionMap from './actions';
+import icons from './icons';
+
+
+// TODO: move and fix/deduplicate from StatusInfoBar.jsx
+const StatusInfo = (props) => {
+    const status = props.status;
+    const duration = status.duration;
+
+    const [timer, setTimer] = useState(duration);
+
+    useEffect(() => {
+
+        const timerInterval = setInterval(() => {
+            const next = Math.max(0, timer - 1000);
+            setTimer(next);
+        }, 1000)
+
+        return () => {
+            clearInterval(timerInterval);
+        };
+
+    }, [timer]);
+
+    useEffect(() => {
+        setTimer(duration)
+    }, [duration])
+
+    const statusInfoStyles = {
+        position: 'relative',
+        width: `48px`,
+        height: `48px`,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+    }
+
+    return (
+        <div
+            style={ statusInfoStyles }
+        >
+            {/*<img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>*/}
+            <span> { status.key } </span>
+            <span> { Math.floor(timer / 1000) } </span>
+        </div>
+    )
+}
+
+const StatusInfoBar = () => {
+    const dispatch = useDispatch();
+
+    const statuses = useSelector(state => state.targetInfo.statuses);
+    const activeMenu = useSelector(state => state.menuStates.activeMenu)
+    const dialogueActive = (activeMenu === 'dialogue');
+    const isVisible = (!dialogueActive);
+
+    const width = 255;
+    const height = 255;
+
+    const statusInfoBarContainerStyles = {
+        display: isVisible ? 'flex' : 'none',
+        minWidth: '255px',
+        height: '64px',
+        left: '12px',
+        top: '12px',
+
+        border: '4px solid black',
+        borderRadius: '12px',
+        color: 'white',
+        backgroundColor: 'rgba(0, 0, 0, .5)',
+    };
+
+    return (
+        <div
+            style={ statusInfoBarContainerStyles }
+        >
+            {
+                statuses.map((status, i) => {
+                    return <StatusInfo
+                        key={ i }
+                        status={ status }
+                    />
+                })
+            }
+        </div>
+    )
+}
+
+
+
+const CastBar = () => {
+    const dispatch = useDispatch();
+
+    const abilityKey = useSelector(state => state.targetInfo.castKey);
+    const castProgress = useSelector(state => state.targetInfo.castProgress);
+    const duration = useSelector(state => state.targetInfo.castDuration);
+
+    const ability = actionMap[abilityKey];
+
+    const icon = ability ? icons[ability.icon] : null;
+
+    const castBarStyles = {
+        position: 'relative',
+        height: '12px',
+        width: '196px',
+        border:  '4px solid black',
+        borderRadius: '12px',
+        backgroundColor: 'rgba(0, 0, 0, .5)',
+        overflow: 'hidden',
+    }
+
+    const iconContainerStyles = {
+        width: '48px',
+        height: '48px',
+        borderRadius: `12px`,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        pointerEvents: 'none',
+        overflow: 'hidden',
+        border: '4px solid black',
+        position: 'relative',
+        marginRight: '4px',
+    }
+
+    const iconStyle = {
+        width: `48px`,
+        height: `48px`,
+        display: 'block',
+        position: `absolute`,
+        pointerEvents: `none`,
+    }
+
+    const castBarContainerStyles = {
+        visibility: duration ? 'visible': 'hidden',
+        display: 'flex',
+        flexDirection: 'row',
+    }
+
+    const barStyles = {
+        height: '16px',
+        width: (duration > 0) ? '100%' : '0%',
+        transition: (duration > 0) ? `width ${ duration / 1000 }s linear` : 'width 0s',
+        backgroundColor: 'orange',
+    }
+
+    return (
+        <div style={ castBarContainerStyles }>
+            <button style={ iconContainerStyles }>
+                <img draggable={ false } style={ iconStyle } src={ icon }/>
+            </button>
+            <div>
+                <span> { ability ? ability.label : '' } </span>
+                <div style={ castBarStyles }>
+                    <div
+                        style={ barStyles }
+                        className={ styles.ManaBarPrimary }
+                    ></div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 
 const TargetInfo = () => {
     const dispatch = useDispatch();
@@ -157,6 +326,8 @@ const TargetInfo = () => {
                         className={ styles.BarPrimary }
                     />
                 </div>
+                <CastBar />
+                <StatusInfoBar />
             </div>
 
             {/* cotarget display */}

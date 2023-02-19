@@ -9,6 +9,7 @@ import {
     setCotarget,
     removeCotarget,
     setCotargetCurrentHealth,
+    updateTargetStatuses,
 } from '../store/targetInfo';
 import {
     setDialogue,
@@ -22,7 +23,20 @@ import {
     openMenu,
     closeMenu,
 } from '../store/menuStates';
-
+import {
+    updatePreview
+} from '../store/characterPreview';
+import {
+    addItemCount,
+    subractItemCount,
+    updateEquipment,
+} from '../store/inventory';
+import {
+    updateEnemyList,
+} from '../store/enemyList';
+import {
+    updateStatuses,
+} from '../store/statusInfo';
 
 export const HealthMixin = {
 
@@ -38,8 +52,7 @@ export const HealthMixin = {
         this.health = health;
         this.updateStore();
 
-        // if (generateText) {
-        if (true) {
+        if (generateText) {
             if (diff > 0) {
                 this.generateDamageNumbers(diff);
             } else if (diff < 0) {
@@ -197,6 +210,10 @@ export const TargetMixin = {
                             maxHealth: null,
                         })
                     )
+                }
+
+                if (this.hasBuffs) {
+                    gameObject.updateStatusInfoStore();
                 }
 
                 const cotarget = gameObject.currentTarget;
@@ -387,4 +404,221 @@ export const AggroMixin = {
         this.highestAggro = null;
         this.aggroMap = new Map();
     }
+}
+
+
+export const BuffMixin = {
+    hasBuffs: true,
+    _buffs: [],
+
+    updateStatusInfoStore() {
+        const buffs = this._buffs.map(buff => {
+            return {
+                key: buff.key,
+                duration: buff.timer,
+            }
+        })
+
+        if (this.isPlayer) {
+            store.dispatch(updateStatuses(buffs));
+        }
+
+        if (this.isTargeted) {
+            store.dispatch(updateTargetStatuses(buffs));
+        }
+    },
+
+    applyBuff: function(buffClass, source) {
+        const buff = buffClass(this, source);
+        buff.apply();
+        this._buffs.push(buff);
+        this.updateStatusInfoStore();
+    },
+
+    updateBuffs: function(delta) {
+        let shouldUpdate = false;
+
+        for (const buff of this._buffs) {
+            buff.timer = Math.max(0, buff.timer - delta);
+            if (buff.timer <= 0) {
+                buff.unapply(this);
+                shouldUpdate = true;
+            }
+        };
+
+        this._buffs = this._buffs.filter((buff) => buff.timer > 0);
+        if (shouldUpdate) {
+            this.updateStatusInfoStore();
+        }
+
+        for (const buff of this._buffs) {
+            buff.update(delta);
+        };
+    },
+
+    clearBuffs: function() {
+        this._buffs = [];
+        this.updateStatusInfoStore();
+    },
+}
+
+
+export const EquipmentMixin = {
+    hasEquipment: true,
+
+    equipped: {
+        weapon: null,
+        helmet: null,
+        armor: null,
+        pants: null,
+    },
+
+    equipHelmet: function(item) {
+        this.equipped.helmet = item;
+        this.updateCharacterSprite(item);
+        this.updateEquipmentStore();
+    },
+
+    equipArmor: function(item) {
+        this.equipped.armor = item;
+        this.updateCharacterSprite(item);
+        this.updateEquipmentStore();
+    },
+
+    updateCharacterSprite: function(item) {
+        if (item) {
+            this.character.updateIndexes(item.sprites);
+        } else {
+            Object.entries(this.equipped).forEach(([key, item]) => {
+                if (item) this.character.updateIndexes(item.sprites);
+            });
+        }
+        this.updateCharacterPreview();
+    },
+
+    updateEquipmentStore: function() {
+        store.dispatch(updateEquipment({
+            weapon: this.equipped.weapon?.name,
+            helmet: this.equipped.helmet?.name,
+            armor: this.equipped.armor?.name,
+            pants: this.equipped.pants?.name,
+        }))
+    },
+
+    updateCharacterPreview: function() {
+        store.dispatch(updatePreview(this.character.indexes));
+    },
+
+}
+
+
+export const InventoryMixin = {
+
+    inventory: new Map(),
+
+    addItem: function(key, amount) {
+        if (amount == null) amount = 1;
+        const itemCount = this.inventory.get(key) || 0;
+        const newItemCount = itemCount + amount;
+        this.inventory.set(key, newItemCount);
+
+        store.dispatch(addItemCount({
+            name: key,
+            value: newItemCount - itemCount,
+        }))
+    },
+
+    removeItem: function(key, amount) {
+        if (amount == null) amount = 1;
+        const itemCount = this.inventory.get(key);
+        const newItemCount = Math.max(0, itemCount - amount);
+        this.inventory.set(key, newItemCount);
+
+        store.dispatch(subractItemCount({
+            name: key,
+            value: itemCount - newItemCount,
+        }))
+    },
+
+    hasItem: function(key, amount) {
+        if (amount == null) amount = 1;
+        const itemCount = this.inventory.get(key);
+        if (itemCount && itemCount >= amount) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+}
+
+
+export const EnemyListMixin = {
+
+    hasEnemyList: true,
+    enemyList: [],
+    enemyAggroMap: new Map(),
+
+    addToEnemyList: function(enemy, aggro) {
+        if (!this.enemyList.includes(enemy)) {
+            this.enemyList.push(enemy);
+            this.enemyAggroMap.set(enemy, aggro);
+            this.updateEnemyListStore();
+        }
+    },
+
+    removeEnemyFromEnemyList: function(enemy) {
+        this.enemyList = this.enemyList.filter(item => !Object.is(item, enemy));
+        this.updateEnemyListStore();
+    },
+
+    updateEnemyListStore: function() {
+        const newState = this.enemyList.map(enemy => {
+            return {
+                name: enemy.displayName,
+                isTarget: Object.is(enemy, this.currentTarget),
+            }
+        })
+        store.dispatch(updateEnemyList(newState));
+    },
+
+    targetEnemyFromEnemyList: function(index) {
+        const enemy = this.enemyList[index]
+        if (!enemy) return;
+
+        this.targetObject(enemy);
+        this.updateEnemyListStore();
+    },
+
+    cycleTargetFromEnemyList: function(isReverse=false) {
+        if (this.enemyList.length === 0) return;
+
+        let index;
+        if (this.currentTarget) {
+
+            const prevIndex = this.enemyList.findIndex(
+                enemy => Object.is(enemy, this.currentTarget)
+            );
+
+            if (isReverse) {
+                index = prevIndex - 1
+            } else {
+                index = prevIndex + 1
+            }
+
+            if (index >= this.enemyList.length) {
+                index = 0;
+            } else if (index < 0) {
+                index = this.enemyList.length - 1
+            }
+
+        } else {
+            index = 0;
+        }
+
+        const enemy = this.enemyList[index];
+        if (!enemy) return;
+
+        this.targetObject(enemy);
+        this.updateEnemyListStore();
+    },
 }

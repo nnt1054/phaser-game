@@ -19,6 +19,7 @@ import {
 import {
     addMessage,
 } from '../store/chatBox';
+import buffs from './buffs';
 
 import helmets from './equipment/helmets';
 
@@ -198,9 +199,10 @@ const verthunder = {
         return true;
     },
     execute: (player, target) => {
-        target.reduceHealth(25);
+        // target.reduceHealth(25);
         if (target.hasAggro) {
-            target.addAggro(player, 25);
+            // target.addAggro(player, 25);
+            target.applyBuff(buffs['miasma'], player)
         }
     },
 }
@@ -277,7 +279,8 @@ const vercure = {
         return true;
     },
     execute: (player, target) => {
-        target.increaseHealth(20);
+        // target.increaseHealth(20);
+        target.applyBuff(buffs['regen']);
 
         // TODO: add MP mixin
         store.dispatch(decrementMana());
@@ -301,7 +304,7 @@ const potion = {
             name: 'potion',
             value: 1,
         }))
-        player.setCurrentHealth(100);
+        player.setCurrentHealth(100, true);
         player.cooldownManager.startTimer('potion', 8000);
     },
 };

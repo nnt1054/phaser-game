@@ -7,6 +7,7 @@ import {
     HealthMixin,
     TargetMixin,
     AggroMixin,
+    BuffMixin,
 } from '../mixins';
 
 import store from '../../store/store';
@@ -56,6 +57,8 @@ export class Booma extends ArcadeContainer {
         TargetMixin,
         HealthMixin,
         AggroMixin,
+        BuffMixin,
+        CastingMixin,
     ]
 
     abilities = {
@@ -225,11 +228,8 @@ export class Booma extends ArcadeContainer {
         this.resetAggro();
         this.cancelCast();
         this.untargetObject();
+        this.clearBuffs();
 
-        // TODO: possibly not friendly for synchronous events
-        // might want to find a way to remove something through the gameloop
-        // maybe like set an isAlive property and then clean up as part of the game loop
-        // can set a 'shouldClean' boolean and do that during the gameloop maybe
         player.removeEnemyFromEnemyList(this);
     }
 
@@ -270,6 +270,10 @@ export class Booma extends ArcadeContainer {
         if (this.casting) {
             this.updateCast(delta);
             return;
+        }
+
+        if (this.hasBuffs) {
+            this.updateBuffs(delta);
         }
 
         if (this.highestAggro) {
