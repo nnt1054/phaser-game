@@ -37,7 +37,6 @@ const StatusInfo = (props) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        display: 'flex',
         flexDirection: 'column',
         gap: '8px',
     }

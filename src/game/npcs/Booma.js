@@ -58,7 +58,6 @@ export class Booma extends ArcadeContainer {
         HealthMixin,
         AggroMixin,
         BuffMixin,
-        CastingMixin,
     ]
 
     abilities = {

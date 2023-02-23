@@ -120,6 +120,37 @@ class CooldownManager {
 }
 
 
+const CastingMixin = {
+
+    hasCasting: true,
+
+    startCast: function(ability, target) {
+        this.casting = ability;
+        this.castTarget = target;
+        this.castingTimer = ability.castTime;
+        store.dispatch(setCast({
+            key: ability.name,
+            duration: ability.castTime,
+        }));
+    },
+
+    cancelCast: function() {
+        this.casting = null;
+        this.castTarget = null;
+        this.castingTimer = 0;
+        this.directionLockTimer = 0;
+        store.dispatch(setCast({
+            key: '',
+            duration: 0,
+        }));
+
+        this.gcdTimer = 0
+        store.dispatch(setGCD(0));
+    },
+
+};
+
+
 export class Player extends ArcadeContainer {
 
     mixins = [
