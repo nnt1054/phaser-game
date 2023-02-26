@@ -41,7 +41,7 @@ const targetInfoSlice = createSlice({
     cotargetColor: 'lightblue',
 
 
-    castKey: '',
+    castLabel: '',
     castProgress: 0,
     castDuration: 0,
   },
@@ -123,6 +123,16 @@ const targetInfoSlice = createSlice({
     updateTargetStatuses: (state, action) => {
         state.statuses = action.payload;
     },
+    setTargetCast: (state, action) => {
+        state.castLabel = action.payload.label;
+        state.castProgress = action.payload.progress;
+        state.castDuration = action.payload.duration;
+    },
+    cancelTargetCast: (state, action) => {
+        state.castLabel = '';
+        state.castProgress = 0;
+        state.castDuration = 0;
+    },
   }
 })
 
@@ -136,6 +146,8 @@ export const {
     removeCotarget,
     setCotargetCurrentHealth,
     updateTargetStatuses,
+    setTargetCast,
+    cancelTargetCast,
 } = targetInfoSlice.actions;
 
 export default targetInfoSlice;

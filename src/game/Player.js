@@ -17,6 +17,8 @@ import {
     setTarget,
     removeTarget,
     setCotarget,
+    setTargetCast,
+    cancelTargetCast,
 } from '../store/targetInfo';
 import {
     HealthMixin,
@@ -123,14 +125,23 @@ class CooldownManager {
 const CastingMixin = {
 
     hasCasting: true,
+    casting: null,
+    castProgress: 0,
+    castDuration: 0,
 
     startCast: function(ability, target) {
         this.casting = ability;
         this.castTarget = target;
         this.castingTimer = ability.castTime;
+
         store.dispatch(setCast({
             key: ability.name,
             duration: ability.castTime,
+        }));
+        store.dispatch(setTargetCast({
+            label: this.castTime.label,
+            progress: 0,
+            duration: this.castDuration,
         }));
     },
 
@@ -146,6 +157,12 @@ const CastingMixin = {
 
         this.gcdTimer = 0
         store.dispatch(setGCD(0));
+
+        store.dispatch(setTargetCast({
+            label: '',
+            progress: 0,
+            duration: this.castDuration,
+        }));
     },
 
 };
