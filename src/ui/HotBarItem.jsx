@@ -58,14 +58,15 @@ const HotBarItem = (props) => {
     const isSettingSkill = (activeMenu === menus.skills && skillsState === activeSkillStates.setting);
     const isSetting = isSettingItem || isSettingSkill;
 
-    const cooldowns = useSelector(state => state.playerState.cooldowns);
-    const [current, duration] = cooldowns[slot.name] ? cooldowns[slot.name] : [0, 0];
+    const cooldowns = useSelector(state => state.playerState.cooldowns[slot.name]);
+    const [current, duration] = cooldowns ? cooldowns : [0, 0];
 
     const [progress, setProgress] = useState(0);
+    const timeLeft = duration - current;
 
     useEffect(() => {
         setProgress(current);
-    }, [duration]);
+    }, [current, duration]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -160,7 +161,6 @@ const HotBarItem = (props) => {
         zIndex: 10,
     }
 
-    // TODO: fix bug where overlay animation resets on dragging to another hotbar slot
     const cooldownOverlay = {
         position: 'absolute',
         width: `48px`,
@@ -169,7 +169,12 @@ const HotBarItem = (props) => {
         backgroundColor: 'rgba(0, 0, 0, .8)',
         pointerEvents: 'none',
         display: timer > 0 ? 'block' : 'none',
-        animation: timer > 0 ? `${ styles.roll } ${ duration / 1000 }s infinite linear` : 'none',
+
+        animationName: (timer > 0) ? styles.roll : 'none',
+        animationDuration: (timer > 0) ? `${ duration }ms` : '0s',
+        animationDelay: (timer > 0) ? `-${ timeLeft }ms` : '0s',
+        animationTimingFunction: 'linear',
+
         zIndex: 5,
     }
 
@@ -239,8 +244,8 @@ const HotBarItem = (props) => {
                 onClick={ onClick }
             >
                 <span style={ timerStyle }> { timer ? `${ timer }` : '' } </span>
-                <div style={ cooldownOverlay }/>
-                <div key={ gcd } style={ gcdOverlay }/>
+                <div key= { `cooldown_${ timeLeft }`} style={ cooldownOverlay }/>
+                <div key={ `gcd_${ gcd }` } style={ gcdOverlay }/>
                 <img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>
             </button>
         </div>

@@ -150,12 +150,6 @@ const CastBar = () => {
         animationTimingFunction: 'linear',
         animationDelay: (duration > 0) ? `-${ (duration - castProgress) / 1000 }s` : '0s',
 
-        // width: (duration > 0) ? '100%' : '0%',
-        // transitionProperty: 'width',
-        // transitionDuration: (duration > 0) ? `${ duration / 1000 }s` : '0s',
-        // transitionTimingFunction: 'linear',
-        // transitionDelay: (duration > 0) ? `-${ (duration - castProgress) / 1000 }s` : '0s',
-
         backgroundColor: 'orange',
     }
 

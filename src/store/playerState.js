@@ -26,6 +26,8 @@ const playerStateSlice = createSlice({
 
     systemAction: null,
     systemActionTarget: null,
+
+    refreshCooldown: false,
   },
   reducers: {
     setQueuedAbility: (state, action) => {
@@ -84,6 +86,9 @@ const playerStateSlice = createSlice({
         state.systemAction = null;
         state.systemActionTarget = null;
     },
+    setRefreshCooldown: (state, action) => {
+        state.refreshCooldown = action.payload;
+    },
   }
 })
 
@@ -100,6 +105,7 @@ export const {
     setSystemAction,
     setSystemActionAndTarget,
     clearSystemAction,
+    setRefreshCooldown,
 } = playerStateSlice.actions;
 
 export default playerStateSlice;

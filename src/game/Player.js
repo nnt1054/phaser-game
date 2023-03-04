@@ -10,6 +10,7 @@ import {
     clearQueuedAbility,
     setGCD,
     clearSystemAction,
+    setRefreshCooldown,
 } from '../store/playerState';
 import {
     setTarget,
@@ -244,6 +245,11 @@ export class Player extends ArcadeContainer {
                     playerState.systemActionTarget,
                 );
                 store.dispatch(clearSystemAction());
+            }
+
+            if (playerState.refreshCooldown) {
+                store.dispatch(setRefreshCooldown(false));
+                this.updateCooldownsStore();
             }
 
             this.reduxCursors = {

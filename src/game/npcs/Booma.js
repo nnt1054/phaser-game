@@ -309,12 +309,16 @@ export class Booma extends ArcadeContainer {
                     // move towards target
                     const bounds = this.meleeRect.getBounds();
                     const targetBounds = this.currentTarget.hitboxRect.getBounds();
-                    if (bounds.centerX < targetBounds.centerX) {
+                    const distance = bounds.centerX - targetBounds.centerX;
+
+                    if (distance > 32) {
+                        this.setVelocityX(-64);
+                        this.character.scaleX = -Math.abs(this.character.scaleX);
+                    } else if (distance < -32) {
                         this.setVelocityX(64);
                         this.character.scaleX = Math.abs(this.character.scaleX);
                     } else {
-                        this.setVelocityX(-64);
-                        this.character.scaleX = -Math.abs(this.character.scaleX);
+                        this.setVelocityX(0);   
                     }
 
                 }

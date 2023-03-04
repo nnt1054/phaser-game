@@ -755,7 +755,7 @@ export const CooldownMixin = {
     cooldowns: null,
 
     startCooldownUpdater: function() {
-        // this.cooldown_updater = setInterval(this.updateCooldownsStore.bind(this), 50);
+        // this.cooldown_updater = setInterval(this.updateCooldownsStore.bind(this), 1000);
     },
 
     initializeCooldowns: function() {

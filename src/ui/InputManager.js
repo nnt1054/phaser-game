@@ -22,6 +22,10 @@ import {
     activeStates as skillsActiveStates,
     setActiveState as setSkillsActiveState,
 } from '../store/skillsMenu';
+import {
+  setRefreshCooldown,
+} from '../store/playerState';
+
 import { TARGET_CONSTANTS } from './../constants'; 
 
 
@@ -204,6 +208,7 @@ const InputManager = () => {
                 }))
                 dispatch(setInventoryState(activeStates.default));
                 dispatch(setSkillsActiveState(skillsActiveStates.default));
+                dispatch(setRefreshCooldown(true));
                 break;
               }
             }
