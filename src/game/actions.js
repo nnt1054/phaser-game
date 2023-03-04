@@ -224,7 +224,7 @@ const fleche = {
             store.dispatch(setAlert('Target is out of range.'));
             return false;
         }
-        const [cooldown, duration] = player.cooldownManager.getTimer('fleche');
+        const [cooldown, duration] = player.getCooldown('fleche');
         if (cooldown > 0) return false;
         return true;
     },
@@ -234,7 +234,7 @@ const fleche = {
             target.addAggro(player, 10);
         }
 
-        player.cooldownManager.startTimer('fleche', 12000);
+        player.startCooldown('fleche', 12000);
 
         let bounds = target.hitboxRect.getBounds();
         let vfx = player.scene.add.sprite(bounds.centerX, bounds.bottom + 12);
@@ -294,7 +294,7 @@ const potion = {
     gcd: false,
     canTarget: isAny,
     canExecute: (player) => {
-        const [cooldown, duration] = player.cooldownManager.getTimer('potion');
+        const [cooldown, duration] = player.getCooldown('potion');
         return (cooldown == 0 && player.hasItem('potion'));
     },
     execute: (player) => {
@@ -305,7 +305,7 @@ const potion = {
             value: 1,
         }))
         player.setCurrentHealth(100, true);
-        player.cooldownManager.startTimer('potion', 8000);
+        player.startCooldown('potion', 8000);
     },
 };
 

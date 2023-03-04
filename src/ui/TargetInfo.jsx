@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
 
@@ -97,23 +97,12 @@ const StatusInfoBar = () => {
 const CastBar = () => {
     const dispatch = useDispatch();
 
-    const abilityKey = useSelector(state => state.targetInfo.castKey);
+    const label = useSelector(state => state.targetInfo.castLabel);
     const castProgress = useSelector(state => state.targetInfo.castProgress);
     const duration = useSelector(state => state.targetInfo.castDuration);
 
-    const ability = actionMap[abilityKey];
-
-    const icon = ability ? icons[ability.icon] : null;
-
-    const castBarStyles = {
-        position: 'relative',
-        height: '12px',
-        width: '196px',
-        border:  '4px solid black',
-        borderRadius: '12px',
-        backgroundColor: 'rgba(0, 0, 0, .5)',
-        overflow: 'hidden',
-    }
+    const [, updateState] = useState();
+    const forceUpdate = useCallback(() => updateState({}), [ label, castProgress, duration ]);
 
     const iconContainerStyles = {
         width: '48px',
@@ -143,24 +132,41 @@ const CastBar = () => {
         flexDirection: 'row',
     }
 
+    const castBarStyles = {
+        position: 'relative',
+        height: '12px',
+        width: '196px',
+        border:  '4px solid black',
+        borderRadius: '12px',
+        backgroundColor: 'rgba(0, 0, 0, .5)',
+        overflow: 'hidden',
+    }
+
     const barStyles = {
         height: '16px',
-        width: (duration > 0) ? '100%' : '0%',
-        transition: (duration > 0) ? `width ${ duration / 1000 }s linear` : 'width 0s',
+
+        animationName: styles.progress,
+        animationDuration: (duration > 0) ? `${ duration / 1000 }s` : '0s',
+        animationTimingFunction: 'linear',
+        animationDelay: (duration > 0) ? `-${ (duration - castProgress) / 1000 }s` : '0s',
+
+        // width: (duration > 0) ? '100%' : '0%',
+        // transitionProperty: 'width',
+        // transitionDuration: (duration > 0) ? `${ duration / 1000 }s` : '0s',
+        // transitionTimingFunction: 'linear',
+        // transitionDelay: (duration > 0) ? `-${ (duration - castProgress) / 1000 }s` : '0s',
+
         backgroundColor: 'orange',
     }
 
     return (
         <div style={ castBarContainerStyles }>
-            <button style={ iconContainerStyles }>
-                <img draggable={ false } style={ iconStyle } src={ icon }/>
-            </button>
             <div>
-                <span> { ability ? ability.label : '' } </span>
+                <span> { label } </span>
                 <div style={ castBarStyles }>
                     <div
+                        key={ label }
                         style={ barStyles }
-                        className={ styles.ManaBarPrimary }
                     ></div>
                 </div>
             </div>

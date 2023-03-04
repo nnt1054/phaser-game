@@ -29,6 +29,7 @@ const ChatBox = () => {
 	};
 
 	const messagesContainerStyles = {
+		visibility: 'hidden',
 		overflow: 'auto',
 		overflowWrap: 'break-word',
 		display: 'flex',

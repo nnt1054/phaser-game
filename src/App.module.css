@@ -168,3 +168,8 @@ button:focus {
     clip-path: polygon(50% 0%, 50% 50%, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%);
   }
 }
+
+@keyframes progress {
+	0% { width: 0% }
+	100% { width: 100% }
+}

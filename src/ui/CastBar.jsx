@@ -59,7 +59,9 @@ const CastBar = () => {
     const barStyles = {
         height: '16px',
         width: (duration > 0) ? '100%' : '0%',
-        transition: (duration > 0) ? `width ${ duration / 1000 }s linear` : 'width 0s',
+        animationName: duration ? styles.progress : 'none',
+        animationDuration: (duration > 0) ? `${ duration / 1000 }s` : '0s',
+        animationTimingFunction: 'linear',
         backgroundColor: 'orange',
     }
 

@@ -3,6 +3,11 @@ import {
     setPlayerCurrentHealth
 } from '../store/playerHealth';
 import {
+    setGCD,
+    setCast,
+    setCooldowns,
+} from '../store/playerState';
+import {
     setTarget,
     removeTarget,
     setTargetCurrentHealth,
@@ -10,6 +15,8 @@ import {
     removeCotarget,
     setCotargetCurrentHealth,
     updateTargetStatuses,
+    setTargetCast,
+    cancelTargetCast,
 } from '../store/targetInfo';
 import {
     setDialogue,
@@ -212,7 +219,7 @@ export const TargetMixin = {
                     )
                 }
 
-                if (this.hasBuffs) {
+                if (gameObject.hasBuffs) {
                     gameObject.updateStatusInfoStore();
                 }
 
@@ -241,6 +248,20 @@ export const TargetMixin = {
                 
                 if (this.hasEnemyList) {
                     this.updateEnemyListStore();
+                }
+
+                if (gameObject.hasCasting && gameObject.casting) {
+                    store.dispatch(setTargetCast({
+                        label: gameObject.casting.name,
+                        progress: gameObject.castingTimer,
+                        duration: gameObject.casting.castTime,
+                    }));
+                } else {
+                    store.dispatch(setTargetCast({
+                        label: '',
+                        progress: 0,
+                        duration: 0,
+                    }));
                 }
 
             } else {
@@ -291,6 +312,12 @@ export const TargetMixin = {
             if (this.isPlayer && this.hasEnemyList) {
                 this.updateEnemyListStore();
             }
+
+            store.dispatch(setTargetCast({
+                label: '',
+                progress: 0,
+                duration: 0,
+            }));
         }
     },
 }
@@ -620,5 +647,156 @@ export const EnemyListMixin = {
 
         this.targetObject(enemy);
         this.updateEnemyListStore();
+    },
+}
+
+
+export const CastingMixin = {
+
+    hasCasting: true,
+    casting: null,
+    castTarget: null,
+    castProgress: 0,
+    castingTimer: 0,
+
+    canCast: function(ability, target) {
+        if (ability.canCast) {
+            return ability.canCast(this, target);
+        } else if (ability.canExecute) {
+            return ability.canExecute(this, target);
+        }
+        return true;
+    },
+
+    startCast: function(ability, target) {
+        this.casting = ability;
+        this.castTarget = target;
+        this.castingTimer = ability.castTime;
+
+        if (ability.startCast) ability.startCast(this, target);
+
+        if (this.isPlayer) {
+            store.dispatch(setCast({
+                key: ability.name,
+                duration: ability.castTime,
+            }));
+        }
+
+        if (this.isTargeted) {
+            store.dispatch(setTargetCast({
+                label: ability.name,
+                progress: ability.castTime,
+                duration: ability.castTime,
+            }));
+        }
+    },
+
+    cancelCast: function() {
+        this.casting = null;
+        this.castTarget = null;
+        this.castingTimer = 0;
+
+
+        if (this.isPlayer) {
+            // todo figure out what to do with this
+            this.directionLockTimer = 0;
+            this.gcdTimer = 0;
+        }
+
+        if (this.isPlayer) {
+            store.dispatch(setGCD(0));
+            store.dispatch(setCast({
+                key: '',
+                duration: 0,
+            }));
+        }
+
+        if (this.isTargeted) {
+            store.dispatch(cancelTargetCast());
+        }
+    },
+
+    updateCast(delta) {
+        this.castingTimer = Math.max(0, this.castingTimer - delta);
+        if (this.casting && this.castingTimer === 0) {
+            const ability = this.casting;
+            ability.execute(this, this.castTarget);
+            this.casting = null;
+            this.castTarget = null;
+
+            if (this.isPlayer) {
+                // todo: figure out where to put this
+                this.faceTarget(this.castTarget);
+                this.abilityTimer += 500;
+                this.directionLockTimer += 500;
+            }
+
+            if (this.isPlayer) {
+                store.dispatch(setCast({
+                    key: '',
+                    duration: 0,
+                }));
+            }
+
+            if (this.isTargeted) {
+                store.dispatch(setTargetCast({
+                    label: '',
+                    progress: 0,
+                    duration: 0,
+                }));
+            }
+        }
+    }
+};
+
+
+export const CooldownMixin = {
+    hasCooldowns: true,
+    cooldowns: null,
+
+    startCooldownUpdater: function() {
+        // this.cooldown_updater = setInterval(this.updateCooldownsStore.bind(this), 50);
+    },
+
+    initializeCooldowns: function() {
+        this.cooldowns = new Map();
+    },
+
+    getCooldown: function(key) {
+        return this.cooldowns.get(key) || [0, 0]
+    },
+
+    startCooldown: function(key, duration) {
+        this.cooldowns.set(key, [duration, duration]);
+        if (this.isPlayer) {
+            this.updateCooldownsStore();
+        }
+    },
+
+    updateCooldowns(delta) {
+        let shouldUpdateStore = false
+        for (var [key, value] of this.cooldowns.entries()) {
+            const [current, duration] = value;
+            const timeLeft = Math.max(0, current - delta);
+            if (timeLeft <= 0) {
+                shouldUpdateStore = true;
+                this.cooldowns.delete(key);
+            } else {
+                this.cooldowns.set(key, [timeLeft, duration]);
+            }
+        }
+        if (shouldUpdateStore) {
+            this.updateCooldownsStore(); 
+        }
+    },
+
+    updateCooldownsStore() {
+        if (this.isPlayer) {
+            store.dispatch(
+                setCooldowns(
+                    Object.fromEntries(this.cooldowns)
+                )
+            );
+        }
     },
 }

@@ -8,9 +8,7 @@ import store from '../store/store';
 import {
     clearInputQueues,
     clearQueuedAbility,
-    setCooldowns,
     setGCD,
-    setCast,
     clearSystemAction,
 } from '../store/playerState';
 import {
@@ -27,6 +25,8 @@ import {
     EquipmentMixin,
     InventoryMixin,
     EnemyListMixin,
+    CastingMixin,
+    CooldownMixin,
 } from './mixins';
 import {
     setAlert,
@@ -92,82 +92,6 @@ const compositeConfigIndexes = {
 };
 
 
-class CooldownManager {
-    constructor() {
-        this._cooldowns = new Map();
-        this.cooldown_updater = setInterval(this.updateStore.bind(this), 50);
-    }
-
-    getTimer(key) {
-        return this._cooldowns.get(key) || [0, 0];
-    }
-
-    startTimer(key, time) {
-        this._cooldowns.set(key, [time, time]);
-    }
-
-    update(delta) {
-        for (var [key, value] of this._cooldowns.entries()) {
-            this._cooldowns.set(key, [Math.max(0, value[0] - delta), value[1]]);
-        }
-    }
-
-    updateStore() {
-        store.dispatch(
-            setCooldowns(
-                Object.fromEntries(this._cooldowns)
-            )
-        );
-    }
-}
-
-
-const CastingMixin = {
-
-    hasCasting: true,
-    casting: null,
-    castProgress: 0,
-    castDuration: 0,
-
-    startCast: function(ability, target) {
-        this.casting = ability;
-        this.castTarget = target;
-        this.castingTimer = ability.castTime;
-
-        store.dispatch(setCast({
-            key: ability.name,
-            duration: ability.castTime,
-        }));
-        store.dispatch(setTargetCast({
-            label: this.castTime.label,
-            progress: 0,
-            duration: this.castDuration,
-        }));
-    },
-
-    cancelCast: function() {
-        this.casting = null;
-        this.castTarget = null;
-        this.castingTimer = 0;
-        this.directionLockTimer = 0;
-        store.dispatch(setCast({
-            key: '',
-            duration: 0,
-        }));
-
-        this.gcdTimer = 0
-        store.dispatch(setGCD(0));
-
-        store.dispatch(setTargetCast({
-            label: '',
-            progress: 0,
-            duration: this.castDuration,
-        }));
-    },
-
-};
-
-
 export class Player extends ArcadeContainer {
 
     mixins = [
@@ -177,6 +101,8 @@ export class Player extends ArcadeContainer {
         InventoryMixin,
         EnemyListMixin,
         BuffMixin,
+        CastingMixin,
+        CooldownMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -275,9 +201,7 @@ export class Player extends ArcadeContainer {
 
         this.add([
             this.chatBubble,
-            // this.graphics,
             this.name,
-            // this.message,
             this.character,
             this.clickRect,
             this.hitboxRect,
@@ -295,9 +219,7 @@ export class Player extends ArcadeContainer {
         this.abilityTimer = 0;
         this.systemAction = null;
         this.systemActionTarget = null;
-        this.casting = null;
-        this.castTarget = null;
-        this.castingTimer = 0;
+
         this.directionLockTimer = 0;
 
         this.reduxCursors = {
@@ -340,9 +262,6 @@ export class Player extends ArcadeContainer {
         this.current_anim = null;
         this.previousVelocityY = 0;
 
-        // TODO: move cooldowns to mixin
-        this.cooldownManager = new CooldownManager();
-
         // Dialogue
         this.dialogueTarget = null;
         this.dialogueComplete = true;
@@ -375,16 +294,11 @@ export class Player extends ArcadeContainer {
         })
 
         this.updateCharacterPreview();
-    }
 
-    setWidth(width) {
-        // TODO: find way to keep all container children centered after increasing width
-        // this.setSize(width, 48);
-        // this.ref_x = this.body.width / 2;
-        // this.character.setPosition(
-        //     this.ref_x,
-        //     this.ref_y + 1.5,
-        // );
+        if (this.hasCooldowns) {
+            this.initializeCooldowns();
+            this.startCooldownUpdater();
+        }
     }
 
     handleClick() {
@@ -435,30 +349,6 @@ export class Player extends ArcadeContainer {
         }
     }
 
-    startCast(ability, target) {
-        this.casting = ability;
-        this.castTarget = target;
-        this.castingTimer = ability.castTime;
-        store.dispatch(setCast({
-            key: ability.name,
-            duration: ability.castTime,
-        }));
-    }
-
-    cancelCast() {
-        this.casting = null;
-        this.castTarget = null;
-        this.castingTimer = 0;
-        this.directionLockTimer = 0;
-        store.dispatch(setCast({
-            key: '',
-            duration: 0,
-        }));
-
-        this.gcdTimer = 0
-        store.dispatch(setGCD(0));
-    }
-
     isMoving() {
         return Boolean(this.body.velocity.y || this.body.velocity.x);
     }
@@ -474,7 +364,6 @@ export class Player extends ArcadeContainer {
             if (this.directionLockTimer <= 0) {
                 this.facingRight = false;
             }
-            this.setWidth(32);
         } else if (this.reduxCursors.right) {
             if (this.reduxCursors.down) {
                 this.setVelocityX(75);
@@ -484,10 +373,8 @@ export class Player extends ArcadeContainer {
             if (this.directionLockTimer <= 0) {
                 this.facingRight = true;
             }
-            this.setWidth(32);
         } else {
             this.setVelocityX(0);
-            this.setWidth(20);
         }
 
         if (this.body.onFloor()) {
@@ -591,7 +478,6 @@ export class Player extends ArcadeContainer {
                         }
                         this.gcdTimer += ability.cooldown;
                         store.dispatch(setGCD(ability.cooldown));
-                        this.cooldownManager.updateStore();
                     } 
                     this.gcdQueue = null;
                     this.gcdTarget = null;
@@ -602,29 +488,10 @@ export class Player extends ArcadeContainer {
                     ability.execute(this, this.gcdTarget);
                     this.abilityTimer += 750;
                     this.directionLockTimer += 500;
-                    this.cooldownManager.updateStore();
                 }
                 this.gcdQueue = null;
                 this.gcdTarget = null;
             }
-        }
-    }
-
-    updateCast(delta) {
-        this.castingTimer = Math.max(0, this.castingTimer - delta);
-        if (this.casting && this.castingTimer === 0) {
-            const ability = this.casting;
-            this.faceTarget(this.castTarget);
-            ability.execute(this, this.castTarget);
-            this.abilityTimer += 500;
-            this.directionLockTimer += 500;
-            this.cooldownManager.updateStore();
-            this.casting = null;
-            this.castTarget = null;
-            store.dispatch(setCast({
-                key: '',
-                duration: 0,
-            }));
         }
     }
 
@@ -653,11 +520,17 @@ export class Player extends ArcadeContainer {
             }
         }
 
+        this.updateMovement(delta);
+
+        if (this.hasCooldowns) {
+            this.updateCooldowns(delta);
+        }
         if (this.hasBuffs) {
             this.updateBuffs(delta);
         }
-        this.updateMovement(delta);
-        this.updateCast(delta);
+        if (this.hasCasting) {
+            this.updateCast(delta);
+        }
         this.updateAbilityState(delta);
         this.updateSystemAction(delta);
         this.updateMessageTimer(delta);
@@ -665,8 +538,6 @@ export class Player extends ArcadeContainer {
         if (!this.paused) {
             this.character.play(anim, true);
         }
-
-        this.cooldownManager.update(delta);
     }
 
     autoZoom(zoom) {

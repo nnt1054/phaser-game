@@ -29,13 +29,17 @@ import {
 
 import * as styles from '../App.module.css';
 
+import { useState, useEffect } from 'react';
+
 
 const HotBarItem = (props) => {
     const ref = useRef();
     const imageRef = useRef();
     const dispatch = useDispatch();
 
+    // used to set global cooldown timer
     const gcd = useSelector(state => state.playerState.gcd);
+
     const slot = props.slot;
     const tile = actionMap[slot.name];
     const empty = (slot.name === 'empty');
@@ -54,15 +58,36 @@ const HotBarItem = (props) => {
     const isSettingSkill = (activeMenu === menus.skills && skillsState === activeSkillStates.setting);
     const isSetting = isSettingItem || isSettingSkill;
 
-    let timer, current, cooldown, duration;
+    const cooldowns = useSelector(state => state.playerState.cooldowns);
+    const [current, duration] = cooldowns[slot.name] ? cooldowns[slot.name] : [0, 0];
+
+    const [progress, setProgress] = useState(0);
+
+    useEffect(() => {
+        setProgress(current);
+    }, [duration]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (duration) {
+                const updatedProgress = Math.max(0, progress - 10);
+                setProgress(updatedProgress);
+            }
+        }, 10)
+
+        return () => {
+          clearInterval(interval)
+        };
+
+    }, [progress]);
+
     let useCooldown = false;
-    const cooldowns = useSelector(state => state.playerState.cooldowns)
-    if (cooldowns[slot.name]) {
-        [current, duration] = cooldowns[slot.name];
-        if (current > 0) useCooldown = true;
-        let cooldown = current / 1000
-        timer = cooldown.toFixed(0);
+    let timer = progress / 1000;
+    if (timer) {
+        useCooldown = true;
+        timer = (timer >= 10) ? timer.toFixed(0) : timer.toFixed(1);
     }
+
 
     // might be good to replace useHover with css classes
     // slot.active should already handle the third tier press
