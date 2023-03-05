@@ -26,6 +26,9 @@ import {
     checkIsSetting,
     getSettingName,
 } from './utils';
+import {
+    setRefreshCooldown,
+} from '../store/playerState';
 
 import * as styles from '../App.module.css';
 
@@ -66,15 +69,15 @@ const HotBarItem = (props) => {
 
     useEffect(() => {
         setProgress(current);
-    }, [current, duration]);
+    }, [current]);
 
     useEffect(() => {
         const interval = setInterval(() => {
             if (duration) {
-                const updatedProgress = Math.max(0, progress - 10);
+                const updatedProgress = Math.max(0, progress - 100);
                 setProgress(updatedProgress);
             }
-        }, 10)
+        }, 100)
 
         return () => {
           clearInterval(interval)
@@ -218,6 +221,7 @@ const HotBarItem = (props) => {
             }))
             dispatch(setInventoryState(activeStates.actions));
             dispatch(setSkillsActiveState(activeSkillStates.actions));
+            dispatch(setRefreshCooldown(true));
         } else {
             if (tile.action) {
                 if (targetName) {
@@ -234,6 +238,8 @@ const HotBarItem = (props) => {
             style={ slotContainerStyle }
             onMouseDown={ e => e.stopPropagation() }
             onMouseUp={ e => e.stopPropagation() }
+            onTouchStart= { e => e.stopPropagation() }
+            onTouchEnd= { e => e.stopPropagation() }
         >
             <span style={ keybindStyle }> { slot.keybind } </span>
             <span style={ itemCountStyle }> x{ itemCount } </span>

@@ -16,9 +16,9 @@ const StatusInfo = (props) => {
     useEffect(() => {
 
         const timerInterval = setInterval(() => {
-            const next = Math.max(0, timer - 1000);
+            const next = Math.max(0, timer - 100);
             setTimer(next);
-        }, 1000)
+        }, 100)
 
         return () => {
             clearInterval(timerInterval);
