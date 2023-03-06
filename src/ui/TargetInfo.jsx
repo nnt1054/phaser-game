@@ -10,6 +10,7 @@ import icons from './icons';
 const StatusInfo = (props) => {
     const status = props.status;
     const duration = status.duration;
+    const icon = status.icon ? icons[status.icon] : icons['vercure'];
 
     const [timer, setTimer] = useState(duration);
 
@@ -32,21 +33,28 @@ const StatusInfo = (props) => {
 
     const statusInfoStyles = {
         position: 'relative',
-        width: `48px`,
+        width: `36px`,
         height: `48px`,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'column',
-        gap: '8px',
+        padding: '4px 0px',
+    }
+
+    const hotbarIconStyle = {
+        display: icon ? `block` : `none`,
+        width: `32px`,
+        height: `32px`,
+        borderRadius: `12px`,
+        pointerEvents: `auto`,
     }
 
     return (
         <div
             style={ statusInfoStyles }
         >
-            {/*<img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>*/}
-            <span> { status.key } </span>
+            <img draggable={ false } style={ hotbarIconStyle } src={ icon }/>
             <span> { Math.floor(timer / 1000) } </span>
         </div>
     )
@@ -65,15 +73,10 @@ const StatusInfoBar = () => {
 
     const statusInfoBarContainerStyles = {
         display: isVisible ? 'flex' : 'none',
-        minWidth: '255px',
-        height: '64px',
+        maxWidth: '255px',
         left: '12px',
         top: '12px',
-
-        border: '4px solid black',
-        borderRadius: '12px',
-        color: 'white',
-        backgroundColor: 'rgba(0, 0, 0, .5)',
+        flexWrap: 'wrap',
     };
 
     return (
@@ -105,8 +108,6 @@ const CastBar = () => {
     const forceUpdate = useCallback(() => updateState({}), [ label, castProgress, duration ]);
 
     const iconContainerStyles = {
-        width: '48px',
-        height: '48px',
         borderRadius: `12px`,
         display: 'flex',
         justifyContent: 'center',
@@ -259,11 +260,6 @@ const TargetInfo = () => {
         // marginLeft: '8px',
     };
 
-    const arrowStyle = {
-        display: cotargetDisplay ? 'block' : 'none',
-        margin: '0px 8px',
-    };
-
     const targetContainerStyles = {
         display: 'flex',
         flexDirection: 'column',
@@ -303,6 +299,19 @@ const TargetInfo = () => {
         fontWeight: 'bold',
     }
 
+    const targetSecondaryInfoStyles = {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        height: '64px',
+    }
+
+    const arrowStyle = {
+        display: cotargetDisplay ? 'block' : 'none',
+        margin: '0px 8px',
+    };
+
     return (
         <div
             style={ targetInfoContainerStyles }
@@ -325,12 +334,20 @@ const TargetInfo = () => {
                         className={ styles.BarPrimary }
                     />
                 </div>
-                <CastBar />
-                <StatusInfoBar />
+                <div style={ targetSecondaryInfoStyles }>
+                    <StatusInfoBar />
+                    <CastBar />
+                </div>
             </div>
 
             {/* cotarget display */}
-            <span style={ arrowStyle }> → </span>
+            <div style={ targetContainerStyles }>
+                <div style={ targetTextStyles }> 
+                    <span> &nbsp; </span>
+                </div>
+                <span style={ arrowStyle }> → </span>
+                <div style={ targetSecondaryInfoStyles } />
+            </div>
 
             <div style={ cotargetContainerStyles }>
                 <div style={ targetTextStyles }>
@@ -348,6 +365,7 @@ const TargetInfo = () => {
                         className={ styles.BarPrimary }
                     />
                 </div>
+                <div style={ targetSecondaryInfoStyles } />
             </div>
         </div>
     )

@@ -443,6 +443,7 @@ export const BuffMixin = {
             return {
                 key: buff.key,
                 duration: buff.timer,
+                icon: buff.icon,
             }
         })
 

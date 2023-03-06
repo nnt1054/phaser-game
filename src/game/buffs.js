@@ -6,6 +6,7 @@ const regen = (target, source) => {
         source: source,
         timer: 12000,
         tickTimer: 3000,
+        icon: 'vercure',
         apply() {
             this.target.increaseHealth(10);
         },
@@ -28,6 +29,7 @@ const dot = (target, source) => {
         source: source,
         timer: 30000,
         tickTimer: 3000,
+        icon: 'verthunder',
         apply() {
             this.target.reduceHealth(10);
             if (this.target.hasAggro) {

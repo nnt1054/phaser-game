@@ -50,8 +50,8 @@ const CastBar = () => {
     const castBarContainerStyles = {
         visibility: duration ? 'visible': 'hidden',
         position: 'absolute',
-        left: '50vw',
-        bottom: '50vh',
+        bottom: '25vh',
+        right: '25vw',
         display: 'flex',
         flexDirection: 'row',
     }

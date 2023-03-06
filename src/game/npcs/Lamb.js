@@ -28,7 +28,7 @@ const compositeConfig = {
     'armor_body_collar': 'armor_body_collar',
     'head': 'head',
     'ears': 'ears',
-    // 'face': 'face',
+    'face': 'face',
     'headband': 'headband',
     'hair_front': 'hair',
 };
@@ -45,7 +45,7 @@ const compositeConfigIndexes = {
     'armor_body_collar': 3,
     'head': 1,
     'ears': 1,
-    // 'face': 0,
+    'face': 0,
     'headband': 2,
     'hair_front': 2,
 };

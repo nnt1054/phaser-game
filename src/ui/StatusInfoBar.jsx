@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import actionMap from './actions';
 import HotBarItem from './HotBarItem';
+import icons from './icons';
 
 import * as styles from '../App.module.css';
 
@@ -10,6 +11,7 @@ import * as styles from '../App.module.css';
 const StatusInfo = (props) => {
     const status = props.status;
     const duration = status.duration;
+    const icon = status.icon ? icons[status.icon] : icons['vercure'];
 
     const [timer, setTimer] = useState(duration);
 
@@ -32,21 +34,27 @@ const StatusInfo = (props) => {
 
     const statusInfoStyles = {
         position: 'relative',
-        width: `48px`,
+        width: `36px`,
         height: `48px`,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'column',
-        gap: '8px',
+        gap: '2px',
+    }
+
+    const hotbarIconStyle = {
+        display: icon ? `block` : `none`,
+        width: `32px`,
+        height: `32px`,
+        pointerEvents: `auto`,
     }
 
     return (
         <div
             style={ statusInfoStyles }
         >
-            {/*<img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>*/}
-            <span> { status.key } </span>
+            <img draggable={ false } style={ hotbarIconStyle } src={ icon }/>
             <span> { Math.floor(timer / 1000) } </span>
         </div>
     )
@@ -65,15 +73,10 @@ const StatusInfoBar = () => {
 
     const statusInfoBarContainerStyles = {
         display: isVisible ? 'flex' : 'none',
-        minWidth: '255px',
         height: '64px',
-        left: '12px',
-        top: '12px',
-
-        border: '4px solid black',
-        borderRadius: '12px',
-        color: 'white',
-        backgroundColor: 'rgba(0, 0, 0, .5)',
+        right: '12px',
+        bottom: '12px',
+        padding: '8px',
     };
 
     return (
