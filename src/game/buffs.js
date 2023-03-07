@@ -31,7 +31,7 @@ const dot = (target, source) => {
         tickTimer: 3000,
         icon: 'verthunder',
         apply() {
-            this.target.reduceHealth(10);
+            this.target.reduceHealth(5);
             if (this.target.hasAggro) {
         		this.target.addAggro(this.source, 10);
     		}
@@ -41,7 +41,7 @@ const dot = (target, source) => {
             this.tickTimer -= delta;
             if (this.tickTimer <= 0) {
                 this.tickTimer += 3000;
-                this.target.reduceHealth(10);
+                this.target.reduceHealth(5);
                 if (this.target.hasAggro) {
             		this.target.addAggro(this.source, 10);
         		}
