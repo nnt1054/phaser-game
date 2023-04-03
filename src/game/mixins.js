@@ -693,6 +693,10 @@ export const CastingMixin = {
     },
 
     cancelCast: function() {
+        if (this.casting && this.casting.cancelCast) {
+            this.casting.cancelCast(this, this.castTarget);
+        }
+
         this.casting = null;
         this.castTarget = null;
         this.castingTimer = 0;

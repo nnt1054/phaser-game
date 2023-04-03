@@ -158,6 +158,14 @@ export class Player extends ArcadeContainer {
         this.hitboxRect.setOrigin(0.5, 1);
         this.hitboxRect.setPosition(this.ref_x + 0, this.ref_y);
 
+        let ladderPadding = { width: 12, height: 4 };
+        this.ladderRect = scene.add.rectangle(
+            0, 0, ladderPadding.width, ladderPadding.height,
+            // 0x0000ff, 0.5,
+        );
+        this.ladderRect.setOrigin(0.5, 1);
+        this.ladderRect.setPosition(this.ref_x + 0, this.ref_y + ladderPadding.height);
+
         let meleePadding = { width: 128, height: 86 };
         this.meleeRect = scene.add.rectangle(
             0, 0, meleePadding.width, meleePadding.height,
@@ -208,6 +216,7 @@ export class Player extends ArcadeContainer {
             this.hitboxRect,
             this.meleeRect,
             this.rangedRect,
+            this.ladderRect,
         ]);
 
         this.platformColliders = [];
@@ -305,10 +314,34 @@ export class Player extends ArcadeContainer {
             this.initializeCooldowns();
             this.startCooldownUpdater();
         }
+
+
+
+        this.isClimbing = false;
+        this.climbingDisabled = false;
+        this.climbing = null;
     }
 
     handleClick() {
         this.targetObject(this);
+    }
+
+    update(time, delta) {
+
+        // test fall damage
+        if (this.body.onFloor() && this.previousVelocityY >= 800) {
+                this.setCurrentHealth(1);
+        }
+
+        this.updateDialogue(delta)
+        this.updateMovement(delta);
+        this.updateCooldowns(delta);
+        this.updateBuffs(delta);
+        this.updateCast(delta);
+        this.updateAbilityState(delta);
+        this.updateSystemAction(delta);
+        this.updateMessageTimer(delta);
+        this.updateAnimationState(delta);
     }
 
     queueSystemAction(actionName, target) {
@@ -359,7 +392,93 @@ export class Player extends ArcadeContainer {
         return Boolean(this.body.velocity.y || this.body.velocity.x);
     }
 
+    startClimbing(ladder) {
+        this.isClimbing = true;
+        this.climbing = ladder;
+        this.setVelocityX(0);
+        this.setGravityY(0);
+        if (this.casting) {
+            this.cancelCast();
+        }
+
+        this.platformColliders.forEach(collider => {
+            collider.active = false;
+            this.time.addEvent({
+                delay: 250,
+                callback: () => {collider.active = true},
+                callbackScope: this, 
+            })
+        })
+    }
+
+    stopClimbing() {
+        this.isClimbing = false;
+        this.climbing = null;
+        this.setGravityY(1600)
+    }
+
     updateMovement(delta) {
+        // ladder/climbing movement
+
+        if (this.isClimbing) {
+            const ladder = this.climbing;
+            const inRange = Phaser.Geom.Rectangle.Overlaps(
+                this.hitboxRect.getBounds(),
+                ladder.getBounds(),
+            )
+            if (!inRange) {
+                this.stopClimbing(ladder);
+            } else {
+                this.x = this.climbing.getCenter().x - (this.body.width / 2);
+            }
+        } else {
+            if (this.reduxCursors.up) {
+                const ladder = this.scene.ladder;
+                const inRange = Phaser.Geom.Rectangle.Overlaps(
+                    this.hitboxRect.getBounds(),
+                    ladder.getBounds(),
+                )
+                if (inRange) {
+                    if (!this.climbingDisabled) {
+                        this.startClimbing(ladder);
+                    }
+                }
+            } else if (this.reduxCursors.down) {
+                const ladder = this.scene.ladder;
+                const inRange = Phaser.Geom.Rectangle.Overlaps(
+                    this.ladderRect.getBounds(),
+                    ladder.getBounds(),
+                )
+                if (inRange) {
+                    if (!this.climbingDisabled) {
+                        this.startClimbing(ladder);
+                        this.y = this.y + 4;
+                    }
+                }
+            }
+        }
+
+        if (this.isClimbing) {
+            if (this.reduxCursors.up) {
+                this.setVelocityY(-150)
+            } else if (this.reduxCursors.down) {
+                this.setVelocityY(150)
+                if (this.body.onFloor()) {
+                    this.stopClimbing();
+                }
+            } else {
+                this.setVelocityY(0)
+            }
+
+            if (this.reduxCursors.jump) {
+                this.executeJump();
+            }
+            return;
+        }
+
+
+        this.directionLockTimer = Math.max(0, this.directionLockTimer - delta);
+
         // horizontal position changes
         if (this.reduxCursors.left) {
             if (this.reduxCursors.down) {
@@ -425,10 +544,22 @@ export class Player extends ArcadeContainer {
 
     executeJump() {
         this.jumpUsed = true;
-        this.setVelocityY(-480);
+
+        if (this.isClimbing) {
+            this.stopClimbing();
+            this.climbingDisabled = true;
+            this.time.addEvent({
+                delay: 480,
+                callback: () => {this.climbingDisabled = false},
+                callbackScope: this, 
+            })
+            this.setVelocityY(-360);
+        } else {
+            this.setVelocityY(-480);
+        }
     }
 
-    calculateAnimationState() {
+    updateAnimationState(delta) {
         let anim = this.current_anim ?? 'idle';
         if (this.casting) anim = 'crouch';
 
@@ -450,6 +581,10 @@ export class Player extends ArcadeContainer {
             this.current_anim = null;
         }
 
+        if (this.isClimbing) {
+            anim = 'crouch';
+        }
+
         if (this.facingRight) {
             this.character.scaleX = Math.abs(this.character.scaleX);
         } else {
@@ -457,7 +592,10 @@ export class Player extends ArcadeContainer {
         }
 
         if (anim !== this.current_anim) this.current_anim = null;
-        return anim;
+
+        if (!this.paused) {
+            this.character.play(anim, true);
+        }
     }
 
     updateAbilityState(delta) {
@@ -509,15 +647,13 @@ export class Player extends ArcadeContainer {
         }
     }
 
-    update(time, delta) {
+    autoZoom(zoom) {
+        this.name.setScale(1 / zoom);
+        this.graphics.setScale(1 / zoom);
+        this.chatBubble.setScale(1 / zoom);
+    }
 
-        // test fall damage
-        if (this.body.onFloor() && this.previousVelocityY >= 800) {
-            this.setCurrentHealth(1);
-        }
-
-        this.directionLockTimer = Math.max(0, this.directionLockTimer - delta);
-
+    updateDialogue(delta) {
         if (this.dialogueTarget) {
             if (!this.dialogueTarget.isPlayerInRange(this)) {
                 this.dialogueTarget.endDialogue(this);
@@ -525,31 +661,6 @@ export class Player extends ArcadeContainer {
                 this.dialogueTarget.completeDialogue(this, this.dialogueOption);
             }
         }
-
-        this.updateMovement(delta);
-
-        if (this.hasCooldowns) {
-            this.updateCooldowns(delta);
-        }
-        if (this.hasBuffs) {
-            this.updateBuffs(delta);
-        }
-        if (this.hasCasting) {
-            this.updateCast(delta);
-        }
-        this.updateAbilityState(delta);
-        this.updateSystemAction(delta);
-        this.updateMessageTimer(delta);
-        const anim = this.calculateAnimationState();
-        if (!this.paused) {
-            this.character.play(anim, true);
-        }
-    }
-
-    autoZoom(zoom) {
-        this.name.setScale(1 / zoom);
-        this.graphics.setScale(1 / zoom);
-        this.chatBubble.setScale(1 / zoom);
     }
 
     updateMessageTimer(delta) {
@@ -567,48 +678,6 @@ export class Player extends ArcadeContainer {
         this.chatBubble.setText(`${ this.displayName }: ${ text }`);
         this.chatBubble.setClassName('chat-bubble');
         this.messageTimer = 3000;
-    }
-
-    doEmote(emote) {
-        this.current_anim = emote;
-        this.character.play(emote);
-    }
-
-    targetObject(gameObject) {
-        if (gameObject.isTargetable) {
-            if (this.currentTarget) this.currentTarget.untarget();
-            this.currentTarget = gameObject;
-            gameObject.target();
-
-            if ('health' in gameObject) {
-                store.dispatch(
-                    setTarget({
-                        targetName: gameObject.displayName,
-                        currentHealth: gameObject.health,
-                        maxHealth: gameObject.maxHealth,
-                    })
-                )
-
-                const cotarget = gameObject.currentTarget;
-                if (cotarget && 'health' in cotarget) {
-                    store.dispatch(
-                        setCotarget({
-                            targetName: cotarget.displayName,
-                            currentHealth: cotarget.health,
-                            maxHealth: cotarget.maxHealth,
-                        })
-                    )
-                }
-            }
-        }
-    }
-
-    untargetObject(gameObject) {
-        if (this.currentTarget) this.currentTarget.untarget();
-        this.currentTarget = null;
-        store.dispatch(
-            removeTarget()
-        )
     }
 
     faceTarget(gameObject) {

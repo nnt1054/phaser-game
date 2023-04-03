@@ -117,6 +117,7 @@ class defaultScene extends Phaser.Scene {
             this.booma3,
         ];
 
+        // todo: should move to player init maybe?
         this.player.availableTargets = this.npcs;
         this.player.setCollideWorldBounds(true);
         this.player.addPlatforms([layer2]);
@@ -127,6 +128,19 @@ class defaultScene extends Phaser.Scene {
             enemy.setCollideWorldBounds(true);
             enemy.addCollision([layer1]);
         }
+
+        // ladder
+        this.ladder = this.add.rectangle(
+            32 * 5.5, 32 * 56,
+            12, 256,
+            0xff0000, 0.5,
+        );
+        // this.physics.add.existing(this.ladder);
+        // this.ladder.body.setImmovable(true);
+        // this.physics.add.overlap(this.ladder, this.player, (ladder, player) => {
+        //     console.log(ladder, player, 'hi');
+        // });
+
 
         this.cameras.main.startFollow(this.player, false, 1, 1);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);

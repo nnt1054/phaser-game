@@ -76,16 +76,22 @@ const abilities = {
             return false;
         },
         startCast: (caster, target) => {
-            let tween = caster.scene.tweens.add({
+            caster.telegraphRectTween = caster.scene.tweens.add({
                 targets: [ caster.telegraphRect ],
                 width: 256,
                 duration: 1000,
                 ease: 'Sine.easeIn',
-                onUpdate: (tween, target) => {
-                    target.updateDisplayOrigin();
+                onUpdate: (tween, rect) => {
+                    rect.updateDisplayOrigin();
                 }
             });
             caster.startCooldown('temp', 12000)
+        },
+        cancelCast: (caster, target) => {
+            if (caster.telegraphRectTween) caster.telegraphRectTween.stop()
+            caster.telegraphRect.width = 0;
+            caster.telegraphRect.updateDisplayOrigin();
+            caster.startCooldown('temp', 0)
         },
         execute: (caster, target) => {
             let player = caster.scene.player;
@@ -98,6 +104,8 @@ const abilities = {
             if (inRange) {
                 player.reduceHealth(30, 250);
             }
+
+            caster.telegraphRectTween = null;
             caster.telegraphRect.width = 0;
             caster.telegraphRect.updateDisplayOrigin();
 
@@ -151,6 +159,7 @@ export class Booma extends ArcadeContainer {
 
     constructor(scene, x, y, displayName='Non-Player') {
         super(scene, x, y);
+        this.initialPosition = [x, y];
 
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
@@ -227,6 +236,7 @@ export class Booma extends ArcadeContainer {
         this.meleeRect.setOrigin(0.5, 1);
         this.meleeRect.setPosition(this.ref_x + 0, this.ref_y + 24);
 
+        this.telegraphRectTween = null;
         this.telegraphRect = {}
         let telegraphPadding = { width: 0, height: 86 };
         this.telegraphRect = scene.add.rectangle(
@@ -244,6 +254,9 @@ export class Booma extends ArcadeContainer {
             this.hitboxRect,
             this.meleeRect,
         ]);
+
+        this.respawnTimer = 0;
+        this.isDead = false;
     }
 
     handleClick() {
@@ -265,22 +278,30 @@ export class Booma extends ArcadeContainer {
         this.cancelCast();
         this.untargetObject();
         this.clearBuffs();
-
+        this.setVelocityX(0);
+        
+        player.addItem('potion', 1);
         player.removeEnemyFromEnemyList(this);
+
+        this.isDead = true;
+        this.respawnTimer = 8000;
     }
 
     update(time, delta) {
-        if (this.hasCooldowns) {
-            this.updateCooldowns(delta);
+        if (this.isDead) {
+            this.respawnTimer = Math.max(0, this.respawnTimer - delta);
+            if (this.respawnTimer <= 0) {
+                this.setPosition(...this.initialPosition);
+                this.setCurrentHealth(100);
+                this.visible = true;
+                this.isDead = false;
+            }
+            return;
         }
 
-        if (this.hasCasting || true) {
-            this.updateCast(delta);
-        }
-
-        if (this.hasBuffs) {
-            this.updateBuffs(delta);
-        }
+        this.updateCooldowns(delta);
+        this.updateCast(delta);
+        this.updateBuffs(delta);
 
         const isIdle = !this.casting
         if (isIdle) {
