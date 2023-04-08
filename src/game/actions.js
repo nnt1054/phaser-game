@@ -210,7 +210,7 @@ const verthunder = {
 const fleche = {
     type: 'ability',
     gcd: false,
-    cooldown: 1000,
+    cooldown: 500,
     canTarget: isEnemy,
     canExecute: (player, target) => {
         if (!target) return false;
@@ -253,6 +253,126 @@ const fleche = {
                 vfx2.destroy();
             })
         }, 150);
+    },
+}
+
+const corps_a_corps = {
+    type: 'ability',
+    gcd: false,
+    cooldown: 500,
+    canTarget: isEnemy,
+    canExecute: (player, target) => {
+        if (!target) return false;
+        if (!target.hasHealth) return false;
+        if (target.health <= 0) return false;
+        const inRange = Phaser.Geom.Rectangle.Overlaps(
+            player.rangedRect.getBounds(),
+            target.hitboxRect.getBounds(),
+        )
+        if (!inRange) {
+            store.dispatch(setAlert('Target is out of range.'));
+            return false;
+        }
+        const [cooldown, duration] = player.getCooldown('corps_a_corps');
+        if (cooldown > 0) return false;
+        return true;
+    },
+    execute: (player, target) => {
+        const hitboxRect = target.hitboxRect;
+        const isOverlapping = Phaser.Geom.Rectangle.Overlaps(
+            player.hitboxRect.getBounds(),
+            hitboxRect.getBounds(),
+        )
+        if (!isOverlapping) {
+            // get distance
+            const playerX = player.hitboxRect.getBounds().centerX;
+            const targetX = hitboxRect.getBounds().centerX;
+            const facingRight = playerX > targetX;
+            let distance = Math.abs(playerX - targetX);
+            distance -= (player.hitboxRect.width + hitboxRect.width) / 2;
+            distance = (playerX > targetX) ? -distance: distance - player.hitboxRect.width;
+            let tween = player.scene.tweens.add({
+                targets: [ player ],
+                x: playerX + distance,
+                duration: 150,
+                ease: 'Sine.easeIn',
+            });
+            tween.on('complete', () => {
+                let bounds = hitboxRect.getBounds();
+                let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
+                if (!facingRight) {
+                    smoke.scaleX = -1;
+                }
+                smoke.setOrigin(0.5, 1);
+                smoke.play('smoke');
+                smoke.on('animationcomplete', () => {
+                    smoke.destroy();
+                })
+            })
+        }
+
+        target.reduceHealth(10);
+        if (target.hasAggro) {
+            target.addAggro(player, 10);
+        }
+        player.startCooldown('corps_a_corps', 12000);
+    },
+}
+
+const displacement = {
+    type: 'ability',
+    gcd: false,
+    cooldown: 500,
+    canTarget: isEnemy,
+    canExecute: (player, target) => {
+        if (!target) return false;
+        if (!target.hasHealth) return false;
+        if (target.health <= 0) return false;
+        const inRange = Phaser.Geom.Rectangle.Overlaps(
+            player.meleeRect.getBounds(),
+            target.hitboxRect.getBounds(),
+        )
+        if (!inRange) {
+            store.dispatch(setAlert('Target is out of range.'));
+            return false;
+        }
+
+        const [cooldown, duration] = player.getCooldown('displacement');
+        if (cooldown > 0) return false;
+        return true;
+    },
+    execute: (player, target) => {
+        target.reduceHealth(10);
+        if (target.hasAggro) {
+            target.addAggro(player, 10);
+        }
+
+        const hitboxRect = target.hitboxRect;
+        const playerX = player.hitboxRect.getBounds().centerX;
+        const targetX = hitboxRect.getBounds().centerX;
+        const facingRight = playerX > targetX;
+        const distance = facingRight ? 128 : -128;
+        let tween = player.scene.tweens.add({
+            targets: [ player ],
+            x: playerX + distance,
+            duration: 150,
+            ease: 'Sine.easeOut',
+        });
+
+        tween.on('complete', () => {
+            let bounds = hitboxRect.getBounds();
+            let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
+            if (!facingRight) {
+                smoke.scaleX = -1;
+            }
+            smoke.setOrigin(0.5, 1);
+            smoke.play('smoke');
+            smoke.on('animationcomplete', () => {
+                smoke.destroy();
+            })
+        })
+
+        player.startCooldown('displacement', 12000);
     },
 }
 
@@ -367,6 +487,8 @@ const actionMap = {
     'vercure': vercure,
     'fleche': fleche,
     'slice': slice,
+    'corps_a_corps': corps_a_corps,
+    'displacement': displacement,
 
     // items
     'potion': potion,

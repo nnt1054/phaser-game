@@ -617,8 +617,8 @@ export class Player extends ArcadeContainer {
                             this.directionLockTimer += ability.castTime;
                         } else {
                             ability.execute(this, this.gcdTarget);
-                            this.abilityTimer += 500;
-                            this.directionLockTimer += 500;
+                            this.abilityTimer += 350;
+                            this.directionLockTimer += 350;
                         }
                         this.gcdTimer += ability.cooldown;
                         store.dispatch(setGCD(ability.cooldown));
@@ -630,8 +630,8 @@ export class Player extends ArcadeContainer {
                 if (!(ability.canExecute && !ability.canExecute(this, this.gcdTarget))) {
                     this.faceTarget(this.gcdTarget);
                     ability.execute(this, this.gcdTarget);
-                    this.abilityTimer += 750;
-                    this.directionLockTimer += 500;
+                    this.abilityTimer += 350;
+                    this.directionLockTimer += 350;
                 }
                 this.gcdQueue = null;
                 this.gcdTarget = null;
@@ -800,4 +800,25 @@ export class Player extends ArcadeContainer {
         }
     }
 
+
+    dash(target) {
+        const isOverlapping = Phaser.Geom.Rectangle.Overlaps(
+            this.hitboxRect.getBounds(),
+            target.getBounds(),
+        )
+        if (!isOverlapping) {
+            // get distance
+            const playerX = this.hitboxRect.getBounds().centerX;
+            const targetX = target.getBounds().centerX;
+            let distance = Math.abs(playerX - targetX);
+            distance -= (this.body.width + target.width) / 2;
+            distance = (playerX > targetX) ? -distance: distance - this.body.width;
+            let tween = this.scene.tweens.add({
+                targets: [ this ],
+                x: playerX + distance,
+                duration: 100,
+                ease: 'Sine.easeIn',
+            });
+        }
+    }
 }

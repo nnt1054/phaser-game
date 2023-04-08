@@ -18,6 +18,7 @@ const skillsMenuSlice = createSlice({
         'fleche',
         'vercure',
         'slice',
+        'corps_a_corps',
     ],
     actionOptions: [
       'setActiveSkill',

@@ -382,6 +382,24 @@ export const abilities = {
             Melee Slash; Deals 15 Damage to Target.
         `,  
     },
+    'corps_a_corps': {
+        label: 'corps-a-corps',
+        action: () => { store.dispatch(setQueuedAbility('corps_a_corps')) },
+        icon: 'corps_a_corps',
+        cooldown: '12.0s',
+        description: `
+            Dash to target; Deals 10 Damage to Target.
+        `,
+    },
+    'displacement': {
+        label: 'displacement',
+        action: () => { store.dispatch(setQueuedAbility('displacement')) },
+        icon: 'displacement',
+        cooldown: '12.0s',
+        description: `
+            Dash away from the target; Deals 10 Damage to Target.
+        `,
+    },
 };
 
 export const items = {

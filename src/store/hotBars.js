@@ -28,7 +28,7 @@ const hotBarsSlice = createSlice({
             { name: 'jolt', active: false, keybind: 'Q'},
             { name: 'slice', active: false, keybind: 'E'},
             { name: 'vercure', active: false, keybind: 'R'},
-            { name: 'empty', active: false, keybind: 'F'},
+            { name: 'corps_a_corps', active: false, keybind: 'F'},
             { name: 'fleche', active: false, keybind: 'G'},
         ]
     },
@@ -45,7 +45,7 @@ const hotBarsSlice = createSlice({
             { name: 'empty', active: false, keybind: '↑Q'},
             { name: 'empty', active: false, keybind: '↑E'},
             { name: 'empty', active: false, keybind: '↑R'},
-            { name: 'empty', active: false, keybind: '↑F'},
+            { name: 'displacement', active: false, keybind: '↑F'},
             { name: 'empty', active: false, keybind: '↑G'},
         ]
     },
