@@ -58,7 +58,7 @@ class defaultScene extends Phaser.Scene {
     }
 
     create () {
-        // this.input.enableDebug();
+        // this.input.enableDebug(this.player);
         this.frameAnimator = this.plugins.get('frameAnimator');
         animationCreate(this);
 
@@ -92,7 +92,7 @@ class defaultScene extends Phaser.Scene {
 
         // Player
         // this.player = new Player(this, 32 * 18, 32 * 1.5);
-        this.player = new Player(this, 32 * 3, 32 * 56);
+        this.player = new Player(this, 32 * 3, 32 * 58);
         this.player.setDepth(100);
 
         // NPC
@@ -102,9 +102,6 @@ class defaultScene extends Phaser.Scene {
         this.booma1 = new Booma(this, 32 * 12, 32 * 58, 'Hostile Enemy A');
         this.booma2 = new Booma(this, 32 * 14.5, 32 * 58, 'Hostile Enemy B');
         this.booma3 = new Booma(this, 32 * 17, 32 * 58, 'Hostile Enemy C');
-        // this.booma1 = new Booma(this, 32 * 12, 32 * 58.5, 'Hostile Enemy A');
-        // this.booma2 = new Booma(this, 32 * 14.5, 32 * 58.5, 'Hostile Enemy B');
-        // this.booma3 = new Booma(this, 32 * 17, 32 * 58.5, 'Hostile Enemy C');
 
         this.npcs = [
             this.sign,
@@ -120,6 +117,7 @@ class defaultScene extends Phaser.Scene {
             this.booma3,
         ];
 
+        // todo: should move to player init maybe?
         this.player.availableTargets = this.npcs;
         this.player.setCollideWorldBounds(true);
         this.player.addPlatforms([layer2]);
@@ -130,6 +128,19 @@ class defaultScene extends Phaser.Scene {
             enemy.setCollideWorldBounds(true);
             enemy.addCollision([layer1]);
         }
+
+        // ladder
+        this.ladder = this.add.rectangle(
+            32 * 5.5, 32 * 56,
+            12, 256,
+            0xff0000, 0.5,
+        );
+        // this.physics.add.existing(this.ladder);
+        // this.ladder.body.setImmovable(true);
+        // this.physics.add.overlap(this.ladder, this.player, (ladder, player) => {
+        //     console.log(ladder, player, 'hi');
+        // });
+
 
         this.cameras.main.startFollow(this.player, false, 1, 1);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);

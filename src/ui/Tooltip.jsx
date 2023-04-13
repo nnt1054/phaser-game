@@ -13,22 +13,24 @@ const flexColumn = {
     flexDirection: 'column',
 }
 
-const Tooltip = () => {
-    const abilityKey = useSelector(state => state.hotBars.hoverKey);
+
+const Tooltip = (props) => {
+    // const activeMenu = useSelector(state => state.menuStates.activeMenu);
+    // const activeIndex = useSelector(state => state.inventory.activeIndex);
+    // const inventory = useSelector(state => state.inventory.items);
+    // const item = inventory[activeIndex];
+    // const abilityKey = item.name;
+
+    const abilityKey = props.abilityKey;
     const ability = actionMap[abilityKey];
     const icon = ability  ? icons[ability.icon] : null;
-    const dragging = useSelector(state => state.hotBars.dragging)
     const empty = (abilityKey === 'empty');
 
-    const castBarContainerStyles = {
-        visibility: ability ? 'visible' : 'hidden',
-        display: (dragging || empty) ? 'none' : 'flex',
+    const tooltipContainerStyles = {
+        visibility: (ability && !empty) ? 'visible' : 'hidden',
+        flex: 'flex',
         flexDirection: 'column',
-        position: 'absolute',
-        right: '0vw',
-        bottom: '0vh',
-        width: '420px',
-        minHeight: '256px',
+        height: '360px',
         padding: '4px',
         border:  '4px solid black',
         borderRadius: '12px',
@@ -60,20 +62,20 @@ const Tooltip = () => {
     }
 
     return (
-        <div style={ castBarContainerStyles }>
+        <div style={ tooltipContainerStyles }>
             <div style={ flexRow }>
                 <button style={ iconContainerStyles }>
                     <img draggable={ false } style={ iconStyle } src={ icon }/>
                 </button>
                 <div style={ flexColumn }>
                     <span> { ability ? ability.label : '' } </span>
-                    <span> spell </span>
+                    <span> { ability.itemType } </span>
                 </div>
             </div>
             <div style={ {...flexRow, marginTop: '12px'} }>
-                <span style={ {marginRight: '24px'} }> Cast: 2.00s </span>
-                <span style={ {marginRight: '24px'} }> Recast: 2.50s </span>
-                <span style={ {marginRight: '24px'} }> MP Cost: 10MP </span>
+                <span style={ {marginRight: '24px'} }> Cast: { ability.castTime || '--'} </span>
+                <span style={ {marginRight: '24px'} }> Recast: { ability.cooldown || '--'} </span>
+                <span style={ {marginRight: '24px'} }> MP Cost: -- </span>
             </div>
             <p style={ {marginTop: `12px`} }>
                 <span style={{ color: 'green' }}> Description </span>: { ability && ability.description ? ability.description : "This is where I'd put my description... IF I HAD ONE."}

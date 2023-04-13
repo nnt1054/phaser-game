@@ -16,6 +16,10 @@ import {
 import {
     setAlert,
 } from '../store/alert';
+import {
+    addMessage,
+} from '../store/chatBox';
+import buffs from './buffs';
 
 import helmets from './equipment/helmets';
 
@@ -44,6 +48,14 @@ const confirm = {
     },
 };
 
+const sendChat = {
+    type: 'sendChat',
+    execute: (player, text) => {
+        player.displayMessage(text);
+        store.dispatch(addMessage(`${ player.displayName}: ${ text }`));
+    },
+};
+
 const cycleTarget = {
     type: 'system',
     execute: (player) => {
@@ -55,6 +67,27 @@ const cycleTargetReverse = {
     type: 'system',
     execute: (player) => {
         player.cycleTargets(true);
+    },
+}
+
+const targetEnemyFromEnemyList = {
+    type: 'system',
+    execute: (player, index) => {
+        player.targetEnemyFromEnemyList(index);
+    },
+}
+
+const cycleTargetFromEnemyList = {
+    type: 'system',
+    execute: (player) => {
+        player.cycleTargetFromEnemyList();
+    },
+}
+
+const cycleTargetFromEnemyListReverse = {
+    type: 'system',
+    execute: (player) => {
+        player.cycleTargetFromEnemyList(true);
     },
 }
 
@@ -166,9 +199,10 @@ const verthunder = {
         return true;
     },
     execute: (player, target) => {
-        target.reduceHealth(25);
+        // target.reduceHealth(25);
         if (target.hasAggro) {
-            target.addAggro(player, 25);
+            // target.addAggro(player, 25);
+            target.applyBuff(buffs['miasma'], player)
         }
     },
 }
@@ -176,7 +210,7 @@ const verthunder = {
 const fleche = {
     type: 'ability',
     gcd: false,
-    cooldown: 1000,
+    cooldown: 500,
     canTarget: isEnemy,
     canExecute: (player, target) => {
         if (!target) return false;
@@ -190,7 +224,7 @@ const fleche = {
             store.dispatch(setAlert('Target is out of range.'));
             return false;
         }
-        const [cooldown, duration] = player.cooldownManager.getTimer('fleche');
+        const [cooldown, duration] = player.getCooldown('fleche');
         if (cooldown > 0) return false;
         return true;
     },
@@ -200,7 +234,7 @@ const fleche = {
             target.addAggro(player, 10);
         }
 
-        player.cooldownManager.startTimer('fleche', 12000);
+        player.startCooldown('fleche', 12000);
 
         let bounds = target.hitboxRect.getBounds();
         let vfx = player.scene.add.sprite(bounds.centerX, bounds.bottom + 12);
@@ -219,6 +253,126 @@ const fleche = {
                 vfx2.destroy();
             })
         }, 150);
+    },
+}
+
+const corps_a_corps = {
+    type: 'ability',
+    gcd: false,
+    cooldown: 500,
+    canTarget: isEnemy,
+    canExecute: (player, target) => {
+        if (!target) return false;
+        if (!target.hasHealth) return false;
+        if (target.health <= 0) return false;
+        const inRange = Phaser.Geom.Rectangle.Overlaps(
+            player.rangedRect.getBounds(),
+            target.hitboxRect.getBounds(),
+        )
+        if (!inRange) {
+            store.dispatch(setAlert('Target is out of range.'));
+            return false;
+        }
+        const [cooldown, duration] = player.getCooldown('corps_a_corps');
+        if (cooldown > 0) return false;
+        return true;
+    },
+    execute: (player, target) => {
+        const hitboxRect = target.hitboxRect;
+        const isOverlapping = Phaser.Geom.Rectangle.Overlaps(
+            player.hitboxRect.getBounds(),
+            hitboxRect.getBounds(),
+        )
+        if (!isOverlapping) {
+            // get distance
+            const playerX = player.hitboxRect.getBounds().centerX;
+            const targetX = hitboxRect.getBounds().centerX;
+            const facingRight = playerX > targetX;
+            let distance = Math.abs(playerX - targetX);
+            distance -= (player.hitboxRect.width + hitboxRect.width) / 2;
+            distance = (playerX > targetX) ? -distance: distance - player.hitboxRect.width;
+            let tween = player.scene.tweens.add({
+                targets: [ player ],
+                x: playerX + distance,
+                duration: 150,
+                ease: 'Sine.easeIn',
+            });
+            tween.on('complete', () => {
+                let bounds = hitboxRect.getBounds();
+                let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
+                if (!facingRight) {
+                    smoke.scaleX = -1;
+                }
+                smoke.setOrigin(0.5, 1);
+                smoke.play('smoke');
+                smoke.on('animationcomplete', () => {
+                    smoke.destroy();
+                })
+            })
+        }
+
+        target.reduceHealth(10);
+        if (target.hasAggro) {
+            target.addAggro(player, 10);
+        }
+        player.startCooldown('corps_a_corps', 12000);
+    },
+}
+
+const displacement = {
+    type: 'ability',
+    gcd: false,
+    cooldown: 500,
+    canTarget: isEnemy,
+    canExecute: (player, target) => {
+        if (!target) return false;
+        if (!target.hasHealth) return false;
+        if (target.health <= 0) return false;
+        const inRange = Phaser.Geom.Rectangle.Overlaps(
+            player.meleeRect.getBounds(),
+            target.hitboxRect.getBounds(),
+        )
+        if (!inRange) {
+            store.dispatch(setAlert('Target is out of range.'));
+            return false;
+        }
+
+        const [cooldown, duration] = player.getCooldown('displacement');
+        if (cooldown > 0) return false;
+        return true;
+    },
+    execute: (player, target) => {
+        target.reduceHealth(10);
+        if (target.hasAggro) {
+            target.addAggro(player, 10);
+        }
+
+        const hitboxRect = target.hitboxRect;
+        const playerX = player.hitboxRect.getBounds().centerX;
+        const targetX = hitboxRect.getBounds().centerX;
+        const facingRight = playerX > targetX;
+        const distance = facingRight ? 128 : -128;
+        let tween = player.scene.tweens.add({
+            targets: [ player ],
+            x: playerX + distance,
+            duration: 150,
+            ease: 'Sine.easeOut',
+        });
+
+        tween.on('complete', () => {
+            let bounds = hitboxRect.getBounds();
+            let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
+            if (!facingRight) {
+                smoke.scaleX = -1;
+            }
+            smoke.setOrigin(0.5, 1);
+            smoke.play('smoke');
+            smoke.on('animationcomplete', () => {
+                smoke.destroy();
+            })
+        })
+
+        player.startCooldown('displacement', 12000);
     },
 }
 
@@ -245,7 +399,8 @@ const vercure = {
         return true;
     },
     execute: (player, target) => {
-        target.increaseHealth(20);
+        // target.increaseHealth(20);
+        target.applyBuff(buffs['regen']);
 
         // TODO: add MP mixin
         store.dispatch(decrementMana());
@@ -259,7 +414,7 @@ const potion = {
     gcd: false,
     canTarget: isAny,
     canExecute: (player) => {
-        const [cooldown, duration] = player.cooldownManager.getTimer('potion');
+        const [cooldown, duration] = player.getCooldown('potion');
         return (cooldown == 0 && player.hasItem('potion'));
     },
     execute: (player) => {
@@ -269,8 +424,8 @@ const potion = {
             name: 'potion',
             value: 1,
         }))
-        player.setCurrentHealth(100);
-        player.cooldownManager.startTimer('potion', 8000);
+        player.setCurrentHealth(100, true);
+        player.startCooldown('potion', 8000);
     },
 };
 
@@ -332,6 +487,8 @@ const actionMap = {
     'vercure': vercure,
     'fleche': fleche,
     'slice': slice,
+    'corps_a_corps': corps_a_corps,
+    'displacement': displacement,
 
     // items
     'potion': potion,
@@ -339,8 +496,12 @@ const actionMap = {
     // sys actions
     'untarget': untarget,
     'confirm': confirm,
+    'sendChat': sendChat,
     'cycleTarget': cycleTarget,
     'cycleTargetReverse': cycleTargetReverse,
+    'targetEnemyFromEnemyList': targetEnemyFromEnemyList,
+    'cycleTargetFromEnemyList': cycleTargetFromEnemyList,
+    'cycleTargetFromEnemyListReverse': cycleTargetFromEnemyListReverse,
 
     // equip
     'equipHelmet': equipHelmet,

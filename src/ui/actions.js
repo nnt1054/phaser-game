@@ -1,17 +1,4 @@
 import store from '../store/store';
-
-import {
-    incrementMana,
-    decrementMana,
-    setPlayerCurrentMana,
-} from '../store/playerMana';
-
-import {
-    incrementHealth,
-    decrementHealth,
-    setPlayerCurrentHealth,
-} from '../store/playerHealth';
-
 import {
     setQueuedAbility,
     setQueuedAbilityAndTarget,
@@ -20,30 +7,79 @@ import {
     setSystemAction,
     setSystemActionAndTarget,
 } from '../store/playerState';
-
 import {
-    doNothing,
-    setPosition,
-} from '../store/hotBars';
-
-import {
-    setFrameIndex,
-    toggleCompositeState,
-    clearCompositeStates,
-} from '../store/aniEditor';
-
-import {
-    toggleMenuVisible,
-    closeMenus,
+    menus,
+    openMenu,
+    closeMenu,
+    setChatInputIsActive,
 } from '../store/menuStates';
-
 import {
     getNextMessage,
 } from '../store/dialogueBox';
-
+import {
+    activeStates as inventoryActiveStates,
+    setInventoryState,
+    closeActionsMenu,
+} from '../store/inventory';
+import {
+    getActiveItem,
+    getActiveSkill,
+    checkIsSetting,
+} from './utils';
+import {
+    activeStates as skillsActiveStates,
+    setActiveState as setSkillsActiveState,
+    setActiveIndex as setSkillsActiveIndex,
+} from '../store/skillsMenu';
+import navActions from './navActions';
 import * as styles from '../App.module.css';
 
 // TODO: separate dictionaries into separate files
+// TODO: should specify here if something is a simple action or cursor
+export const inventoryActions = {
+    'useActiveItem': {
+        label: 'Use',
+        action: () => {
+            const state = store.getState();
+            const item = getActiveItem(state);
+            if (item.action) item.action();
+            store.dispatch(closeActionsMenu());
+        },
+    },
+    'equipActiveItem': {
+        label: 'Equip',
+        action: () => {
+            const state = store.getState();
+            const item = getActiveItem(state);
+            if (item.equip) item.equip();
+            store.dispatch(closeActionsMenu());
+        },
+    },
+    'setActiveItem': {
+        label: 'Set',
+        action: () => {
+            const state = store.getState();
+            const item = getActiveItem(state);
+            if (item) {
+                store.dispatch(setInventoryState(inventoryActiveStates.setting));
+            }
+        },
+    },
+};
+
+export const skillActions = {
+    'setActiveSkill': {
+        label: 'Set',
+        action: () => {
+            const state = store.getState();
+            const skill = getActiveSkill(state);
+            if (skill) {
+                store.dispatch(setSkillsActiveState(skillsActiveStates.setting));
+            }
+        },
+    },
+};
+
 const movementActions = {
     'jump': {
         label: 'jump',
@@ -128,17 +164,43 @@ const movementActions = {
     },
 };
 
-const shortcutActions = {
-    'characterMenu': {
-        label: 'menu',
+export const shortcutActions = {
+    'inventory': {
+        label: 'Inventory',
         action: () => {
             const state = store.getState();
-            store.dispatch(toggleMenuVisible('character'))
+
+            const activeMenu = state.menuStates.activeMenu;
+            const isActive = (activeMenu === 'inventory');
+            const isSetting = checkIsSetting(state);
+
+            if (isActive && !isSetting) {
+                store.dispatch(closeMenu());
+            } else if (activeMenu !== 'dialogue') {
+                store.dispatch(openMenu('inventory'));
+                store.dispatch(setInventoryState(inventoryActiveStates.default));
+            }
         },
     },
-    'inventoryMenu': {
-        label: 'inventory',
-        action: () => { store.dispatch(toggleMenuVisible('inventory')) },
+    'settings': {
+        label: 'Lorem Ipsum',
+        action: () => {}
+    },
+    'skills': {
+        label: 'Skills',
+        action: () => {
+            const state = store.getState();
+
+            const activeMenu = state.menuStates.activeMenu;
+            const isActive = (activeMenu === menus.skills);
+
+            if (isActive) {
+                store.dispatch(closeMenu());
+            } else if (activeMenu !== 'dialogue') {
+                store.dispatch(openMenu(menus.skills));
+                store.dispatch(setSkillsActiveState(skillsActiveStates.default));
+            }
+        },
     },
 };
 
@@ -151,10 +213,17 @@ const systemActions = {
         label: 'close',
         action: () => {
             const state = store.getState();
-            if (state.menuStates.activeMenus.length) {
-                store.dispatch(closeMenus());
-            } else {
+            if (state.menuStates.chatInputIsActive) {
+                store.dispatch(setChatInputIsActive(false));
+            } else if (state.menuStates.activeMenu) {
+                const menuKey = state.menuStates.activeMenu;
+                const config = navActions[menuKey];
+                if (!config || !config.close) return;
+                config.close();
+            } else if (state.targetInfo.display) {
                 store.dispatch(setSystemAction('untarget'));
+            } else {
+                store.dispatch(openMenu('gameMenu'));
             }
         },
     },
@@ -162,16 +231,42 @@ const systemActions = {
         label: 'confirm',
         action: () => {
             const state = store.getState();
-            if (state.dialogueBox.display) {
-                store.dispatch(getNextMessage());
+            if (state.menuStates.chatInputIsActive) {
+                const event = new Event('clearChatInput');
+                document.dispatchEvent(event);
+            } else if (state.menuStates.activeMenu) {
+                const state = store.getState();
+
+                const menuKey = state.menuStates.activeMenu;
+                if (!menuKey) return;
+
+                const config = navActions[menuKey];
+                if (!config) return;
+
+                config.confirm();
             } else {
                 store.dispatch(setSystemAction('confirm'));
             }
         },
     },
+    'focusChatInput': {
+        label: 'focusChatInput',
+        action: () => {
+            store.dispatch(setChatInputIsActive(true));
+        },
+    },
+    'sendChat': {
+        label: 'sendChat',
+        action: (text) => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'sendChat',
+                target: text,
+            }));
+        },
+    },
 };
 
-const targetingActions = {
+export const targetingActions = {
     'cycleTarget': {
         label: 'cycleTarget',
         action: () => {
@@ -180,14 +275,35 @@ const targetingActions = {
         icon: 'fleche',
     },
     'cycleTargetReverse': {
-        label: 'cycleTarget',
+        label: 'cycleTargetReverse',
         action: () => {
             store.dispatch(setSystemAction('cycleTargetReverse'));
         },
     },
+    'targetEnemyFromEnemyList': {
+        label: 'targetEnemyFromEnemyList',
+        action: (target) => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'targetEnemyFromEnemyList',
+                target: target,
+            }))
+        }
+    },
+    'cycleTargetFromEnemyList': {
+        label: 'cycleTargetFromEnemyList',
+        action: () => {
+            store.dispatch(setSystemAction('cycleTargetFromEnemyList'));
+        },
+    },
+    'cycleTargetFromEnemyListReverse': {
+        label: 'cycleTargetFromEnemyListReverse',
+        action: () => {
+            store.dispatch(setSystemAction('cycleTargetFromEnemyListReverse'));
+        },
+    },
 };
 
-const abilities = {
+export const abilities = {
     'jolt': {
         label: 'jolt',
         action: (target) => {
@@ -200,6 +316,11 @@ const abilities = {
         },
         icon: 'jolt',
         gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: `
+            Deals 25 Magic Damage to Target.
+        `,
     },
     'verthunder': {
         label: 'verthunder',
@@ -213,6 +334,8 @@ const abilities = {
         },
         icon: 'verthunder',
         gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
     },
     'fleche': {
         label: 'fleche',
@@ -225,6 +348,10 @@ const abilities = {
             );
         },
         icon: 'fleche',
+        cooldown: '12.0s',
+        description: `
+            Ranged OGCD; Deals 10 Damage to Target.
+        `,
     },
     'vercure': {
         label: 'vercure',
@@ -238,9 +365,10 @@ const abilities = {
         },
         icon: 'vercure',
         gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
         description: `
             Restores target HP by 10.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
         `,
     },
     'slice': {
@@ -248,16 +376,40 @@ const abilities = {
         action: () => { store.dispatch(setQueuedAbility('slice')) },
         icon: 'melee1',
         gcd: true,
+        castTime: '0s',
+        cooldown: '1.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,  
+    },
+    'corps_a_corps': {
+        label: 'corps-a-corps',
+        action: () => { store.dispatch(setQueuedAbility('corps_a_corps')) },
+        icon: 'corps_a_corps',
+        cooldown: '12.0s',
+        description: `
+            Dash to target; Deals 10 Damage to Target.
+        `,
+    },
+    'displacement': {
+        label: 'displacement',
+        action: () => { store.dispatch(setQueuedAbility('displacement')) },
+        icon: 'displacement',
+        cooldown: '12.0s',
+        description: `
+            Dash away from the target; Deals 10 Damage to Target.
+        `,
     },
 };
 
-const items = {
+export const items = {
     'potion': {
         label: 'potion',
         action: () => { store.dispatch(setQueuedAbility('potion')) },
         icon: 'vercure',
         gcd: false,
         type: 'item',
+        itemType: 'consumable',
         description: `
             THIS IS AN ITEM NOT AN ABILITY !!!! Restores self HP by 100. Press "I" to open your inventory.
         `
@@ -271,8 +423,15 @@ export const equipment = {
         label: 'foxears',
         icon: 'verflare',
         type: 'item',
+        itemType: 'helmet',
         description: `fox ears! ripped out of a real live fox.`,
         action: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 1,
+            }))
+        },
+        equip: () => {
             store.dispatch(setSystemActionAndTarget({
                 action: 'equipHelmet',
                 target: 1,
@@ -284,8 +443,15 @@ export const equipment = {
         label: 'halo',
         icon: 'verholy',
         type: 'item',
+        itemType: 'helmet',
         description: `this is a helmet thing`,
         action: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 2,
+            }))
+        },
+        equip: () => {
             store.dispatch(setSystemActionAndTarget({
                 action: 'equipHelmet',
                 target: 2,
@@ -294,14 +460,77 @@ export const equipment = {
     },
 };
 
+
+const navigationActions = {
+    'navUp': {
+        label: 'navUp',
+        action: () => {
+            const state = store.getState();
+
+            const menuKey = state.menuStates.activeMenu;
+            if (!menuKey) return;
+
+            const config = navActions[menuKey];
+            if (!config) return;
+
+            config.up();
+        },
+    },
+    'navLeft': {
+        label: 'navLeft',
+        action: () => {
+            const state = store.getState();
+
+            const menuKey = state.menuStates.activeMenu;
+            if (!menuKey) return;
+
+            const config = navActions[menuKey];
+            if (!config) return;
+
+            config.left();
+        },
+    },
+    'navRight': {
+        label: 'navRight',
+        action: () => {
+            const state = store.getState();
+
+            const menuKey = state.menuStates.activeMenu;
+            if (!menuKey) return;
+
+            const config = navActions[menuKey];
+            if (!config) return;
+
+            config.right();
+        },
+    },
+    'navDown': {
+        label: 'navDown',
+        action: () => {
+            const state = store.getState();
+
+            const menuKey = state.menuStates.activeMenu;
+            if (!menuKey) return;
+
+            const config = navActions[menuKey];
+            if (!config) return;
+
+            config.down();
+        },
+    },
+}
+
 const reducerMap = {
     ...movementActions,
     ...shortcutActions,
     ...systemActions,
     ...targetingActions,
     ...abilities,
+    ...inventoryActions,
+    ...skillActions,
     ...items,
-    ...equipment, 
+    ...equipment,
+    ...navigationActions,
 };
 
 export default reducerMap;

@@ -1,17 +1,33 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import * as styles from './../App.module.css';
-import actionMap from './actions';
-import {
-    setSlotActive,
-} from '../store/hotBars';
-
 import Phaser from 'phaser';
 const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
 
-const TARGET_CONSTANTS = {
-    CURRENT_TARGET: 'CURRENT_TARGET',
-}
+import actionMap from './actions';
+import {
+    setSlot,
+    setSlotActive,
+} from '../store/hotBars';
+import store from '../store/store';
+import {
+  getActiveItemKey,
+  checkIsSetting,
+  getSettingName,
+} from './utils';
+import {
+  activeStates,
+  setInventoryState,
+} from '../store/inventory';
+import {
+    activeStates as skillsActiveStates,
+    setActiveState as setSkillsActiveState,
+} from '../store/skillsMenu';
+import {
+  setRefreshCooldown,
+} from '../store/playerState';
+
+import { TARGET_CONSTANTS } from './../constants'; 
+
 
 // Hook
 const useKeyPress = callback => {
@@ -33,8 +49,10 @@ const useKeyPress = callback => {
       }
 
       // if (event.ctrlKey) {
+      //   event.preventDefault();
+      // }
       if (event.keyCode == KeyCodes.SPACE) {
-        event.preventDefault();
+        // event.preventDefault();
       }
       if (event.keyCode == KeyCodes.ENTER) {
         event.preventDefault();
@@ -173,8 +191,34 @@ const InputManager = () => {
         let keybind, action;
         switch (eventType) {
           case 'keydown':
-            setHotbarSlotState(input, true);
+
+            const state = store.getState();
+
+            // check if attempting to set ability to hotbar
+            const isSetting = checkIsSetting(state);
+            if (isSetting) {
+              const keybind = getKeybindFromInput(input);
+              if (!keybind) break;
+              if (keybind.type === 'hotbar') {
+                const name = getSettingName(state);
+                dispatch(setSlot({
+                    hotbar: keybind.hotbar,
+                    slot: keybind.slot,
+                    name: name,
+                }))
+                dispatch(setInventoryState(activeStates.default));
+                dispatch(setSkillsActiveState(skillsActiveStates.default));
+                dispatch(setRefreshCooldown(true));
+                break;
+              }
+            }
+
             action = getActionFromInput(input);
+            if (action && state.menuStates.chatInputIsActive) {
+              if (!['close', 'confirm'].includes(action.label)) return;
+            }
+
+            setHotbarSlotState(input, true);
             if (action && action.action) {
               if (targetName) {
                 action.action(TARGET_CONSTANTS.CURRENT_TARGET)

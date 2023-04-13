@@ -3,12 +3,20 @@ import {
     setPlayerCurrentHealth
 } from '../store/playerHealth';
 import {
+    setGCD,
+    setCast,
+    setCooldowns,
+} from '../store/playerState';
+import {
     setTarget,
     removeTarget,
     setTargetCurrentHealth,
     setCotarget,
     removeCotarget,
     setCotargetCurrentHealth,
+    updateTargetStatuses,
+    setTargetCast,
+    cancelTargetCast,
 } from '../store/targetInfo';
 import {
     setDialogue,
@@ -17,7 +25,25 @@ import {
 import {
     setAlert,
 } from '../store/alert';
-
+import {
+    menus,
+    openMenu,
+    closeMenu,
+} from '../store/menuStates';
+import {
+    updatePreview
+} from '../store/characterPreview';
+import {
+    addItemCount,
+    subractItemCount,
+    updateEquipment,
+} from '../store/inventory';
+import {
+    updateEnemyList,
+} from '../store/enemyList';
+import {
+    updateStatuses,
+} from '../store/statusInfo';
 
 export const HealthMixin = {
 
@@ -33,8 +59,7 @@ export const HealthMixin = {
         this.health = health;
         this.updateStore();
 
-        // if (generateText) {
-        if (true) {
+        if (generateText) {
             if (diff > 0) {
                 this.generateDamageNumbers(diff);
             } else if (diff < 0) {
@@ -194,6 +219,10 @@ export const TargetMixin = {
                     )
                 }
 
+                if (gameObject.hasBuffs) {
+                    gameObject.updateStatusInfoStore();
+                }
+
                 const cotarget = gameObject.currentTarget;
                 if (cotarget) {
                     const cotargetBackgroundColor = cotarget.isEnemy ? 'pink' : 'lightblue';
@@ -215,6 +244,24 @@ export const TargetMixin = {
                             })
                         )
                     }
+                }
+                
+                if (this.hasEnemyList) {
+                    this.updateEnemyListStore();
+                }
+
+                if (gameObject.hasCasting && gameObject.casting) {
+                    store.dispatch(setTargetCast({
+                        label: gameObject.casting.name,
+                        progress: gameObject.castingTimer,
+                        duration: gameObject.casting.castTime,
+                    }));
+                } else {
+                    store.dispatch(setTargetCast({
+                        label: '',
+                        progress: 0,
+                        duration: 0,
+                    }));
                 }
 
             } else {
@@ -260,7 +307,17 @@ export const TargetMixin = {
                     removeCotarget()
                 );
             }
+
             this.currentTarget = null;
+            if (this.isPlayer && this.hasEnemyList) {
+                this.updateEnemyListStore();
+            }
+
+            store.dispatch(setTargetCast({
+                label: '',
+                progress: 0,
+                duration: 0,
+            }));
         }
     },
 }
@@ -281,7 +338,9 @@ export const DialogueMixin = {
     },
 
     startDialogue: function(player) {
-        if (this.isPlayerInRange(player) && player.body.onFloor()) {
+        if (player.dialogueTarget) {
+            // do nothing if already in dialogue
+        } else if (this.isPlayerInRange(player) && player.body.onFloor()) {
             player.dialogueTarget = this;
             this.displayMessage(player, this.messages['001']);
         } else {
@@ -292,12 +351,14 @@ export const DialogueMixin = {
     displayMessage: function(player, message) {
         this.currentMessage = message;
         if (this.currentMessage.type == 'simple') {
+            store.dispatch(openMenu(menus.dialogue));
             store.dispatch(setDialogue({
                 name: this.displayName,
                 messages: message.messages,
             }));
             player.dialogueComplete = false;
         } else if (this.currentMessage.type == 'question') {
+            store.dispatch(openMenu(menus.dialogue));
             store.dispatch(setDialogue({
                 name: this.displayName,
                 messages: [message.message],
@@ -334,6 +395,7 @@ export const DialogueMixin = {
         player.dialogueTarget = null;
         player.dialogueComplete = true;
         store.dispatch(clearDialogue());
+        store.dispatch(closeMenu());
     },
 
 }
@@ -359,10 +421,387 @@ export const AggroMixin = {
                 this.highestAggro = gameObject;
             }
         }
+
+        if (gameObject.hasEnemyList) {
+            gameObject.addToEnemyList(this);
+        }
     },
 
     resetAggro: function() {
         this.highestAggro = null;
         this.aggroMap = new Map();
     }
+}
+
+
+export const BuffMixin = {
+    hasBuffs: true,
+    _buffs: [],
+
+    updateStatusInfoStore() {
+        const buffs = this._buffs.map(buff => {
+            return {
+                key: buff.key,
+                duration: buff.timer,
+                icon: buff.icon,
+            }
+        })
+
+        if (this.isPlayer) {
+            store.dispatch(updateStatuses(buffs));
+        }
+
+        if (this.isTargeted) {
+            store.dispatch(updateTargetStatuses(buffs));
+        }
+    },
+
+    applyBuff: function(buffClass, source) {
+        const buff = buffClass(this, source);
+        buff.apply();
+        this._buffs.push(buff);
+        this.updateStatusInfoStore();
+    },
+
+    updateBuffs: function(delta) {
+        let shouldUpdate = false;
+
+        for (const buff of this._buffs) {
+            buff.timer = Math.max(0, buff.timer - delta);
+            if (buff.timer <= 0) {
+                buff.unapply(this);
+                shouldUpdate = true;
+            }
+        };
+
+        this._buffs = this._buffs.filter((buff) => buff.timer > 0);
+        if (shouldUpdate) {
+            this.updateStatusInfoStore();
+        }
+
+        for (const buff of this._buffs) {
+            buff.update(delta);
+        };
+    },
+
+    clearBuffs: function() {
+        this._buffs = [];
+        this.updateStatusInfoStore();
+    },
+}
+
+
+export const EquipmentMixin = {
+    hasEquipment: true,
+
+    equipped: {
+        weapon: null,
+        helmet: null,
+        armor: null,
+        pants: null,
+    },
+
+    equipHelmet: function(item) {
+        this.equipped.helmet = item;
+        this.updateCharacterSprite(item);
+        this.updateEquipmentStore();
+    },
+
+    equipArmor: function(item) {
+        this.equipped.armor = item;
+        this.updateCharacterSprite(item);
+        this.updateEquipmentStore();
+    },
+
+    updateCharacterSprite: function(item) {
+        if (item) {
+            this.character.updateIndexes(item.sprites);
+        } else {
+            Object.entries(this.equipped).forEach(([key, item]) => {
+                if (item) this.character.updateIndexes(item.sprites);
+            });
+        }
+        this.updateCharacterPreview();
+    },
+
+    updateEquipmentStore: function() {
+        store.dispatch(updateEquipment({
+            weapon: this.equipped.weapon?.name,
+            helmet: this.equipped.helmet?.name,
+            armor: this.equipped.armor?.name,
+            pants: this.equipped.pants?.name,
+        }))
+    },
+
+    updateCharacterPreview: function() {
+        store.dispatch(updatePreview(this.character.indexes));
+    },
+
+}
+
+
+export const InventoryMixin = {
+
+    inventory: new Map(),
+
+    addItem: function(key, amount) {
+        if (amount == null) amount = 1;
+        const itemCount = this.inventory.get(key) || 0;
+        const newItemCount = itemCount + amount;
+        this.inventory.set(key, newItemCount);
+
+        store.dispatch(addItemCount({
+            name: key,
+            value: newItemCount - itemCount,
+        }))
+    },
+
+    removeItem: function(key, amount) {
+        if (amount == null) amount = 1;
+        const itemCount = this.inventory.get(key);
+        const newItemCount = Math.max(0, itemCount - amount);
+        this.inventory.set(key, newItemCount);
+
+        store.dispatch(subractItemCount({
+            name: key,
+            value: itemCount - newItemCount,
+        }))
+    },
+
+    hasItem: function(key, amount) {
+        if (amount == null) amount = 1;
+        const itemCount = this.inventory.get(key);
+        if (itemCount && itemCount >= amount) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+}
+
+
+export const EnemyListMixin = {
+
+    hasEnemyList: true,
+    enemyList: [],
+    enemyAggroMap: new Map(),
+
+    addToEnemyList: function(enemy, aggro) {
+        if (!this.enemyList.includes(enemy)) {
+            this.enemyList.push(enemy);
+            this.enemyAggroMap.set(enemy, aggro);
+            this.updateEnemyListStore();
+        }
+    },
+
+    removeEnemyFromEnemyList: function(enemy) {
+        this.enemyList = this.enemyList.filter(item => !Object.is(item, enemy));
+        this.updateEnemyListStore();
+    },
+
+    updateEnemyListStore: function() {
+        const newState = this.enemyList.map(enemy => {
+            return {
+                name: enemy.displayName,
+                isTarget: Object.is(enemy, this.currentTarget),
+            }
+        })
+        store.dispatch(updateEnemyList(newState));
+    },
+
+    targetEnemyFromEnemyList: function(index) {
+        const enemy = this.enemyList[index]
+        if (!enemy) return;
+
+        this.targetObject(enemy);
+        this.updateEnemyListStore();
+    },
+
+    cycleTargetFromEnemyList: function(isReverse=false) {
+        if (this.enemyList.length === 0) return;
+
+        let index;
+        if (this.currentTarget) {
+
+            const prevIndex = this.enemyList.findIndex(
+                enemy => Object.is(enemy, this.currentTarget)
+            );
+
+            if (isReverse) {
+                index = prevIndex - 1
+            } else {
+                index = prevIndex + 1
+            }
+
+            if (index >= this.enemyList.length) {
+                index = 0;
+            } else if (index < 0) {
+                index = this.enemyList.length - 1
+            }
+
+        } else {
+            index = 0;
+        }
+
+        const enemy = this.enemyList[index];
+        if (!enemy) return;
+
+        this.targetObject(enemy);
+        this.updateEnemyListStore();
+    },
+}
+
+
+export const CastingMixin = {
+
+    hasCasting: true,
+    casting: null,
+    castTarget: null,
+    castProgress: 0,
+    castingTimer: 0,
+
+    canCast: function(ability, target) {
+        if (ability.canCast) {
+            return ability.canCast(this, target);
+        } else if (ability.canExecute) {
+            return ability.canExecute(this, target);
+        }
+        return true;
+    },
+
+    startCast: function(ability, target) {
+        this.casting = ability;
+        this.castTarget = target;
+        this.castingTimer = ability.castTime;
+
+        if (ability.startCast) ability.startCast(this, target);
+
+        if (this.isPlayer) {
+            store.dispatch(setCast({
+                key: ability.name,
+                duration: ability.castTime,
+            }));
+        }
+
+        if (this.isTargeted) {
+            store.dispatch(setTargetCast({
+                label: ability.name,
+                progress: ability.castTime,
+                duration: ability.castTime,
+            }));
+        }
+    },
+
+    cancelCast: function() {
+        if (this.casting && this.casting.cancelCast) {
+            this.casting.cancelCast(this, this.castTarget);
+        }
+
+        this.casting = null;
+        this.castTarget = null;
+        this.castingTimer = 0;
+
+
+        if (this.isPlayer) {
+            // todo figure out what to do with this
+            this.directionLockTimer = 0;
+            this.gcdTimer = 0;
+        }
+
+        if (this.isPlayer) {
+            store.dispatch(setGCD(0));
+            store.dispatch(setCast({
+                key: '',
+                duration: 0,
+            }));
+        }
+
+        if (this.isTargeted) {
+            store.dispatch(cancelTargetCast());
+        }
+    },
+
+    updateCast(delta) {
+        this.castingTimer = Math.max(0, this.castingTimer - delta);
+        if (this.casting && this.castingTimer === 0) {
+            const ability = this.casting;
+            ability.execute(this, this.castTarget);
+            this.casting = null;
+            this.castTarget = null;
+
+            if (this.isPlayer) {
+                // todo: figure out where to put this
+                this.faceTarget(this.castTarget);
+                this.abilityTimer += 500;
+                this.directionLockTimer += 500;
+            }
+
+            if (this.isPlayer) {
+                store.dispatch(setCast({
+                    key: '',
+                    duration: 0,
+                }));
+            }
+
+            if (this.isTargeted) {
+                store.dispatch(setTargetCast({
+                    label: '',
+                    progress: 0,
+                    duration: 0,
+                }));
+            }
+        }
+    }
+};
+
+
+export const CooldownMixin = {
+    hasCooldowns: true,
+    cooldowns: null,
+
+    startCooldownUpdater: function() {
+        // this.cooldown_updater = setInterval(this.updateCooldownsStore.bind(this), 1000);
+    },
+
+    initializeCooldowns: function() {
+        this.cooldowns = new Map();
+    },
+
+    getCooldown: function(key) {
+        return this.cooldowns.get(key) || [0, 0]
+    },
+
+    startCooldown: function(key, duration) {
+        this.cooldowns.set(key, [duration, duration]);
+        if (this.isPlayer) {
+            this.updateCooldownsStore();
+        }
+    },
+
+    updateCooldowns(delta) {
+        let shouldUpdateStore = false
+        for (var [key, value] of this.cooldowns.entries()) {
+            const [current, duration] = value;
+            const timeLeft = Math.max(0, current - delta);
+            if (timeLeft <= 0) {
+                shouldUpdateStore = true;
+                this.cooldowns.delete(key);
+            } else {
+                this.cooldowns.set(key, [timeLeft, duration]);
+            }
+        }
+        if (shouldUpdateStore) {
+            this.updateCooldownsStore(); 
+        }
+    },
+
+    updateCooldownsStore() {
+        if (this.isPlayer) {
+            store.dispatch(
+                setCooldowns(
+                    Object.fromEntries(this.cooldowns)
+                )
+            );
+        }
+    },
 }

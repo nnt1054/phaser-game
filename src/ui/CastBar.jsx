@@ -1,63 +1,68 @@
 import { useSelector, useDispatch } from 'react-redux';
 import actionMap from './actions';
 import icons from './icons';
+
 import * as styles from './../App.module.css';
 
+
+const castBarStyles = {
+    position: 'relative',
+    height: '12px',
+    width: '196px',
+    border:  '4px solid black',
+    borderRadius: '12px',
+    backgroundColor: 'rgba(0, 0, 0, .5)',
+    overflow: 'hidden',
+}
+
+const iconContainerStyles = {
+    width: '48px',
+    height: '48px',
+    borderRadius: `12px`,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    border: '4px solid black',
+    position: 'relative',
+    marginRight: '4px',
+}
+
+const iconStyle = {
+    width: `48px`,
+    height: `48px`,
+    display: 'block',
+    position: `absolute`,
+    pointerEvents: `none`,
+}
+
+
 const CastBar = () => {
+    const dispatch = useDispatch();
+
     const abilityKey = useSelector(state => state.playerState.castKey);
     const duration = useSelector(state => state.playerState.castDuration)
     const ability = actionMap[abilityKey];
 
     const icon = ability ? icons[ability.icon] : null;
 
-    const dispatch = useDispatch();
-
     const castBarContainerStyles = {
         visibility: duration ? 'visible': 'hidden',
         position: 'absolute',
-        left: '50vw',
-        bottom: '50vh',
+        bottom: '25vh',
+        right: '25vw',
         display: 'flex',
         flexDirection: 'row',
-    }
-
-    const castBarStyles = {
-        position: 'relative',
-        height: '12px',
-        width: '196px',
-        border:  '4px solid black',
-        borderRadius: '12px',
-        backgroundColor: 'rgba(0, 0, 0, .5)',
-        overflow: 'hidden',
     }
 
     const barStyles = {
         height: '16px',
         width: (duration > 0) ? '100%' : '0%',
-        transition: (duration > 0) ? `width ${ duration / 1000 }s linear` : 'width 0s',
+        animationName: duration ? styles.progress : 'none',
+        animationDuration: (duration > 0) ? `${ duration / 1000 }s` : '0s',
+        animationTimingFunction: 'linear',
         backgroundColor: 'orange',
-    }
-
-    const iconContainerStyles = {
-        width: '48px',
-        height: '48px',
-        borderRadius: `12px`,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        pointerEvents: 'none',
-        overflow: 'hidden',
-        border: '4px solid black',
-        position: 'relative',
-        marginRight: '4px',
-    }
-
-    const iconStyle = {
-        width: `48px`,
-        height: `48px`,
-        display: 'block',
-        position: `absolute`,
-        pointerEvents: `none`,
     }
 
     return (

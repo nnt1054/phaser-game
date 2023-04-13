@@ -4,43 +4,30 @@ import {
 } from './utils'
 
 import actionMap from './actions';
-
-// redux imports
 import store from '../store/store';
 import {
     clearInputQueues,
     clearQueuedAbility,
-    setCooldowns,
     setGCD,
-    setCast,
     clearSystemAction,
+    setRefreshCooldown,
 } from '../store/playerState';
-import {
-    incrementHealth,
-    setPlayerCurrentHealth
-} from '../store/playerHealth';
 import {
     setTarget,
     removeTarget,
-    setTargetCurrentHealth,
     setCotarget,
-    removeCotarget,
-    setCotargetCurrentHealth,
+    setTargetCast,
+    cancelTargetCast,
 } from '../store/targetInfo';
-import {
-    addItemCount,
-    subractItemCount,
-    updateEquipment,
-} from '../store/inventory';
-import {
-    clearDialogue,
-} from '../store/dialogueBox';
-import {
-    updatePreview
-} from '../store/characterPreview';
 import {
     HealthMixin,
     TargetMixin,
+    BuffMixin,
+    EquipmentMixin,
+    InventoryMixin,
+    EnemyListMixin,
+    CastingMixin,
+    CooldownMixin,
 } from './mixins';
 import {
     setAlert,
@@ -106,123 +93,6 @@ const compositeConfigIndexes = {
 };
 
 
-const EquipmentMixin = {
-
-    equipped: {
-        weapon: null,
-        helmet: null,
-        armor: null,
-        pants: null,
-    },
-
-    equipHelmet: function(item) {
-        this.equipped.helmet = item;
-        this.updateCharacterSprite(item);
-        this.updateEquipmentStore();
-    },
-
-    equipArmor: function(item) {
-        this.equipped.armor = item;
-        this.updateCharacterSprite(item);
-        this.updateEquipmentStore();
-    },
-
-    updateCharacterSprite: function(item) {
-        if (item) {
-            this.character.updateIndexes(item.sprites);
-        } else {
-            Object.entries(this.equipped).forEach(([key, item]) => {
-                if (item) this.character.updateIndexes(item.sprites);
-            });
-        }
-        this.updateCharacterPreview();
-    },
-
-    updateEquipmentStore: function() {
-        store.dispatch(updateEquipment({
-            weapon: this.equipped.weapon?.name,
-            helmet: this.equipped.helmet?.name,
-            armor: this.equipped.armor?.name,
-            pants: this.equipped.pants?.name,
-        }))
-    },
-
-    updateCharacterPreview: function() {
-        store.dispatch(updatePreview(this.character.indexes));
-    },
-
-}
-
-const InventoryMixin = {
-
-    inventory: new Map(),
-
-    addItem: function(key, amount) {
-        if (amount == null) amount = 1;
-        const itemCount = this.inventory.get(key) || 0;
-        const newItemCount = itemCount + amount;
-        this.inventory.set(key, newItemCount);
-
-        store.dispatch(addItemCount({
-            name: key,
-            value: newItemCount - itemCount,
-        }))
-    },
-
-    removeItem: function(key, amount) {
-        if (amount == null) amount = 1;
-        const itemCount = this.inventory.get(key);
-        const newItemCount = Math.max(0, itemCount - amount);
-        this.inventory.set(key, newItemCount);
-
-        store.dispatch(subractItemCount({
-            name: key,
-            value: itemCount - newItemCount,
-        }))
-    },
-
-    hasItem: function(key, amount) {
-        if (amount == null) amount = 1;
-        const itemCount = this.inventory.get(key);
-        if (itemCount && itemCount >= amount) {
-            return true;
-        } else {
-            return false;
-        }
-    },
-
-}
-
-class CooldownManager {
-    constructor() {
-        this._cooldowns = new Map();
-        this.cooldown_updater = setInterval(this.updateStore.bind(this), 50);
-    }
-
-    getTimer(key) {
-        return this._cooldowns.get(key) || [0, 0];
-    }
-
-    startTimer(key, time) {
-        this._cooldowns.set(key, [time, time]);
-    }
-
-    update(delta) {
-        for (var [key, value] of this._cooldowns.entries()) {
-            this._cooldowns.set(key, [Math.max(0, value[0] - delta), value[1]]);
-        }
-    }
-
-    updateStore() {
-        store.dispatch(
-            setCooldowns(
-                Object.fromEntries(this._cooldowns)
-            )
-        );
-    }
-}
-
-
 export class Player extends ArcadeContainer {
 
     mixins = [
@@ -230,6 +100,10 @@ export class Player extends ArcadeContainer {
         TargetMixin,
         EquipmentMixin,
         InventoryMixin,
+        EnemyListMixin,
+        BuffMixin,
+        CastingMixin,
+        CooldownMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -253,7 +127,7 @@ export class Player extends ArcadeContainer {
 
         this.name = scene.add.text(
             this.ref_x,
-            this.ref_y - this.body.height,
+            this.ref_y,
             this.displayName,
             {
                 fontFamily: 'Comic Sans MS',
@@ -263,7 +137,7 @@ export class Player extends ArcadeContainer {
                 strokeThickness: 8,
             }
         );
-        this.name.setOrigin(0.5, 1);
+        this.name.setOrigin(0.5, 0);
         this.name.setInteractive();
         this.name.on('clicked', (object) => {
             this.handleClick();
@@ -283,6 +157,14 @@ export class Player extends ArcadeContainer {
         );
         this.hitboxRect.setOrigin(0.5, 1);
         this.hitboxRect.setPosition(this.ref_x + 0, this.ref_y);
+
+        let ladderPadding = { width: 12, height: 4 };
+        this.ladderRect = scene.add.rectangle(
+            0, 0, ladderPadding.width, ladderPadding.height,
+            // 0x0000ff, 0.5,
+        );
+        this.ladderRect.setOrigin(0.5, 1);
+        this.ladderRect.setPosition(this.ref_x + 0, this.ref_y + ladderPadding.height);
 
         let meleePadding = { width: 128, height: 86 };
         this.meleeRect = scene.add.rectangle(
@@ -309,13 +191,32 @@ export class Player extends ArcadeContainer {
             this.handleClick();
         });
 
+        this.graphics = scene.add.graphics();
+        this.graphics.fillStyle(0x000000, 0.6);
+        this.graphics.lineStyle(2, 0x000000, 1);
+        this.graphics.strokeRoundedRect(-128 + 30, -64, 256, 64, 8);
+        this.graphics.fillRoundedRect(-128 + 30, -64, 256, 64, 8);
+
+        this.currentMessage = ''
+        this.messageTimer = 0;
+        this.chatBubble = scene.add.dom(0, 0,
+            'div',
+            '',
+            this.currentMessage,
+        );
+        this.chatBubble.setClassName('chat-bubble-hidden');
+        this.chatBubble.setOrigin(0.5, 1);
+        this.chatBubble.setPosition(this.ref_x + 0, -8);
+
         this.add([
+            this.chatBubble,
             this.name,
             this.character,
             this.clickRect,
             this.hitboxRect,
             this.meleeRect,
             this.rangedRect,
+            this.ladderRect,
         ]);
 
         this.platformColliders = [];
@@ -328,9 +229,7 @@ export class Player extends ArcadeContainer {
         this.abilityTimer = 0;
         this.systemAction = null;
         this.systemActionTarget = null;
-        this.casting = null;
-        this.castTarget = null;
-        this.castingTimer = 0;
+
         this.directionLockTimer = 0;
 
         this.reduxCursors = {
@@ -357,6 +256,11 @@ export class Player extends ArcadeContainer {
                 store.dispatch(clearSystemAction());
             }
 
+            if (playerState.refreshCooldown) {
+                store.dispatch(setRefreshCooldown(false));
+                this.updateCooldownsStore();
+            }
+
             this.reduxCursors = {
                 up: playerState.up,
                 down: playerState.down,
@@ -372,9 +276,6 @@ export class Player extends ArcadeContainer {
         this.facingRight = true;
         this.current_anim = null;
         this.previousVelocityY = 0;
-
-        // TODO: move cooldowns to mixin
-        this.cooldownManager = new CooldownManager();
 
         // Dialogue
         this.dialogueTarget = null;
@@ -408,10 +309,39 @@ export class Player extends ArcadeContainer {
         })
 
         this.updateCharacterPreview();
+
+        if (this.hasCooldowns) {
+            this.initializeCooldowns();
+            this.startCooldownUpdater();
+        }
+
+
+
+        this.isClimbing = false;
+        this.climbingDisabled = false;
+        this.climbing = null;
     }
 
     handleClick() {
         this.targetObject(this);
+    }
+
+    update(time, delta) {
+
+        // test fall damage
+        if (this.body.onFloor() && this.previousVelocityY >= 800) {
+                this.setCurrentHealth(1);
+        }
+
+        this.updateDialogue(delta)
+        this.updateMovement(delta);
+        this.updateCooldowns(delta);
+        this.updateBuffs(delta);
+        this.updateCast(delta);
+        this.updateAbilityState(delta);
+        this.updateSystemAction(delta);
+        this.updateMessageTimer(delta);
+        this.updateAnimationState(delta);
     }
 
     queueSystemAction(actionName, target) {
@@ -458,35 +388,97 @@ export class Player extends ArcadeContainer {
         }
     }
 
-    startCast(ability, target) {
-        this.casting = ability;
-        this.castTarget = target;
-        this.castingTimer = ability.castTime;
-        store.dispatch(setCast({
-            key: ability.name,
-            duration: ability.castTime,
-        }));
-    }
-
-    cancelCast() {
-        this.casting = null;
-        this.castTarget = null;
-        this.castingTimer = 0;
-        this.directionLockTimer = 0;
-        store.dispatch(setCast({
-            key: '',
-            duration: 0,
-        }));
-
-        this.gcdTimer = 0
-        store.dispatch(setGCD(0));
-    }
-
     isMoving() {
         return Boolean(this.body.velocity.y || this.body.velocity.x);
     }
 
+    startClimbing(ladder) {
+        this.isClimbing = true;
+        this.climbing = ladder;
+        this.setVelocityX(0);
+        this.setGravityY(0);
+        if (this.casting) {
+            this.cancelCast();
+        }
+
+        this.platformColliders.forEach(collider => {
+            collider.active = false;
+            this.time.addEvent({
+                delay: 250,
+                callback: () => {collider.active = true},
+                callbackScope: this, 
+            })
+        })
+    }
+
+    stopClimbing() {
+        this.isClimbing = false;
+        this.climbing = null;
+        this.setGravityY(1600)
+    }
+
     updateMovement(delta) {
+        // ladder/climbing movement
+
+        if (this.isClimbing) {
+            const ladder = this.climbing;
+            const inRange = Phaser.Geom.Rectangle.Overlaps(
+                this.hitboxRect.getBounds(),
+                ladder.getBounds(),
+            )
+            if (!inRange) {
+                this.stopClimbing(ladder);
+            } else {
+                this.x = this.climbing.getCenter().x - (this.body.width / 2);
+            }
+        } else {
+            if (this.reduxCursors.up) {
+                const ladder = this.scene.ladder;
+                const inRange = Phaser.Geom.Rectangle.Overlaps(
+                    this.hitboxRect.getBounds(),
+                    ladder.getBounds(),
+                )
+                if (inRange) {
+                    if (!this.climbingDisabled) {
+                        this.startClimbing(ladder);
+                    }
+                }
+            } else if (this.reduxCursors.down) {
+                const ladder = this.scene.ladder;
+                const inRange = Phaser.Geom.Rectangle.Overlaps(
+                    this.ladderRect.getBounds(),
+                    ladder.getBounds(),
+                )
+                if (inRange) {
+                    if (!this.climbingDisabled) {
+                        this.startClimbing(ladder);
+                        this.y = this.y + 4;
+                    }
+                }
+            }
+        }
+
+        if (this.isClimbing) {
+            if (this.reduxCursors.up) {
+                this.setVelocityY(-150)
+            } else if (this.reduxCursors.down) {
+                this.setVelocityY(150)
+                if (this.body.onFloor()) {
+                    this.stopClimbing();
+                }
+            } else {
+                this.setVelocityY(0)
+            }
+
+            if (this.reduxCursors.jump) {
+                this.executeJump();
+            }
+            return;
+        }
+
+
+        this.directionLockTimer = Math.max(0, this.directionLockTimer - delta);
+
         // horizontal position changes
         if (this.reduxCursors.left) {
             if (this.reduxCursors.down) {
@@ -552,10 +544,22 @@ export class Player extends ArcadeContainer {
 
     executeJump() {
         this.jumpUsed = true;
-        this.setVelocityY(-480);
+
+        if (this.isClimbing) {
+            this.stopClimbing();
+            this.climbingDisabled = true;
+            this.time.addEvent({
+                delay: 480,
+                callback: () => {this.climbingDisabled = false},
+                callbackScope: this, 
+            })
+            this.setVelocityY(-360);
+        } else {
+            this.setVelocityY(-480);
+        }
     }
 
-    calculateAnimationState() {
+    updateAnimationState(delta) {
         let anim = this.current_anim ?? 'idle';
         if (this.casting) anim = 'crouch';
 
@@ -577,6 +581,10 @@ export class Player extends ArcadeContainer {
             this.current_anim = null;
         }
 
+        if (this.isClimbing) {
+            anim = 'crouch';
+        }
+
         if (this.facingRight) {
             this.character.scaleX = Math.abs(this.character.scaleX);
         } else {
@@ -584,7 +592,10 @@ export class Player extends ArcadeContainer {
         }
 
         if (anim !== this.current_anim) this.current_anim = null;
-        return anim;
+
+        if (!this.paused) {
+            this.character.play(anim, true);
+        }
     }
 
     updateAbilityState(delta) {
@@ -606,12 +617,11 @@ export class Player extends ArcadeContainer {
                             this.directionLockTimer += ability.castTime;
                         } else {
                             ability.execute(this, this.gcdTarget);
-                            this.abilityTimer += 500;
-                            this.directionLockTimer += 500;
+                            this.abilityTimer += 350;
+                            this.directionLockTimer += 350;
                         }
                         this.gcdTimer += ability.cooldown;
                         store.dispatch(setGCD(ability.cooldown));
-                        this.cooldownManager.updateStore();
                     } 
                     this.gcdQueue = null;
                     this.gcdTarget = null;
@@ -620,31 +630,12 @@ export class Player extends ArcadeContainer {
                 if (!(ability.canExecute && !ability.canExecute(this, this.gcdTarget))) {
                     this.faceTarget(this.gcdTarget);
                     ability.execute(this, this.gcdTarget);
-                    this.abilityTimer += 750;
-                    this.directionLockTimer += 500;
-                    this.cooldownManager.updateStore();
+                    this.abilityTimer += 350;
+                    this.directionLockTimer += 350;
                 }
                 this.gcdQueue = null;
                 this.gcdTarget = null;
             }
-        }
-    }
-
-    updateCast(delta) {
-        this.castingTimer = Math.max(0, this.castingTimer - delta);
-        if (this.casting && this.castingTimer === 0) {
-            const ability = this.casting;
-            this.faceTarget(this.castTarget);
-            ability.execute(this, this.castTarget);
-            this.abilityTimer += 500;
-            this.directionLockTimer += 500;
-            this.cooldownManager.updateStore();
-            this.casting = null;
-            this.castTarget = null;
-            store.dispatch(setCast({
-                key: '',
-                duration: 0,
-            }));
         }
     }
 
@@ -656,15 +647,13 @@ export class Player extends ArcadeContainer {
         }
     }
 
-    update(time, delta) {
+    autoZoom(zoom) {
+        this.name.setScale(1 / zoom);
+        this.graphics.setScale(1 / zoom);
+        this.chatBubble.setScale(1 / zoom);
+    }
 
-        // test fall damage
-        if (this.body.onFloor() && this.previousVelocityY >= 800) {
-            this.setCurrentHealth(1);
-        }
-
-        this.directionLockTimer = Math.max(0, this.directionLockTimer - delta);
-
+    updateDialogue(delta) {
         if (this.dialogueTarget) {
             if (!this.dialogueTarget.isPlayerInRange(this)) {
                 this.dialogueTarget.endDialogue(this);
@@ -672,72 +661,23 @@ export class Player extends ArcadeContainer {
                 this.dialogueTarget.completeDialogue(this, this.dialogueOption);
             }
         }
-
-        this.updateMovement(delta);
-        this.updateCast(delta);
-        this.updateAbilityState(delta);
-        this.updateSystemAction(delta);
-        const anim = this.calculateAnimationState();
-        if (!this.paused) {
-            this.character.play(anim, true);
-        }
-
-        this.cooldownManager.update(delta);
     }
 
-    autoZoom(zoom) {
-        this.name.setScale(1 / zoom);
-    }
-
-    doEmote(emote) {
-        this.current_anim = emote;
-        this.character.play(emote);
-    }
-
-    addItem(name, count) {
-        const currentCount = this.inventory.get(name) || 0;
-        this.inventory.set(name, currentCount + count);
-        store.dispatch(addItemCount({
-            name: name,
-            value: count,
-        }))
-    }
-
-    targetObject(gameObject) {
-        if (gameObject.isTargetable) {
-            if (this.currentTarget) this.currentTarget.untarget();
-            this.currentTarget = gameObject;
-            gameObject.target();
-
-            if ('health' in gameObject) {
-                store.dispatch(
-                    setTarget({
-                        targetName: gameObject.displayName,
-                        currentHealth: gameObject.health,
-                        maxHealth: gameObject.maxHealth,
-                    })
-                )
-
-                const cotarget = gameObject.currentTarget;
-                if (cotarget && 'health' in cotarget) {
-                    store.dispatch(
-                        setCotarget({
-                            targetName: cotarget.displayName,
-                            currentHealth: cotarget.health,
-                            maxHealth: cotarget.maxHealth,
-                        })
-                    )
-                }
+    updateMessageTimer(delta) {
+        if (this.messageTimer) {
+            this.messageTimer = Math.max(0, this.messageTimer - delta);
+            if (this.messageTimer <= 0) {
+                this.currentMessage = '';
+                this.chatBubble.setText('');
+                this.chatBubble.setClassName('chat-bubble-hidden');
             }
         }
     }
 
-    untargetObject(gameObject) {
-        if (this.currentTarget) this.currentTarget.untarget();
-        this.currentTarget = null;
-        store.dispatch(
-            removeTarget()
-        )
+    displayMessage(text) {
+        this.chatBubble.setText(`${ this.displayName }: ${ text }`);
+        this.chatBubble.setClassName('chat-bubble');
+        this.messageTimer = 3000;
     }
 
     faceTarget(gameObject) {
@@ -860,4 +800,25 @@ export class Player extends ArcadeContainer {
         }
     }
 
+
+    dash(target) {
+        const isOverlapping = Phaser.Geom.Rectangle.Overlaps(
+            this.hitboxRect.getBounds(),
+            target.getBounds(),
+        )
+        if (!isOverlapping) {
+            // get distance
+            const playerX = this.hitboxRect.getBounds().centerX;
+            const targetX = target.getBounds().centerX;
+            let distance = Math.abs(playerX - targetX);
+            distance -= (this.body.width + target.width) / 2;
+            distance = (playerX > targetX) ? -distance: distance - this.body.width;
+            let tween = this.scene.tweens.add({
+                targets: [ this ],
+                x: playerX + distance,
+                duration: 100,
+                ease: 'Sine.easeIn',
+            });
+        }
+    }
 }

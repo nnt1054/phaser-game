@@ -1,15 +1,28 @@
 import { createSlice } from '@reduxjs/toolkit';
+ 
+export const menus = {
+    default: 'default',
+    inventory: 'inventory',
+    gameMenu: 'gameMenu',
+    dialogue: 'dialogue',
+    skills: 'skills',
+}
 
 const menuStatesSlice = createSlice({
   name: 'menus',
   initialState: {
+    activeMenu: menus.default,
+
+    activeIndex: 0,
+    gameMenuOptions: [
+        'inventory',
+        'skills',
+    ],
+
+    chatInputIsActive: false,
+
+    // deprecating everything underneath here
     activeMenus: [],
-    character: {
-        visible: false,
-        left: 40,
-        bottom: 25,
-        zIndex: 10,
-    },
     inventory: {
         visible: false,
         left: 60,
@@ -53,6 +66,30 @@ const menuStatesSlice = createSlice({
             state[key].visible = false;
         }
     },
+
+
+    openMenu: (state, action) => {
+        const menu = action.payload;
+        if (state.activeMenu !== menu) {
+            state.activeMenu = menu;
+            state.activeIndex = 0;
+        }
+    },
+
+    closeMenu: (state) => {
+        state.activeMenu = menus.default;
+        state.activeIndex = 0;
+    },
+
+    setActiveIndex: (state, action) => {
+        state.activeIndex = action.payload;
+    },
+
+    setChatInputIsActive: (state, action) => {
+        if (state.chatInputIsActive !== action.payload) {
+            state.chatInputIsActive = action.payload;
+        }
+    },
   }
 })
 
@@ -62,6 +99,16 @@ export const {
     setMenuPosition,
     incrementZIndex,
     closeMenus,
+
+    openMenu,
+    closeMenu,
+    navigateUp,
+    navigateLeft,
+    navigateRight,
+    navigateDown,
+
+    setActiveIndex,
+    setChatInputIsActive,
 } = menuStatesSlice.actions;
 
 export default menuStatesSlice;

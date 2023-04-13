@@ -7,6 +7,9 @@ import {
     HealthMixin,
     TargetMixin,
     AggroMixin,
+    BuffMixin,
+    CastingMixin,
+    CooldownMixin,
 } from '../mixins';
 
 import store from '../../store/store';
@@ -49,6 +52,99 @@ const compositeConfigIndexes = {
     'hair_front': 1,
 };
 
+const abilities = {
+    'temp': {
+        name: 'temp',
+        cooldown: 12000,
+        castTime: 3000,
+        canCast: (caster, target) => {
+            const [cooldown, duration] = caster.getCooldown('temp');
+            if (cooldown > 0) {
+                return false
+            }
+
+            const bounds = caster.meleeRect.getBounds();
+            const targetBounds = target.hitboxRect.getBounds();
+            const inRange = Phaser.Geom.Rectangle.Overlaps(
+                bounds,
+                targetBounds
+            )
+            const distance = Math.abs(bounds.centerX - targetBounds.centerX);
+            if ( inRange || distance < 32 ) {
+                return true;
+            }
+            return false;
+        },
+        startCast: (caster, target) => {
+            caster.telegraphRectTween = caster.scene.tweens.add({
+                targets: [ caster.telegraphRect ],
+                width: 256,
+                duration: 1000,
+                ease: 'Sine.easeIn',
+                onUpdate: (tween, rect) => {
+                    rect.updateDisplayOrigin();
+                }
+            });
+            caster.startCooldown('temp', 12000)
+        },
+        cancelCast: (caster, target) => {
+            if (caster.telegraphRectTween) caster.telegraphRectTween.stop()
+            caster.telegraphRect.width = 0;
+            caster.telegraphRect.updateDisplayOrigin();
+            caster.startCooldown('temp', 0)
+        },
+        execute: (caster, target) => {
+            let player = caster.scene.player;
+            const bounds = caster.telegraphRect.getBounds();
+            const playerBounds = player.hitboxRect.getBounds();
+            const inRange = Phaser.Geom.Rectangle.Overlaps(
+                bounds,
+                playerBounds
+            );
+            if (inRange) {
+                player.reduceHealth(30, 250);
+            }
+
+            caster.telegraphRectTween = null;
+            caster.telegraphRect.width = 0;
+            caster.telegraphRect.updateDisplayOrigin();
+
+            let vfx = caster.scene.add.sprite(
+                bounds.centerX,
+                bounds.centerY + 10,
+            );
+            vfx.scaleX = 3;
+            vfx.setDepth(1000);
+            vfx.play('explosion');
+            vfx.on('animationcomplete', () => {
+                vfx.destroy();
+            });
+        },
+    },
+    'autoAttack': {
+        canCast: (caster, target) => {
+            const [cooldown, duration] = caster.getCooldown('autoAttack');
+            if (cooldown > 0) {
+                return false
+            }
+            const bounds = caster.meleeRect.getBounds();
+            const targetBounds = target.hitboxRect.getBounds();
+            const inRange = Phaser.Geom.Rectangle.Overlaps(
+                bounds,
+                targetBounds
+            )
+            const distance = Math.abs(bounds.centerX - targetBounds.centerX);
+            if ( inRange ) {
+                return true;
+            }
+            return false;
+        },
+        execute: (caster, target) => {
+            target.reduceHealth(5);
+            caster.startCooldown('autoAttack', 1000);
+        }
+    }
+}
 
 export class Booma extends ArcadeContainer {
 
@@ -56,58 +152,19 @@ export class Booma extends ArcadeContainer {
         TargetMixin,
         HealthMixin,
         AggroMixin,
+        BuffMixin,
+        CastingMixin,
+        CooldownMixin,
     ]
-
-    abilities = {
-        'temp': {
-            name: 'temp',
-            cooldown: 12000,
-            castTime: 3000,
-            canExecute: (target) => { return true },
-            startCast: (target) => {
-                let tween = this.scene.tweens.add({
-                    targets: [ this.telegraphRect ],
-                    width: 256,
-                    duration: 1000,
-                    ease: 'Sine.easeIn',
-                    onUpdate: (tween, target) => {
-                        target.updateDisplayOrigin();
-                    }
-                });
-            },
-            execute: (target) => {
-                let player = this.scene.player;
-                const bounds = this.telegraphRect.getBounds();
-                const playerBounds = player.hitboxRect.getBounds();
-                const inRange = Phaser.Geom.Rectangle.Overlaps(
-                    bounds,
-                    playerBounds
-                );
-                if (inRange) {
-                    player.reduceHealth(30, 250);
-                }
-                this.telegraphRect.width = 0;
-                this.telegraphRect.updateDisplayOrigin();
-
-                let vfx = this.scene.add.sprite(
-                    bounds.centerX,
-                    bounds.centerY + 10,
-                );
-                vfx.scaleX = 3;
-                vfx.setDepth(1000);
-                vfx.play('explosion');
-                vfx.on('animationcomplete', () => {
-                    vfx.destroy();
-                });
-            },
-        }
-    }
 
     constructor(scene, x, y, displayName='Non-Player') {
         super(scene, x, y);
+        this.initialPosition = [x, y];
+
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
         })
+        this.initializeCooldowns();
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -122,7 +179,6 @@ export class Booma extends ArcadeContainer {
         this.ref_y = height;
 
         this.setGravityY(1600);
-        // this.setVelocityX(-160);
 
         this.name = scene.add.text(0, 0, this.displayName, {
             fontFamily: 'Comic Sans MS',
@@ -180,6 +236,7 @@ export class Booma extends ArcadeContainer {
         this.meleeRect.setOrigin(0.5, 1);
         this.meleeRect.setPosition(this.ref_x + 0, this.ref_y + 24);
 
+        this.telegraphRectTween = null;
         this.telegraphRect = {}
         let telegraphPadding = { width: 0, height: 86 };
         this.telegraphRect = scene.add.rectangle(
@@ -198,13 +255,8 @@ export class Booma extends ArcadeContainer {
             this.meleeRect,
         ]);
 
-        this.autoAttackTimer = 0;
-
-        this.casting = null;
-        this.castTarget = null;
-        this.castingTimer = 0;
-
-        this.cooldown = 3000;
+        this.respawnTimer = 0;
+        this.isDead = false;
     }
 
     handleClick() {
@@ -217,88 +269,79 @@ export class Booma extends ArcadeContainer {
     }
 
     handleDeath() {
+        const player = this.scene.player;
         this.visible = false;
         if (this.isTargeted) {
-            const player = this.scene.player;
             player.untargetObject();
         }
         this.resetAggro();
         this.cancelCast();
         this.untargetObject();
-    }
+        this.clearBuffs();
+        this.setVelocityX(0);
+        
+        player.addItem('potion', 1);
+        player.removeEnemyFromEnemyList(this);
 
-    updateAutoAttack(target, delta) {
-        if (this.autoAttackTimer <= 0) {
-            target.reduceHealth(5);
-            this.autoAttackTimer = 1000;
-        } else {
-            this.autoAttackTimer -= delta;
-        }
-    }
-
-    startCast(ability, target) {
-        this.casting = ability;
-        this.castTarget = target;
-        this.castingTimer = ability.castTime;
-        ability.startCast(this, target);
-        this.cooldown = ability.cooldown;
-    }
-
-    updateCast(delta) {
-        this.castingTimer = Math.max(0, this.castingTimer - delta);
-        if (this.casting && this.castingTimer === 0) {
-            const ability = this.casting;
-            ability.execute(this, this.castTarget);
-            this.casting = null;
-            this.castTarget = null;
-        }
-    }
-
-    cancelCast() {
-        this.casting = null;
-        this.castTarget = null;
-        this.castingTimer = 0;
+        this.isDead = true;
+        this.respawnTimer = 8000;
     }
 
     update(time, delta) {
-        if (this.casting) {
-            this.updateCast(delta);
+        if (this.isDead) {
+            this.respawnTimer = Math.max(0, this.respawnTimer - delta);
+            if (this.respawnTimer <= 0) {
+                this.setPosition(...this.initialPosition);
+                this.setCurrentHealth(100);
+                this.visible = true;
+                this.isDead = false;
+            }
             return;
         }
 
-        if (this.highestAggro) {
-            if (this.currentTarget == null || this.currentTarget != this.highestAggro) {
+        this.updateCooldowns(delta);
+        this.updateCast(delta);
+        this.updateBuffs(delta);
+
+        const isIdle = !this.casting
+        if (isIdle) {
+            if (this.highestAggro && !this.currentTarget) {
+                this.targetObject(this.highestAggro);
+            } else if (this.highestAggro && this.currentTarget && this.currentTarget != this.highestAggro) {
                 this.targetObject(this.highestAggro);
             }
-        }
 
-        if (this.currentTarget) {
-            this.cooldown = Math.max(0, this.cooldown - delta);
-            const bounds = this.meleeRect.getBounds();
-            const targetBounds = this.currentTarget.hitboxRect.getBounds();
-            const inRange = Phaser.Geom.Rectangle.Overlaps(
-                bounds,
-                targetBounds
-            )
-            const distance = Math.abs(bounds.centerX - targetBounds.centerX);
-            if (inRange) {
-                if (this.cooldown <= 0) {
-                    this.startCast(this.abilities['temp'])
-                }
-                this.updateAutoAttack(this.currentTarget, delta);
-                this.setVelocityX(0);
-            } else if (distance <= 32) {
-                if (this.cooldown <= 0) {
-                    this.startCast(this.abilities['temp'])
+            if (this.currentTarget) {
+                const tempAbility = abilities['temp'];
+                const autoAttackAbility = abilities['autoAttack'];
+                if (this.canCast(tempAbility, this.currentTarget)) {
+
+                    // start explosion cast
+                    this.startCast(tempAbility);
                     this.setVelocityX(0);
-                };
-            } else {
-                if (bounds.centerX < targetBounds.centerX) {
-                    this.setVelocityX(64);
-                    this.character.scaleX = Math.abs(this.character.scaleX);
+
+                } else if (this.canCast(autoAttackAbility, this.currentTarget)) {
+
+                    // execute auto attack
+                    autoAttackAbility.execute(this, this.currentTarget);
+
                 } else {
-                    this.setVelocityX(-64);
-                    this.character.scaleX = -Math.abs(this.character.scaleX);
+
+                    // move towards target
+                    const bounds = this.meleeRect.getBounds();
+                    const targetBounds = this.currentTarget.hitboxRect.getBounds();
+                    const distance = bounds.centerX - targetBounds.centerX;
+
+                    if (distance > 32) {
+                        this.setVelocityX(-64);
+                        this.character.scaleX = -Math.abs(this.character.scaleX);
+                    } else if (distance < -32) {
+                        this.setVelocityX(64);
+                        this.character.scaleX = Math.abs(this.character.scaleX);
+                    } else {
+                        this.setVelocityX(0);   
+                    }
+
                 }
             }
         }

@@ -1,5 +1,174 @@
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
+
+import actionMap from './actions';
+import icons from './icons';
+
+
+// TODO: move and fix/deduplicate from StatusInfoBar.jsx
+const StatusInfo = (props) => {
+    const status = props.status;
+    const duration = status.duration;
+    const icon = status.icon ? icons[status.icon] : icons['vercure'];
+
+    const [timer, setTimer] = useState(duration);
+
+    useEffect(() => {
+
+        const timerInterval = setInterval(() => {
+            const next = Math.max(0, timer - 1000);
+            setTimer(next);
+        }, 1000)
+
+        return () => {
+            clearInterval(timerInterval);
+        };
+
+    }, [timer]);
+
+    useEffect(() => {
+        setTimer(duration)
+    }, [duration])
+
+    const statusInfoStyles = {
+        position: 'relative',
+        width: `36px`,
+        height: `48px`,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        padding: '4px 0px',
+    }
+
+    const hotbarIconStyle = {
+        display: icon ? `block` : `none`,
+        width: `32px`,
+        height: `32px`,
+        borderRadius: `12px`,
+        pointerEvents: `auto`,
+    }
+
+    return (
+        <div
+            style={ statusInfoStyles }
+        >
+            <img draggable={ false } style={ hotbarIconStyle } src={ icon }/>
+            <span> { Math.floor(timer / 1000) } </span>
+        </div>
+    )
+}
+
+const StatusInfoBar = () => {
+    const dispatch = useDispatch();
+
+    const statuses = useSelector(state => state.targetInfo.statuses);
+    const activeMenu = useSelector(state => state.menuStates.activeMenu)
+    const dialogueActive = (activeMenu === 'dialogue');
+    const isVisible = (!dialogueActive);
+
+    const width = 255;
+    const height = 255;
+
+    const statusInfoBarContainerStyles = {
+        display: isVisible ? 'flex' : 'none',
+        maxWidth: '255px',
+        left: '12px',
+        top: '12px',
+        flexWrap: 'wrap',
+    };
+
+    return (
+        <div
+            style={ statusInfoBarContainerStyles }
+        >
+            {
+                statuses.map((status, i) => {
+                    return <StatusInfo
+                        key={ i }
+                        status={ status }
+                    />
+                })
+            }
+        </div>
+    )
+}
+
+
+
+const CastBar = () => {
+    const dispatch = useDispatch();
+
+    const label = useSelector(state => state.targetInfo.castLabel);
+    const castProgress = useSelector(state => state.targetInfo.castProgress);
+    const duration = useSelector(state => state.targetInfo.castDuration);
+
+    const [, updateState] = useState();
+    const forceUpdate = useCallback(() => updateState({}), [ label, castProgress, duration ]);
+
+    const iconContainerStyles = {
+        borderRadius: `12px`,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        pointerEvents: 'none',
+        overflow: 'hidden',
+        border: '4px solid black',
+        position: 'relative',
+        marginRight: '4px',
+    }
+
+    const iconStyle = {
+        width: `48px`,
+        height: `48px`,
+        display: 'block',
+        position: `absolute`,
+        pointerEvents: `none`,
+    }
+
+    const castBarContainerStyles = {
+        visibility: duration ? 'visible': 'hidden',
+        display: 'flex',
+        flexDirection: 'row',
+    }
+
+    const castBarStyles = {
+        position: 'relative',
+        height: '12px',
+        width: '196px',
+        border:  '4px solid black',
+        borderRadius: '12px',
+        backgroundColor: 'rgba(0, 0, 0, .5)',
+        overflow: 'hidden',
+    }
+
+    const barStyles = {
+        height: '16px',
+
+        animationName: styles.progress,
+        animationDuration: (duration > 0) ? `${ duration / 1000 }s` : '0s',
+        animationTimingFunction: 'linear',
+        animationDelay: (duration > 0) ? `-${ (duration - castProgress) / 1000 }s` : '0s',
+
+        backgroundColor: 'orange',
+    }
+
+    return (
+        <div style={ castBarContainerStyles }>
+            <div>
+                <span> { label } </span>
+                <div style={ castBarStyles }>
+                    <div
+                        key={ label }
+                        style={ barStyles }
+                    ></div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 
 const TargetInfo = () => {
     const dispatch = useDispatch();
@@ -91,11 +260,6 @@ const TargetInfo = () => {
         // marginLeft: '8px',
     };
 
-    const arrowStyle = {
-        display: cotargetDisplay ? 'block' : 'none',
-        margin: '0px 8px',
-    };
-
     const targetContainerStyles = {
         display: 'flex',
         flexDirection: 'column',
@@ -135,6 +299,19 @@ const TargetInfo = () => {
         fontWeight: 'bold',
     }
 
+    const targetSecondaryInfoStyles = {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        height: '64px',
+    }
+
+    const arrowStyle = {
+        display: cotargetDisplay ? 'block' : 'none',
+        margin: '0px 8px',
+    };
+
     return (
         <div
             style={ targetInfoContainerStyles }
@@ -157,10 +334,20 @@ const TargetInfo = () => {
                         className={ styles.BarPrimary }
                     />
                 </div>
+                <div style={ targetSecondaryInfoStyles }>
+                    <StatusInfoBar />
+                    <CastBar />
+                </div>
             </div>
 
             {/* cotarget display */}
-            <span style={ arrowStyle }> → </span>
+            <div style={ targetContainerStyles }>
+                <div style={ targetTextStyles }> 
+                    <span> &nbsp; </span>
+                </div>
+                <span style={ arrowStyle }> → </span>
+                <div style={ targetSecondaryInfoStyles } />
+            </div>
 
             <div style={ cotargetContainerStyles }>
                 <div style={ targetTextStyles }>
@@ -178,6 +365,7 @@ const TargetInfo = () => {
                         className={ styles.BarPrimary }
                     />
                 </div>
+                <div style={ targetSecondaryInfoStyles } />
             </div>
         </div>
     )

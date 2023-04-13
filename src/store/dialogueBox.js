@@ -15,7 +15,7 @@ const dialogueBoxSlice = createSlice({
     complete: true,
 
     options: [],
-    currentOption: -1,
+    currentOption: 0,
   },
   reducers: {
     setDialogue: (state, action) => {
@@ -25,7 +25,7 @@ const dialogueBoxSlice = createSlice({
         state.messages = action.payload.messages;
         state.complete = false;
         state.options = action.payload.options ?? [];
-        state.currentOption = -1;
+        state.currentOption = 0;
     },
     clearDialogue: (state) => {
         state.display = false;
@@ -34,7 +34,7 @@ const dialogueBoxSlice = createSlice({
         state.messages = [];
         state.complete = true;
         state.options = [];
-        state.currentOption = -1;
+        state.currentOption = 0;
     },
     getNextMessage: (state) => {
         if (!state.options.length) {

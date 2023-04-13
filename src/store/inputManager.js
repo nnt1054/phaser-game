@@ -26,31 +26,15 @@ const movementOnly = {
       type: 'cursor',
       cursor: 'right',
     },
-    [KeyCodes.UP]: {
-      type: 'cursor',
-      cursor: 'up',
-    },
-    [KeyCodes.LEFT]: {
-      type: 'cursor',
-      cursor: 'left',
-    },
-    [KeyCodes.DOWN]: {
-      type: 'cursor',
-      cursor: 'down',
-    },
-    [KeyCodes.RIGHT]: {
-      type: 'cursor',
-      cursor: 'right',
-    },
 
     // menus
-    [KeyCodes.C]: {
-      type: 'simple',
-      key: 'characterMenu',
-    },
     [KeyCodes.I]: {
       type: 'simple',
-      key: 'inventoryMenu',
+      key: 'inventory',
+    },
+    [KeyCodes.K]: {
+      type: 'simple',
+      key: 'skills',
     },
     [KeyCodes.ESC]: {
       type: 'simple',
@@ -63,6 +47,24 @@ const movementOnly = {
     [KeyCodes.TAB]: {
       type: 'simple',
       key: 'cycleTarget',
+    },
+
+    // navigation keys
+    [KeyCodes.UP]: {
+      type: 'simple',
+      key: 'navUp',
+    },
+    [KeyCodes.LEFT]: {
+      type: 'simple',
+      key: 'navLeft',
+    },
+    [KeyCodes.DOWN]: {
+      type: 'simple',
+      key: 'navDown',
+    },
+    [KeyCodes.RIGHT]: {
+      type: 'simple',
+      key: 'navRight',
     },
 
     // basic keybinds
@@ -184,6 +186,10 @@ const inputManagerSlice = createSlice({
       [KeyCodes.TAB]: {
         type: 'simple',
         key: 'cycleTargetReverse',
+      },
+      [KeyCodes.ENTER]: {
+        type: 'simple',
+        key: 'focusChatInput',
       },
     },
     ctrlKeymap: {},

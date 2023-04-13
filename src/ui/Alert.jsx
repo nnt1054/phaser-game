@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import * as styles from './../App.module.css';
 
 import {
 	setAlert,
 	clearAlert,
 } from './../store/alert';
+
+import * as styles from './../App.module.css';
+
 
 const Alert = () => {
 	const dispatch = useDispatch();
@@ -30,6 +32,7 @@ const Alert = () => {
 		color: 'red',
 		fontSize: '16pt',
 		fontWeight: 'bold',
+		zIndex: 100,
 	};
 
 	return (

@@ -7,6 +7,19 @@ button {
 	cursor: inherit;
 }
 
+button:focus {
+	outline: 0;
+}
+
+::-webkit-scrollbar {
+    width: 0;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}
+/* Optional: show position indicator in red */
+::-webkit-scrollbar-thumb {
+    background: #FF0000;
+}
+
 .HotBar {
 	position: absolute;
 	flex-direction: row;
@@ -126,7 +139,6 @@ button {
 	display: flex;
 }
 
-
 @keyframes roll {
   0% {
     clip-path: polygon(50% 0%, 50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%);
@@ -155,4 +167,9 @@ button {
   100% {
     clip-path: polygon(50% 0%, 50% 50%, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%);
   }
+}
+
+@keyframes progress {
+	0% { width: 0% }
+	100% { width: 100% }
 }

@@ -1,23 +1,34 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const _subractItemCount = (state, name, value) => {
-      const item = state.items.find(item => item.name === name);
-      if (item) {
+    const item = state.items.find(item => item.name === name);
+    if (item) {
         if (item.count > value) {
-          item.count -= value;
+            item.count -= value;
         } else {
-          value -= item.count;
-          item.name = 'empty';
-          item.count = 0; 
-          _subractItemCount(state, name, value);
+            value -= item.count;
+            item.name = 'empty';
+            item.count = 0; 
+            _subractItemCount(state, name, value);
         }
-      }
+    }
+}
+
+export const activeStates = {
+    default: 'default',
+    actions: 'actions',
+    setting: 'setting',
 }
 
 const inventorySlice = createSlice({
   name: 'inventory',
   initialState: {
-    draggingIndex: null,
+    state: activeStates.default,
+    activeIndex: 0,
+    activeActionsIndex: 0,
+
+    actionOptions: [],
+
     items: [
         { name: 'empty', count: 0 },
         { name: 'empty', count: 0 },
@@ -45,6 +56,35 @@ const inventorySlice = createSlice({
 
         { name: 'empty', count: 0 },
         { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+
+        // hey
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+        { name: 'empty', count: 0 },
+
         { name: 'empty', count: 0 },
         { name: 'empty', count: 0 },
         { name: 'empty', count: 0 },
@@ -76,31 +116,6 @@ const inventorySlice = createSlice({
         item.count = value;
       }
     },
-    moveItem: (state, action) => {
-      if (state.draggingIndex === null) return;
-      if (state.draggingIndex === action.payload.index) return;
-      const sourceItem = state.items[state.draggingIndex];
-      const targetItem = state.items[action.payload.index];
-
-      const targetName = targetItem.name;
-      const targetCount = targetItem.count;
-
-      if (sourceItem.name == targetItem.name) {
-        targetItem.count += sourceItem.count;
-        sourceItem.name = 'empty';
-        sourceItem.count = 0;
-      } else {
-        targetItem.name = sourceItem.name;
-        targetItem.count = sourceItem.count;
-
-        sourceItem.name = targetName;
-        sourceItem.count = targetCount;
-      }
-      state.draggingIndex = null;
-    },
-    setDraggingIndex: (state, action) => {
-        state.draggingIndex = action.payload;
-    },
     updateEquipment: (state, action) => {
         state.weapon = action.payload.weapon;
         state.helmet = action.payload.helmet;
@@ -112,21 +127,43 @@ const inventorySlice = createSlice({
         const name = action.payload.name;
         state[type] = name;
     },
-    setDraggingEquipment: (state, action) => {
-        state.draggingIndex = action.payload;
+    setInventoryActiveIndex: (state, action) => {
+        state.activeIndex = action.payload;
+    },
+    setInventoryActiveActionsIndex: (state, action) => {
+        state.activeActionsIndex = action.payload;
+    },
+    setInventoryState: (state, action) => {
+        state.state = action.payload;
+    },
+    openActionsMenu: (state) => {
+        state.state = activeStates.actions;
+        state.activeActionsIndex = 0;
+    },
+    closeActionsMenu: (state) => {
+        state.state = activeStates.default;
+        state.activeActionsIndex = 0;
+    },
+    setActionOptions: (state, action) => {
+        state.actionOptions = action.payload;
+        state.activeActionsIndex = 0;
     },
   }
 })
 
 export const {
-  setItemCount,
-  subractItemCount,
-  addItemCount,
-  moveItem,
-  setItemDragging,
-  setDraggingIndex,
-  updateEquipment,
-  setEquipment,
-  setDraggingEquipment,
+    setItemCount,
+    subractItemCount,
+    addItemCount,
+    updateEquipment,
+    setEquipment,
+    setInventoryActiveIndex,
+    setInventoryActiveActionsIndex,
+    setInventoryState,
+
+    openActionsMenu,
+    closeActionsMenu,
+
+    setActionOptions,
 } = inventorySlice.actions;
 export default inventorySlice;

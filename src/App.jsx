@@ -17,14 +17,20 @@ import HealthBar from './ui/HealthBar';
 import ManaBar from './ui/ManaBar';
 import HotBar from './ui/HotBar';
 import InputManager from './ui/InputManager';
-import CharacterMenu from './ui/CharacterMenu';
-import InventoryMenu from './ui/InventoryMenu';
 import CastBar from './ui/CastBar';
-import Tooltip from './ui/Tooltip';
 import TargetInfo from './ui/TargetInfo';
 import DialogueBox from './ui/DialogueBox';
 import Alert from './ui/Alert';
 
+import GameMenu from './ui/GameMenu';
+import BackpackMenu from './ui/BackpackMenu';
+import SetPopup from './ui/SetPopup';
+import SkillsMenu from './ui/SkillsMenu';
+import Tooltip from './ui/Tooltip';
+import EnemyList from './ui/EnemyList';
+import ChatInput from './ui/ChatInput';
+import ChatBox from './ui/ChatBox';
+import StatusInfoBar from './ui/StatusInfoBar';
 
 var config = {
     type: Phaser.WEBGL,
@@ -48,11 +54,13 @@ var config = {
             start: true
         }]
     },
+    dom: {
+        createContainer: true,
+    }
 };
 
 
 const App = () => {
-
     useEffect(() => {
         const game = new Phaser.Game(config);
     }, [])
@@ -64,6 +72,22 @@ const App = () => {
         justifyContent: 'space-around',
         alignItems: 'center',
         overflow: 'hidden',
+    }
+
+    // tooltip logic
+    const activeMenu = useSelector(state => state.menuStates.activeMenu);
+    const hoverKey = useSelector(state => state.hotBars.hoverKey);
+    const isDefault = (activeMenu === null);
+    let abilityKey = 'empty';
+    if (isDefault && hoverKey) {
+        abilityKey = hoverKey;
+    }
+    const tooltipContainerStyles = {
+        top: '12px',
+        right: '12px',
+        zIndex: '1000',
+        width: '420px',
+        pointerEvents: 'none',
     }
 
     return (
@@ -79,8 +103,6 @@ const App = () => {
                 style={ uiContainerStyles }
             >
                 <InputManager />
-                <HotBar index='1' />
-                <HotBar index='2' />
                 <HotBar index='3' />
                 <HotBar index='4' />
                 <div className={ styles.PlayerBars }>
@@ -88,15 +110,23 @@ const App = () => {
                     <ManaBar />
                 </div>
 
-                {/* menus */}
-                <CharacterMenu />
-                <InventoryMenu />
-
                 <DialogueBox />
                 <CastBar />
                 <TargetInfo />
-                <Tooltip />
                 <Alert />
+
+                <BackpackMenu />
+                <SetPopup />
+                <GameMenu />
+                <SkillsMenu />
+                <div style={ tooltipContainerStyles }>
+                    <Tooltip abilityKey={ abilityKey } />
+                </div>
+                <EnemyList />
+                {/*<ChatInput />*/}
+                <ChatBox />
+
+                <StatusInfoBar />
             </div>
         </div>
     )

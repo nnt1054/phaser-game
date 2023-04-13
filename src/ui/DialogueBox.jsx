@@ -1,16 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import useDrag from '../hooks/useDrag';
-import useHover from '../hooks/useHover';
-import {
-    setMenuPosition,
-    incrementZIndex,
-    pushToFront,
-} from '../store/menuStates';
-import { calculatePosition } from './utils.js';
+
 import store from '../store/store';
-import actionMap from './actions';
-import icons from './icons';
 import {
     getNextMessage,
     setCurrentOption,
@@ -20,12 +11,22 @@ import {
 import * as styles from './../App.module.css';
 
 
+const textContainerStyles = {
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '24px',
+}
+
+
 const DialogueBox = () => {
     const ref = useRef();
     const dispatch = useDispatch();
 
+    const activeMenu = useSelector(state => state.menuStates.activeMenu)
+    const isActive = (activeMenu === 'dialogue');
+
     const dialogue = useSelector(state => state.dialogueBox)
-    const { display, left, bottom, zIndex } = dialogue;
+    const { left, bottom, zIndex } = dialogue;
     const { name, messageIndex, messages } = dialogue;
     const message = messages ? messages[messageIndex] : '';
     const { options, currentOption } = dialogue;
@@ -33,19 +34,8 @@ const DialogueBox = () => {
     const width = 720;
     const height = 256;
 
-    const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
-    const dragState = useDrag(ref,
-        event => {},
-        event => {},
-        event => {
-            // need to set zIndex on display not on interaction
-            // then disable all other menus
-            // dispatch(pushToFront('dialogue'));
-        }
-    );
-
     const dialogueContainerStyles = {
-        display: display ? 'flex' : 'none',
+        display: isActive ? 'flex' : 'none',
         flexDirection: `column`,
 
         border: '4px solid black',
@@ -62,14 +52,7 @@ const DialogueBox = () => {
         zIndex: zIndex,
     };
 
-    const textContainerStyles = {
-        display: 'flex',
-        flexDirection: 'column',
-
-        padding: '24px',
-    }
-
-    const tempOnClick = (event) => {
+    const onClick = (event) => {
         dispatch(getNextMessage());
     }
 
@@ -79,10 +62,10 @@ const DialogueBox = () => {
             style={ dialogueContainerStyles }
             onMouseDown={ e => e.stopPropagation() }
             onMouseUp={ e => e.stopPropagation() }
-            onClick={ tempOnClick }
+            onClick={ onClick }
         >
             <div style={ textContainerStyles }>
-                <span> { name } </span>
+                <span style={{ fontWeight: 'bold' }}> { name } </span>
                 <p> { message } </p>
                 <div style={ {margin: 'auto'} }>
                     {
@@ -95,6 +78,9 @@ const DialogueBox = () => {
                                 onClick={ event => {
                                     dispatch(submitCurrentOption());
                                 }}
+                                style={{
+                                    fontWeight: (currentOption == i) ? 'bold' : 'normal',
+                                }}
                             > { currentOption == i ? '> ' : ''} { option.text } </p>
                         })
                     }
@@ -103,5 +89,6 @@ const DialogueBox = () => {
         </div>
     )
 }
+
 
 export default DialogueBox;

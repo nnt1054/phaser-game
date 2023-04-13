@@ -1,39 +1,48 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+
 import actionMap from './actions';
-import useDrag from '../hooks/useDrag';
+import { TARGET_CONSTANTS } from '../constants';
+import icons from './icons';
+import store from '../store/store';
 import useHover from '../hooks/useHover';
-import usePointerDown from '../hooks/usePointerDown';
 import {
-    incrementZIndex
-} from '../store/menuStates';
-import {
-    setPosition,
     setSlot,
-    setDragging,
-    clearDragging,
     setHoverKey,
 } from '../store/hotBars';
-import { calculatePosition } from './utils.js';
+import {
+    activeStates,
+    setInventoryState,
+} from '../store/inventory';
+import {
+    getActiveItemKey,
+} from './utils';
+import { menus } from '../store/menuStates';
+import {
+    activeStates as activeSkillStates,
+    setActiveState as setSkillsActiveState,
+} from '../store/skillsMenu';
+import {
+    checkIsSetting,
+    getSettingName,
+} from './utils';
+import {
+    setRefreshCooldown,
+} from '../store/playerState';
 
 import * as styles from '../App.module.css';
-import CONSTANTS from '../constants';
 
-import icons from './icons';
+import { useState, useEffect } from 'react';
 
-const TARGET_CONSTANTS = {
-    CURRENT_TARGET: 'CURRENT_TARGET',
-}
 
 const HotBarItem = (props) => {
     const ref = useRef();
     const imageRef = useRef();
     const dispatch = useDispatch();
-    const globalZIndex = useSelector(state => state.menuStates.zIndexCounter)
 
+    // used to set global cooldown timer
     const gcd = useSelector(state => state.playerState.gcd);
-    const dragging = useSelector(state => state.hotBars.dragging)
-    const compositeStates = useSelector(state => state.aniEditor.compositeStates);
+
     const slot = props.slot;
     const tile = actionMap[slot.name];
     const empty = (slot.name === 'empty');
@@ -44,91 +53,66 @@ const HotBarItem = (props) => {
         return sum + item.count;
     }, 0)
 
-    let timer, current, cooldown, duration;
-    let useCooldown = false;
-    const cooldowns = useSelector(state => state.playerState.cooldowns)
-    if (cooldowns[slot.name]) {
-        [current, duration] = cooldowns[slot.name];
-        if (current > 0) useCooldown = true;
-        let cooldown = current / 1000
-        timer = cooldown.toFixed(0);
-    }
+    const activeMenu = useSelector(state => state.menuStates.activeMenu);
+    const inventoryState = useSelector(state => state.inventory.state);
+    const skillsState = useSelector(state => state.skills.state);
 
-    const targetName = useSelector(state => state.targetInfo.targetName);
+    const isSettingItem = (activeMenu === menus.inventory && inventoryState === activeStates.setting);
+    const isSettingSkill = (activeMenu === menus.skills && skillsState === activeSkillStates.setting);
+    const isSetting = isSettingItem || isSettingSkill;
 
-    // Animation Editor Styles
-    const frameIndex = useSelector(state => state.aniEditor.frameIndex);
-    const frameIndexString = `frameIndex${frameIndex}`;
-    const frameActive = (slot.name === frameIndexString);
+    const cooldowns = useSelector(state => state.playerState.cooldowns[slot.name]);
+    const [current, duration] = cooldowns ? cooldowns : [0, 0];
 
-    const isHovering = useHover(ref,
-        event => {
-            dispatch(setHoverKey(slot.name));
-        },
-        event => {
-            dispatch(setHoverKey(null));
-        }
-    );
-    const [translate, setTranslate] = useState({ x: 0, y: 0 });
-    const dragState = useDrag(imageRef,
-        event => {
-            if (empty) return;
-            setTranslate({
-                x: translate.x + event.movementX,
-                y: translate.y + event.movementY,
-            });
-            dispatch(setDragging({
-                name: slot.name,
-                hotbar: props.hotbar,
-                index: props.index,
-            }));
-            document.body.style.cursor = "grabbing";
-        },
-        event => {
-            setTranslate({ x: 0, y: 0 });
-            dispatch(clearDragging());
-            document.body.style.cursor = "unset";
-        },
-        event => {
-            props.setZIndex(globalZIndex);
-            dispatch(incrementZIndex());
-        },
-    );
-    const isDragging = dragState.isDragging;
-    const isPointerDown = dragState.isPointerDown;
+    const [progress, setProgress] = useState(0);
+    const timeLeft = duration - current;
 
     useEffect(() => {
-        const element = ref.current;
+        setProgress(current);
+    }, [current]);
 
-        const handlePointerUp = event => {
-            dispatch(setSlot({
-                key: props.hotbar,
-                index: props.index,
-                name: dragging,
-            }))
-        }
-        element.addEventListener('pointerup', handlePointerUp);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (duration) {
+                const updatedProgress = Math.max(0, progress - 100);
+                setProgress(updatedProgress);
+            }
+        }, 100)
 
         return () => {
-            element.removeEventListener('pointerup', handlePointerUp);
-        }
-    }, [])
+          clearInterval(interval)
+        };
+
+    }, [progress]);
+
+    let useCooldown = false;
+    let timer = progress / 1000;
+    if (timer) {
+        useCooldown = true;
+        timer = (timer >= 10) ? timer.toFixed(0) : timer.toFixed(1);
+    }
+
+
+    // might be good to replace useHover with css classes
+    // slot.active should already handle the third tier press
+    const isHovering = useHover(ref,
+        () => dispatch(setHoverKey(slot.name)),
+        () => dispatch(setHoverKey(null)),
+    );
 
     const icon = icons[tile.icon];
-    const animationActiveToggle = CONSTANTS.animationToggle && (compositeStates[slot.name] || frameActive)
-    const dragStarted = (isDragging && (translate.x || translate.y));
-    const droppable = (dragging && !icon && isHovering);
+
+    const isVisible = (!empty || isSetting);
 
     const buttonStyle = {
         position: 'absolute',
         color: 'black',
-        backgroundColor: (animationActiveToggle || droppable) ? 'white' : 'rgba(0, 0, 0, 0.8)',
-        opacity: dragStarted ? '0.9': '1',
-        pointerEvents: dragStarted ? 'none': 'auto',
-        overflow: dragStarted ? 'visible': 'hidden',
-        zIndex: isDragging ? 10 : 1,
-        border: '4px solid black',
-        visibility: (dragging || !empty) ? 'visible' : 'hidden',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        pointerEvents: 'auto',
+        overflow:'hidden',
+        zIndex: 1,
+        border: (isHovering && isSetting) ? '4px solid white' : '4px solid black',
+        visibility: isVisible ? 'visible' : 'hidden',
     }
 
     const hotbarIconStyle = {
@@ -137,19 +121,20 @@ const HotBarItem = (props) => {
         height: `48px`,
         borderRadius: `12px`,
         position: `absolute`,
-        filter: (slot.active || isPointerDown) ? `brightness(50%)` : (isHovering || timer > 0 || (isItem && itemCount === 0)) ? `brightness(75%)` : `brightness(100%)`,
-        transform: `translateX(${ translate.x }px) translateY(${ translate.y }px)`,
-        pointerEvents: dragStarted ? `none` : `auto`,
-        zIndex: isDragging ? 10 : 1,
+        filter:
+            slot.active ? `brightness(50%)`
+            : (isHovering || timer > 0 || (isItem && itemCount === 0)) ? `brightness(75%)`
+            : `brightness(100%)`,
+        pointerEvents: `auto`,
     }
 
     const timerStyle = {
         position: `absolute`,
         fontSize: `14pt`,
-        display: (timer > 0 && !dragStarted) ? 'block' : 'none',
+        display: (timer > 0) ? 'block' : 'none',
         color: 'white',
-        zIndex: 4,
         pointerEvents: 'none',
+        zIndex: 10,
     }
 
     const keybindStyle = {
@@ -158,38 +143,42 @@ const HotBarItem = (props) => {
         fontWeight: 'bold',
         borderRadius: '2px',
         color: 'white',
-        zIndex: 11,
         pointerEvents: 'none',
-        visibility: (dragging || !empty) ? 'visible' : 'hidden',
+        visibility: isVisible ? 'visible' : 'hidden',
         left: 0,
         bottom: 0,
+        zIndex: 10,
     }
 
     const itemCountStyle = {
-        display: (isItem && !dragStarted) ? 'block' : 'none',
+        display: (isItem) ? 'block' : 'none',
         position: `absolute`,
         fontSize: `10pt`,
         fontWeight: 'bold',
         borderRadius: '2px',
         color: itemCount > 0 ? 'white' : 'red',
-        zIndex: 11,
         pointerEvents: 'none',
-        visibility: (dragging || !empty) ? 'visible' : 'hidden',
+        visibility: isVisible ? 'visible' : 'hidden',
         right: 0,
         bottom: 0,
+        zIndex: 10,
     }
 
-    // TODO: fix bug where overlay animation resets on dragging to another hotbar slot
     const cooldownOverlay = {
         position: 'absolute',
         width: `48px`,
         height: `48px`,
         borderRadius: `12px`,
         backgroundColor: 'rgba(0, 0, 0, .8)',
-        zIndex: 3,
         pointerEvents: 'none',
         display: timer > 0 ? 'block' : 'none',
-        animation: timer > 0 ? `${ styles.roll } ${ duration / 1000 }s infinite linear` : 'none',
+
+        animationName: (timer > 0) ? styles.roll : 'none',
+        animationDuration: (timer > 0) ? `${ duration }ms` : '0s',
+        animationDelay: (timer > 0) ? `-${ timeLeft }ms` : '0s',
+        animationTimingFunction: 'linear',
+
+        zIndex: 5,
     }
 
     const gcdOverlay = {
@@ -198,28 +187,10 @@ const HotBarItem = (props) => {
         height: `48px`,
         borderRadius: `12px`,
         backgroundColor: 'rgba(0, 0, 0, .8)',
-        zIndex: 3,
         pointerEvents: 'none',
         display: (tile.gcd && gcd) ? 'block' : 'none',
         animation: gcd ? `${ styles.roll } ${ (gcd) / 1000 }s infinite linear` : 'none',
-    }
-
-    // TODO: deprecate old styles once all abilities have an icon
-    const labelStyle = {
-        position: 'absolute',
-        display: !tile.icon ? 'block' : 'none',
-        color: animationActiveToggle ? 'black': 'white',
-        zIndex: 3,
-    }
-    const labelButtonStyle = {
-        position: 'absolute',
-        backgroundColor: animationActiveToggle ? 'white' : 'rgba(0, 0, 0, .8)',
-        opacity: dragStarted ? '0.9': '1',
-        pointerEvents: dragStarted ? 'none': 'auto',
-        overflow: dragStarted ? 'visible': 'hidden',
-        zIndex: isDragging ? 4 : 1,
-        border: (slot.active || isHovering) ? `4px solid white` : `4px solid black`,
-        visibility: (dragging || !empty) ? 'visible' : 'hidden',
+        zIndex: 5
     }
 
     const slotContainerStyle = {
@@ -229,15 +200,35 @@ const HotBarItem = (props) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: isDragging ? 4 : 1,
     }
 
     const onClick = (event) => {
-        if (tile.action) {
-            if (targetName) {
-                tile.action(TARGET_CONSTANTS.CURRENT_TARGET);
-            } else {
-                tile.action();
+        const state = store.getState();
+        const targetName = state.targetInfo.targetName;
+
+        const activeMenu = state.menuStates.activeMenu;
+        const inventoryState = state.inventory.state;
+        const skillsState = state.skills.state
+
+        const isSetting = checkIsSetting(state);
+
+        if (isSetting) {
+            const name = getSettingName(state);
+            dispatch(setSlot({
+                hotbar: props.hotbar,
+                slot: props.index,
+                name: name,
+            }))
+            dispatch(setInventoryState(activeStates.actions));
+            dispatch(setSkillsActiveState(activeSkillStates.actions));
+            dispatch(setRefreshCooldown(true));
+        } else {
+            if (tile.action) {
+                if (targetName) {
+                    tile.action(TARGET_CONSTANTS.CURRENT_TARGET);
+                } else {
+                    tile.action();
+                }
             }
         }
     }
@@ -247,22 +238,22 @@ const HotBarItem = (props) => {
             style={ slotContainerStyle }
             onMouseDown={ e => e.stopPropagation() }
             onMouseUp={ e => e.stopPropagation() }
+            onTouchStart= { e => e.stopPropagation() }
+            onTouchEnd= { e => e.stopPropagation() }
         >
             <span style={ keybindStyle }> { slot.keybind } </span>
             <span style={ itemCountStyle }> x{ itemCount } </span>
             <button
                 ref={ ref }
-                style={ tile.icon ? buttonStyle : labelButtonStyle }
+                style={ buttonStyle }
                 className={ styles.HotbarSlot }
                 onClick={ onClick }
             >
-                <span style={ labelStyle }> { tile.label ?? 'none' } </span>
                 <span style={ timerStyle }> { timer ? `${ timer }` : '' } </span>
-                <div style={ cooldownOverlay }/>
-                <div key={ gcd } style={ gcdOverlay }/>
+                <div key= { `cooldown_${ timeLeft }`} style={ cooldownOverlay }/>
+                <div key={ `gcd_${ gcd }` } style={ gcdOverlay }/>
                 <img ref={ imageRef } draggable={ false } style={ hotbarIconStyle } src={ icon }/>
             </button>
-
         </div>
     )
 }

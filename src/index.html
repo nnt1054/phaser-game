@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Temp Story Offline Alpha Test</title>
+    <title>Temp Story Offline</title>
     <link href='https://fonts.googleapis.com/css?family=Comfortaa' rel='stylesheet'>
   </head>
   <body>
@@ -29,17 +29,40 @@
     #ui-container {
       position: relative;
       color: white;
-
       pointer-events: none;
     }
     #ui-container > * {
       position: absolute;
-
       pointer-events: auto;
     }
+
+    .chat-bubble {
+      border: 4px solid black;
+      border-radius: 8px;
+      background-color: rgba(0, 0, 0, .5);
+      font: 16px; color: white;
+      padding: 12px 24px;
+      max-width: 168px;
+      overflow-wrap: break-word;
+    }
+
+    .chat-bubble-hidden {
+      border: 4px solid black;
+      border-radius: 8px;
+      background-color: rgba(0, 0, 0, .5);
+      font: 16px; color: white;
+      padding: 12px 24px;
+      max-width: 168px;
+      overflow-wrap: break-word;
+      visibility: hidden;
+    }
+
+
   </style>
   <script>
-    // TODO: add custom right click menus later :)
+    // TODO: add custom right click menus later :) OR NOT
     document.addEventListener('contextmenu', event => event.preventDefault());
+    // https://stackoverflow.com/questions/65586906/react-and-electron-with-draft-js-global-is-not-defined
+    const global = globalThis;
   </script>
 </html>
