@@ -1,5 +1,6 @@
 import {
     ArcadeContainer,
+    ArcadeRectangle,
     CompositeSprite,
 } from './utils'
 
@@ -119,11 +120,15 @@ export class Player extends ArcadeContainer {
         this.setCurrentHealth(50);
 
         this.setSize(20, 48);
-        this.setMaxVelocity(800);
+        this.setMaxVelocity(9999, 800);
         this.ref_x = this.body.width / 2;
         this.ref_y = this.body.height;
 
         this.displayName = 'Player 1';
+
+        this.temp = new ArcadeRectangle(scene, 0, 0, 20, 36);
+        this.temp.setOrigin(0.5, 1);
+        this.temp.setPosition(this.ref_x, this.ref_y);
 
         this.name = scene.add.text(
             this.ref_x,
@@ -217,6 +222,7 @@ export class Player extends ArcadeContainer {
             this.meleeRect,
             this.rangedRect,
             this.ladderRect,
+            this.temp,
         ]);
 
         this.platformColliders = [];
@@ -320,6 +326,13 @@ export class Player extends ArcadeContainer {
         this.isClimbing = false;
         this.climbingDisabled = false;
         this.climbing = null;
+
+
+        this.overlappingLadders = [];
+        this.previousOverlappingLadders = [];
+
+        this.isDashing = false;
+        this.dashTween = null;
     }
 
     handleClick() {
@@ -342,6 +355,9 @@ export class Player extends ArcadeContainer {
         this.updateSystemAction(delta);
         this.updateMessageTimer(delta);
         this.updateAnimationState(delta);
+
+        this.previousOverlappingLadders = this.overlappingLadders;
+        this.overlappingLadders = [];
     }
 
     queueSystemAction(actionName, target) {
@@ -392,6 +408,12 @@ export class Player extends ArcadeContainer {
         return Boolean(this.body.velocity.y || this.body.velocity.x);
     }
 
+    addLadders(ladders) {
+        this.physics.add.overlap(this.temp, ladders, (hitbox, ladder) => {
+            this.overlappingLadders.push(ladder);
+        });
+    }
+
     startClimbing(ladder) {
         this.isClimbing = true;
         this.climbing = ladder;
@@ -417,46 +439,41 @@ export class Player extends ArcadeContainer {
         this.setGravityY(1600)
     }
 
-    updateMovement(delta) {
-        // ladder/climbing movement
+    stopDash() {
+        this.isDashing = false;
+        if (this.dashTween) this.dashTween.stop();
+        this.dashTween = null;
+    }
 
+    updateMovement(delta) {
+
+        // ladder/climbing movement
         if (this.isClimbing) {
             const ladder = this.climbing;
-            const inRange = Phaser.Geom.Rectangle.Overlaps(
-                this.hitboxRect.getBounds(),
-                ladder.getBounds(),
-            )
+            const inRange = this.overlappingLadders.find(x => x == ladder);
             if (!inRange) {
                 this.stopClimbing(ladder);
             } else {
-                this.x = this.climbing.getCenter().x - (this.body.width / 2);
+                this.x = this.climbing.body.center.x - (this.body.width / 2);
             }
         } else {
             if (this.reduxCursors.up) {
-                const ladder = this.scene.ladder;
-                const inRange = Phaser.Geom.Rectangle.Overlaps(
-                    this.hitboxRect.getBounds(),
-                    ladder.getBounds(),
-                )
-                if (inRange) {
+                const ladder = this.overlappingLadders.find(x => !!x);
+                if (ladder) {
                     if (!this.climbingDisabled) {
                         this.startClimbing(ladder);
                     }
                 }
             } else if (this.reduxCursors.down) {
-                const ladder = this.scene.ladder;
-                const inRange = Phaser.Geom.Rectangle.Overlaps(
-                    this.ladderRect.getBounds(),
-                    ladder.getBounds(),
-                )
-                if (inRange) {
+                const ladder = this.overlappingLadders.find(x => !!x);
+                if (ladder) {
                     if (!this.climbingDisabled) {
                         this.startClimbing(ladder);
-                        this.y = this.y + 4;
                     }
                 }
             }
         }
+
 
         if (this.isClimbing) {
             if (this.reduxCursors.up) {
@@ -479,7 +496,10 @@ export class Player extends ArcadeContainer {
 
         this.directionLockTimer = Math.max(0, this.directionLockTimer - delta);
 
-        // horizontal position changes
+        if (this.body.blocked.left || this.body.blocked.right) {
+            console.log('blocked!');
+        }
+
         if (this.reduxCursors.left) {
             if (this.reduxCursors.down) {
                 this.setVelocityX(-75);
@@ -502,6 +522,7 @@ export class Player extends ArcadeContainer {
             this.setVelocityX(0);
         }
 
+
         if (this.body.onFloor()) {
             this.coyoteTime = 0;
             this.jumpUsed = false;
@@ -522,6 +543,12 @@ export class Player extends ArcadeContainer {
             this.setGravityY(800);
         } else {
             this.setGravityY(1600);
+        }
+
+        if (this.reduxCursors.down) {
+            this.temp.setY(this.ref_y + 4);
+        } else {
+            this.temp.setY(this.ref_y);
         }
 
         const moving = (this.body.velocity.y || this.body.velocity.x)

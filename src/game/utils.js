@@ -73,6 +73,42 @@ function ParseJSONTiled(name, json, insertNull) {
     return mapData;
 }
 
+
+export class ArcadeRectangle extends Phaser.GameObjects.Rectangle {
+
+    mixins = [
+        Phaser.Physics.Arcade.Components.Acceleration,
+        Phaser.Physics.Arcade.Components.Angular,
+        Phaser.Physics.Arcade.Components.Bounce,
+        Phaser.Physics.Arcade.Components.Debug,
+        Phaser.Physics.Arcade.Components.Drag,
+        Phaser.Physics.Arcade.Components.Enable,
+        Phaser.Physics.Arcade.Components.Friction,
+        Phaser.Physics.Arcade.Components.Gravity,
+        Phaser.Physics.Arcade.Components.Immovable,
+        Phaser.Physics.Arcade.Components.Mass,
+        Phaser.Physics.Arcade.Components.Pushable,
+        Phaser.Physics.Arcade.Components.Size,
+        Phaser.Physics.Arcade.Components.Velocity
+    ]
+
+    constructor(scene, x, y, width, height, fillColor, fillAlpha, isStatic) {
+        super(scene, x, y, width, height, fillColor, fillAlpha);
+        this.mixins.forEach(mixin => {
+            Object.assign(this, mixin);
+        })
+        this.body = null;
+
+        this.cursors = scene.cursors;
+        this.time = scene.time;
+        this.physics = scene.physics;
+
+        scene.add.existing(this);
+        scene.physics.add.existing(this, isStatic);
+    }
+}
+
+
 export class ArcadeContainer extends Phaser.GameObjects.Container {
 
     mixins = [

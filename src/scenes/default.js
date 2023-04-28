@@ -6,6 +6,7 @@ import {
     setLayerCollisionTopOnly,
     debugTiles,
     createTiledMap,
+    ArcadeRectangle,
 } from '../game/utils'
 
 import { Player } from '../game/Player';
@@ -21,6 +22,8 @@ import {
 import {
     Booma,
 } from '../game/npcs/Booma';
+import { Ladder } from '../game/Ladder';
+
 
 import jumpquest_map from '../assets/tilemaps/jq_map.json';
 import jumpquest_bg from '../assets/jq.png';
@@ -58,7 +61,7 @@ class defaultScene extends Phaser.Scene {
     }
 
     create () {
-        // this.input.enableDebug(this.player);
+        this.physics.world.setFPS(120);
         this.frameAnimator = this.plugins.get('frameAnimator');
         animationCreate(this);
 
@@ -103,6 +106,14 @@ class defaultScene extends Phaser.Scene {
         this.booma2 = new Booma(this, 32 * 14.5, 32 * 58, 'Hostile Enemy B');
         this.booma3 = new Booma(this, 32 * 17, 32 * 58, 'Hostile Enemy C');
 
+        this.ladder = new Ladder(this, 32 * 5, 32 * 52, 12, 256);
+
+        this.wall = new ArcadeRectangle(this, 32 * 10, 32 * 56, 64, 256, 0xff0000, 0.5, true);
+        this.physics.add.collider(this.player, this.wall);
+        this.physics.add.overlap(this.player, this.wall, (player, ladder) => {
+            player.stopDash();
+        })
+
         this.npcs = [
             this.sign,
             this.lamb,
@@ -117,30 +128,16 @@ class defaultScene extends Phaser.Scene {
             this.booma3,
         ];
 
-        // todo: should move to player init maybe?
         this.player.availableTargets = this.npcs;
         this.player.setCollideWorldBounds(true);
         this.player.addPlatforms([layer2]);
         this.player.addCollision([layer1]);
-        // this.player.addCollision([layer1, spikes]);
+        this.player.addLadders([this.ladder]);
 
         for (const enemy of this.enemies) {
             enemy.setCollideWorldBounds(true);
             enemy.addCollision([layer1]);
         }
-
-        // ladder
-        this.ladder = this.add.rectangle(
-            32 * 5.5, 32 * 56,
-            12, 256,
-            0xff0000, 0.5,
-        );
-        // this.physics.add.existing(this.ladder);
-        // this.ladder.body.setImmovable(true);
-        // this.physics.add.overlap(this.ladder, this.player, (ladder, player) => {
-        //     console.log(ladder, player, 'hi');
-        // });
-
 
         this.cameras.main.startFollow(this.player, false, 1, 1);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
@@ -166,6 +163,8 @@ class defaultScene extends Phaser.Scene {
             }
             this.mouse = null;
         }, this);
+
+        // this.input.enableDebug(this.ladder);
     }
 
     update (time, delta) {

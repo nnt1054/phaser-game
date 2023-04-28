@@ -309,6 +309,29 @@ const corps_a_corps = {
                     smoke.destroy();
                 })
             })
+            player.isDashing = true;
+            player.dashTween = tween;
+
+            // player.dashVelocity = (distance / 250) * 1000;
+            // player.dashPosition = playerX + distance;
+            // player.time.addEvent({
+            //     delay: 2000,
+            //     callback: () => {
+            //         player.isDashing = false;
+            //         player.dashVelocity = 0;
+            //         let bounds = hitboxRect.getBounds();
+            //         let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
+            //         if (!facingRight) {
+            //             smoke.scaleX = -1;
+            //         }
+            //         smoke.setOrigin(0.5, 1);
+            //         smoke.play('smoke');
+            //         smoke.on('animationcomplete', () => {
+            //             smoke.destroy();
+            //         })
+            //     },
+            //     callbackScope: this,
+            // })
         }
 
         target.reduceHealth(10);
