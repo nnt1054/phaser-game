@@ -102,17 +102,15 @@ class defaultScene extends Phaser.Scene {
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
         this.lamb = new Lamb(this, 32 * 20, 32 * 1.5, 'Auspicious Friend');
 
-        this.booma1 = new Booma(this, 32 * 12, 32 * 58, 'Hostile Enemy A');
+        this.booma1 = new Booma(this, 32 * 16, 32 * 50, 'Hostile Enemy A');
+        // this.booma1 = new Booma(this, 32 * 12, 32 * 58, 'Hostile Enemy A');
         this.booma2 = new Booma(this, 32 * 14.5, 32 * 58, 'Hostile Enemy B');
         this.booma3 = new Booma(this, 32 * 17, 32 * 58, 'Hostile Enemy C');
 
         this.ladder = new Ladder(this, 32 * 5, 32 * 52, 12, 256);
 
-        this.wall = new ArcadeRectangle(this, 32 * 10, 32 * 56, 64, 256, 0xff0000, 0.5, true);
-        this.physics.add.collider(this.player, this.wall);
-        this.physics.add.overlap(this.player, this.wall, (player, ladder) => {
-            player.stopDash();
-        })
+        // this.wall = new ArcadeRectangle(this, 32 * 10, 32 * 56, 32, 256, 0xff0000, 0.5, true);
+        // this.player.addWalls([this.wall]);
 
         this.npcs = [
             this.sign,
@@ -137,6 +135,7 @@ class defaultScene extends Phaser.Scene {
         for (const enemy of this.enemies) {
             enemy.setCollideWorldBounds(true);
             enemy.addCollision([layer1]);
+            enemy.addPlatforms([layer2]);
         }
 
         this.cameras.main.startFollow(this.player, false, 1, 1);

@@ -120,15 +120,32 @@ export class Player extends ArcadeContainer {
         this.setCurrentHealth(50);
 
         this.setSize(20, 48);
-        this.setMaxVelocity(9999, 800);
+        this.setMaxVelocity(800);
+        this.setGravityY(1600);
         this.ref_x = this.body.width / 2;
         this.ref_y = this.body.height;
 
         this.displayName = 'Player 1';
 
-        this.temp = new ArcadeRectangle(scene, 0, 0, 20, 36);
-        this.temp.setOrigin(0.5, 1);
-        this.temp.setPosition(this.ref_x, this.ref_y);
+        this.ladderHitbox = new ArcadeRectangle(scene, 0, 0, 20, 36);
+        this.ladderHitbox.setOrigin(0.5, 1);
+        this.ladderHitbox.setPosition(this.ref_x, this.ref_y);
+
+        this.dashHitbox = new ArcadeRectangle(scene, 0, 0, 48, 48);
+        this.dashHitbox.setOrigin(0.5, 1);
+        this.dashHitbox.setPosition(this.ref_x, this.ref_y);
+
+        this.hitboxRect = new ArcadeRectangle(scene, 0, 0, 24, 42);
+        this.hitboxRect.setOrigin(0.5, 1);
+        this.hitboxRect.setPosition(this.ref_x, this.ref_y);
+
+        this.meleeRect = new ArcadeRectangle(scene, 0, 0, 128, 86);
+        this.meleeRect.setOrigin(0.5, 1);
+        this.meleeRect.setPosition(this.ref_x, this.ref_y + 24);
+
+        this.rangedRect = new ArcadeRectangle(scene, 0, 0, 1028, 256);
+        this.rangedRect.setOrigin(0.5, 0.5);
+        this.rangedRect.setPosition(this.ref_x, 0);
 
         this.name = scene.add.text(
             this.ref_x,
@@ -156,54 +173,16 @@ export class Player extends ArcadeContainer {
             compositeConfigIndexes
         );
 
-        let hitboxPadding = { width: 24, height: 42 };
-        this.hitboxRect = scene.add.rectangle(
-            0, 0, hitboxPadding.width, hitboxPadding.height,
-        );
-        this.hitboxRect.setOrigin(0.5, 1);
-        this.hitboxRect.setPosition(this.ref_x + 0, this.ref_y);
-
-        let ladderPadding = { width: 12, height: 4 };
-        this.ladderRect = scene.add.rectangle(
-            0, 0, ladderPadding.width, ladderPadding.height,
-            // 0x0000ff, 0.5,
-        );
-        this.ladderRect.setOrigin(0.5, 1);
-        this.ladderRect.setPosition(this.ref_x + 0, this.ref_y + ladderPadding.height);
-
-        let meleePadding = { width: 128, height: 86 };
-        this.meleeRect = scene.add.rectangle(
-            0, 0, meleePadding.width, meleePadding.height,
-        );
-        this.meleeRect.setOrigin(0.5, 1);
-        this.meleeRect.setPosition(this.ref_x + 0, this.ref_y + 24);
-
-        let rangedPadding = { width: 1028, height: 256 }
-        this.rangedRect = scene.add.rectangle(
-            0, 0, rangedPadding.width, rangedPadding.height,
-        )
-        this.rangedRect.setOrigin(0.5, 0.5);
-        this.rangedRect.setPosition(this.ref_x + 0, 0);
-
-        let clickPadding = { width: 32, height: 64 };
-        this.clickRect = scene.add.rectangle(
-            0, 0, clickPadding.width, clickPadding.height,
-        );
+        this.clickRect = scene.add.rectangle(0, 0, 32, 64,);
         this.clickRect.setOrigin(0.5, 1);
-        this.clickRect.setPosition(this.ref_x + 0, this.ref_y);
+        this.clickRect.setPosition(this.ref_x, this.ref_y);
         this.clickRect.setInteractive();
         this.clickRect.on('clicked', (object) => {
             this.handleClick();
         });
 
-        this.graphics = scene.add.graphics();
-        this.graphics.fillStyle(0x000000, 0.6);
-        this.graphics.lineStyle(2, 0x000000, 1);
-        this.graphics.strokeRoundedRect(-128 + 30, -64, 256, 64, 8);
-        this.graphics.fillRoundedRect(-128 + 30, -64, 256, 64, 8);
-
         this.currentMessage = ''
-        this.messageTimer = 0;
+        this.messageTimer;
         this.chatBubble = scene.add.dom(0, 0,
             'div',
             '',
@@ -221,12 +200,9 @@ export class Player extends ArcadeContainer {
             this.hitboxRect,
             this.meleeRect,
             this.rangedRect,
-            this.ladderRect,
-            this.temp,
+            this.ladderHitbox,
+            this.dashHitbox,
         ]);
-
-        this.platformColliders = [];
-        this.setGravityY(1600);
 
         // Input
         this.gcdQueue = null;
@@ -318,7 +294,6 @@ export class Player extends ArcadeContainer {
 
         if (this.hasCooldowns) {
             this.initializeCooldowns();
-            this.startCooldownUpdater();
         }
 
 
@@ -353,11 +328,9 @@ export class Player extends ArcadeContainer {
         this.updateCast(delta);
         this.updateAbilityState(delta);
         this.updateSystemAction(delta);
-        this.updateMessageTimer(delta);
         this.updateAnimationState(delta);
 
-        this.previousOverlappingLadders = this.overlappingLadders;
-        this.overlappingLadders = [];
+        this.clearLadders();
     }
 
     queueSystemAction(actionName, target) {
@@ -409,9 +382,20 @@ export class Player extends ArcadeContainer {
     }
 
     addLadders(ladders) {
-        this.physics.add.overlap(this.temp, ladders, (hitbox, ladder) => {
+        this.physics.add.overlap(this.ladderHitbox, ladders, (hitbox, ladder) => {
             this.overlappingLadders.push(ladder);
         });
+    }
+
+    addWalls(walls) {
+        this.physics.add.collider(this, walls, () => {
+            if (this.isDashing) this.stopDash();
+        });
+    }
+
+    clearLadders() {
+        this.previousOverlappingLadders = this.overlappingLadders;
+        this.overlappingLadders = [];
     }
 
     startClimbing(ladder) {
@@ -422,15 +406,7 @@ export class Player extends ArcadeContainer {
         if (this.casting) {
             this.cancelCast();
         }
-
-        this.platformColliders.forEach(collider => {
-            collider.active = false;
-            this.time.addEvent({
-                delay: 250,
-                callback: () => {collider.active = true},
-                callbackScope: this, 
-            })
-        })
+        this.disablePlatformColliders(250);
     }
 
     stopClimbing() {
@@ -497,7 +473,7 @@ export class Player extends ArcadeContainer {
         this.directionLockTimer = Math.max(0, this.directionLockTimer - delta);
 
         if (this.body.blocked.left || this.body.blocked.right) {
-            console.log('blocked!');
+            this.stopDash();
         }
 
         if (this.reduxCursors.left) {
@@ -522,7 +498,6 @@ export class Player extends ArcadeContainer {
             this.setVelocityX(0);
         }
 
-
         if (this.body.onFloor()) {
             this.coyoteTime = 0;
             this.jumpUsed = false;
@@ -546,9 +521,9 @@ export class Player extends ArcadeContainer {
         }
 
         if (this.reduxCursors.down) {
-            this.temp.setY(this.ref_y + 4);
+            this.ladderHitbox.setY(this.ref_y + 4);
         } else {
-            this.temp.setY(this.ref_y);
+            this.ladderHitbox.setY(this.ref_y);
         }
 
         const moving = (this.body.velocity.y || this.body.velocity.x)
@@ -559,14 +534,7 @@ export class Player extends ArcadeContainer {
 
     executeDownJump() {
         this.jumpUsed = true;
-        this.platformColliders.forEach(collider => {
-            collider.active = false;
-            this.time.addEvent({
-                delay: 250,
-                callback: () => {collider.active = true},
-                callbackScope: this, 
-            })
-        })
+        this.disablePlatformColliders(250);
     }
 
     executeJump() {
@@ -649,7 +617,7 @@ export class Player extends ArcadeContainer {
                         }
                         this.gcdTimer += ability.cooldown;
                         store.dispatch(setGCD(ability.cooldown));
-                    } 
+                    }
                     this.gcdQueue = null;
                     this.gcdTarget = null;
                 }
@@ -676,7 +644,6 @@ export class Player extends ArcadeContainer {
 
     autoZoom(zoom) {
         this.name.setScale(1 / zoom);
-        this.graphics.setScale(1 / zoom);
         this.chatBubble.setScale(1 / zoom);
     }
 
@@ -690,21 +657,24 @@ export class Player extends ArcadeContainer {
         }
     }
 
-    updateMessageTimer(delta) {
-        if (this.messageTimer) {
-            this.messageTimer = Math.max(0, this.messageTimer - delta);
-            if (this.messageTimer <= 0) {
-                this.currentMessage = '';
-                this.chatBubble.setText('');
-                this.chatBubble.setClassName('chat-bubble-hidden');
-            }
-        }
+    clearMessage() {
+        this.currentMessage = '';
+        this.chatBubble.setText('');
+        this.chatBubble.setClassName('chat-bubble-hidden');
+        this.messageTimer = null;
     }
 
     displayMessage(text) {
         this.chatBubble.setText(`${ this.displayName }: ${ text }`);
         this.chatBubble.setClassName('chat-bubble');
-        this.messageTimer = 3000;
+        if (this.messageTimer) {
+            this.messageTimer.remove()
+        }
+        this.messageTimer = this.time.addEvent({
+            delay: 3000,
+            callback: () => { this.clearMessage(); },
+            callbackScope: this, 
+        })
     }
 
     faceTarget(gameObject) {
@@ -827,25 +797,14 @@ export class Player extends ArcadeContainer {
         }
     }
 
-
-    dash(target) {
-        const isOverlapping = Phaser.Geom.Rectangle.Overlaps(
-            this.hitboxRect.getBounds(),
-            target.getBounds(),
-        )
-        if (!isOverlapping) {
-            // get distance
-            const playerX = this.hitboxRect.getBounds().centerX;
-            const targetX = target.getBounds().centerX;
-            let distance = Math.abs(playerX - targetX);
-            distance -= (this.body.width + target.width) / 2;
-            distance = (playerX > targetX) ? -distance: distance - this.body.width;
-            let tween = this.scene.tweens.add({
-                targets: [ this ],
-                x: playerX + distance,
-                duration: 100,
-                ease: 'Sine.easeIn',
-            });
-        }
+    dash(position, duration) {
+        this.isDashing = true;
+        this.dashTween = this.scene.tweens.add({
+            targets: [ this ],
+            x: position,
+            duration: duration,
+            ease: 'Sine.easeIn',
+        });
+        return this.dashTween;
     }
 }

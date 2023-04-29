@@ -291,12 +291,7 @@ const corps_a_corps = {
             let distance = Math.abs(playerX - targetX);
             distance -= (player.hitboxRect.width + hitboxRect.width) / 2;
             distance = (playerX > targetX) ? -distance: distance - player.hitboxRect.width;
-            let tween = player.scene.tweens.add({
-                targets: [ player ],
-                x: playerX + distance,
-                duration: 150,
-                ease: 'Sine.easeIn',
-            });
+            const tween = player.dash(playerX + distance, 150);
             tween.on('complete', () => {
                 let bounds = hitboxRect.getBounds();
                 let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
@@ -309,29 +304,6 @@ const corps_a_corps = {
                     smoke.destroy();
                 })
             })
-            player.isDashing = true;
-            player.dashTween = tween;
-
-            // player.dashVelocity = (distance / 250) * 1000;
-            // player.dashPosition = playerX + distance;
-            // player.time.addEvent({
-            //     delay: 2000,
-            //     callback: () => {
-            //         player.isDashing = false;
-            //         player.dashVelocity = 0;
-            //         let bounds = hitboxRect.getBounds();
-            //         let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
-            //         if (!facingRight) {
-            //             smoke.scaleX = -1;
-            //         }
-            //         smoke.setOrigin(0.5, 1);
-            //         smoke.play('smoke');
-            //         smoke.on('animationcomplete', () => {
-            //             smoke.destroy();
-            //         })
-            //     },
-            //     callbackScope: this,
-            // })
         }
 
         target.reduceHealth(10);
@@ -375,13 +347,7 @@ const displacement = {
         const targetX = hitboxRect.getBounds().centerX;
         const facingRight = playerX > targetX;
         const distance = facingRight ? 128 : -128;
-        let tween = player.scene.tweens.add({
-            targets: [ player ],
-            x: playerX + distance,
-            duration: 150,
-            ease: 'Sine.easeOut',
-        });
-
+        const tween = player.dash(playerX + distance, 150);
         tween.on('complete', () => {
             let bounds = hitboxRect.getBounds();
             let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);

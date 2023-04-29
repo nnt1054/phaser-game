@@ -137,19 +137,26 @@ export class ArcadeContainer extends Phaser.GameObjects.Container {
         this.cursors = scene.cursors
         this.time = scene.time
         this.physics = scene.physics
+        this.platformColliders;
     }
 
     addPlatforms(platforms) {
-        platforms.forEach(platform => {
-            let collider =  this.physics.add.collider(this, platform);
-            this.platformColliders.push(collider)
-        })
+        this.platformColliders = this.physics.add.collider(this, platforms);
     }
 
     addCollision(objects) {
         objects.forEach(object => {
             this.physics.add.collider(this, object);
         })
+    }
+
+    disablePlatformColliders(duration) {
+        this.platformColliders.active = false;
+        this.time.addEvent({
+            delay: duration,
+            callback: () => { this.platformColliders.active = true },
+            callbackScope: this, 
+        }) 
     }
 }
 
