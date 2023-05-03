@@ -294,6 +294,9 @@ export class Player extends ArcadeContainer {
 
         this.isDashing = false;
         this.dashTween = null;
+
+        // remove me after raycast testing
+        this.walls = []
     }
 
     handleClick() {
@@ -391,6 +394,7 @@ export class Player extends ArcadeContainer {
     }
 
     addWalls(walls) {
+        this.walls = walls;
         this.physics.add.collider(this, walls, () => {
             if (this.isDashing) this.stopDash();
         });

@@ -174,8 +174,7 @@ const jolt = {
             x: targetBounds.centerX,
             y: targetBounds.centerY,
             duration: duration,
-            // ease: 'Sine.easeIn',
-            ease: 'Quadratic.InOut',
+            ease: 'Sine.easeIn',
         });
         tween.on('complete', () => {
             vfx.destroy();
@@ -309,18 +308,34 @@ const corps_a_corps = {
     execute: (player, target) => {
         const hitboxRect = target.hitboxRect;
         const isOverlapping = Phaser.Geom.Rectangle.Overlaps(
-            player.hitboxRect.getBounds(),
+            player.body,
             hitboxRect.getBounds(),
         )
         if (!isOverlapping) {
-            // get distance
-            const playerX = player.hitboxRect.getBounds().centerX;
-            const targetX = hitboxRect.getBounds().centerX;
-            const facingRight = playerX > targetX;
-            let distance = Math.abs(playerX - targetX);
-            distance -= (player.hitboxRect.width + hitboxRect.width) / 2;
-            distance = (playerX > targetX) ? -distance: distance - player.hitboxRect.width;
-            const tween = player.dash(playerX + distance, 150);
+            const facingRight = player.hitboxRect.getBounds().centerX < hitboxRect.getBounds().centerX;
+            let position = facingRight ? hitboxRect.getBounds().left - player.body.width : hitboxRect.getBounds().right;
+            let distance = facingRight ? position - player.x : position - player.x - player.body.width;
+
+            // check for walls in path
+            let rect = player.scene.add.rectangle(
+                player.body.x, player.body.y,
+                player.body.width + distance, player.body.height, 0xff0000, 0.5,
+            );
+            rect.setOrigin(0, 0);
+            for (const wall of player.walls) {
+                if (
+                    Phaser.Geom.Rectangle.Overlaps(rect.getBounds(), wall.getBounds())
+                ) {
+                    if (facingRight) {
+                        position = Math.min(position, wall.getBounds().left - player.body.width)
+                    } else {
+                        position = Math.max(position, wall.getBounds().right)
+                    }
+                }
+            };
+            rect.destroy();
+
+            const tween = player.dash(position, 150);
             tween.on('complete', () => {
                 let bounds = hitboxRect.getBounds();
                 let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
