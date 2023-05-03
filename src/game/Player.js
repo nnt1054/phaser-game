@@ -131,21 +131,10 @@ export class Player extends ArcadeContainer {
         this.ladderHitbox.setOrigin(0.5, 1);
         this.ladderHitbox.setPosition(this.ref_x, this.ref_y);
 
-        this.dashHitbox = new ArcadeRectangle(scene, 0, 0, 48, 48);
-        this.dashHitbox.setOrigin(0.5, 1);
-        this.dashHitbox.setPosition(this.ref_x, this.ref_y);
-
-        this.hitboxRect = new ArcadeRectangle(scene, 0, 0, 24, 42);
+        this.hitboxRect = new ArcadeRectangle(scene, this.ref_x, this.ref_y, 24, 42);
         this.hitboxRect.setOrigin(0.5, 1);
-        this.hitboxRect.setPosition(this.ref_x, this.ref_y);
 
-        this.meleeRect = new ArcadeRectangle(scene, 0, 0, 128, 86);
-        this.meleeRect.setOrigin(0.5, 1);
-        this.meleeRect.setPosition(this.ref_x, this.ref_y + 24);
-
-        this.rangedRect = new ArcadeRectangle(scene, 0, 0, 1028, 256);
-        this.rangedRect.setOrigin(0.5, 0.5);
-        this.rangedRect.setPosition(this.ref_x, 0);
+        this.rangeChecker = scene.add.rectangle();
 
         this.name = scene.add.text(
             this.ref_x,
@@ -198,10 +187,8 @@ export class Player extends ArcadeContainer {
             this.character,
             this.clickRect,
             this.hitboxRect,
-            this.meleeRect,
-            this.rangedRect,
             this.ladderHitbox,
-            this.dashHitbox,
+            this.rangeChecker,
         ]);
 
         // Input
@@ -302,7 +289,6 @@ export class Player extends ArcadeContainer {
         this.climbingDisabled = false;
         this.climbing = null;
 
-
         this.overlappingLadders = [];
         this.previousOverlappingLadders = [];
 
@@ -312,6 +298,23 @@ export class Player extends ArcadeContainer {
 
     handleClick() {
         this.targetObject(this);
+    }
+
+    isTargetInRange(targetRect, x, y, width, height, originX, originY) {
+        this.rangeChecker.setPosition(x, y);
+        this.rangeChecker.setSize(width, height);
+        this.rangeChecker.setOrigin(originX, originY);
+
+        const inRange = Phaser.Geom.Rectangle.Overlaps(
+            this.rangeChecker.getBounds(),
+            targetRect.getBounds(),
+        )
+
+        this.rangeChecker.setPosition(0, 0);
+        this.rangeChecker.setSize(0, 0);
+        this.rangeChecker.setOrigin(0, 0);
+
+        return inRange;
     }
 
     update(time, delta) {

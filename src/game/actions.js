@@ -123,9 +123,9 @@ const jolt = {
         if (!target) return false;
         if (!target.hasHealth) return false;
         if (target.health <= 0) return false;
-        const inRange = Phaser.Geom.Rectangle.Overlaps(
-            player.rangedRect.getBounds(),
-            target.hitboxRect.getBounds(),
+        const inRange = player.isTargetInRange(
+            target.hitboxRect,
+            player.ref_x, player.ref_y,  1028, 128 + 4, 0.5, 0.5,
         )
         if (!inRange) {
             store.dispatch(setAlert('Target is out of range.'));
@@ -146,6 +146,24 @@ const jolt = {
             target.addAggro(player, 25);
         }
 
+        // find and damage other enemies around target
+        let rect = player.scene.add.rectangle(
+            targetBounds.centerX, targetBounds.y + targetBounds.height,
+            256, 128, 0xff0000, 0.5,
+        );
+        rect.setOrigin(0.5, 1);
+        for (const enemy of player.scene.enemies) {
+            if (
+                Phaser.Geom.Rectangle.Overlaps(rect.getBounds(), enemy.hitboxRect.getBounds())
+                && enemy.visible
+                && enemy != target
+            ) {
+                if (enemy.hasHealth) enemy.reduceHealth(25, duration);
+                if (enemy.hasAggro) enemy.addAggro(player, 25);
+            }
+        };
+        rect.destroy();
+
         let vfx = player.scene.add.sprite(bounds.centerX, bounds.centerY);
         let facingRight = bounds.centerX < targetBounds.centerX;
         vfx.setOrigin(0.5, 0.5);
@@ -156,7 +174,8 @@ const jolt = {
             x: targetBounds.centerX,
             y: targetBounds.centerY,
             duration: duration,
-            ease: 'Sine.easeIn',
+            // ease: 'Sine.easeIn',
+            ease: 'Quadratic.InOut',
         });
         tween.on('complete', () => {
             vfx.destroy();
@@ -170,6 +189,16 @@ const jolt = {
             smoke.on('animationcomplete', () => {
                 smoke.destroy();
             })
+
+            // testing for fun
+            let vfx2 = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
+            vfx2.scaleX = 3;
+            vfx2.setOrigin(0.5, 1);
+            vfx2.setDepth(1000);
+            vfx2.play('explosion');
+            vfx2.on('animationcomplete', () => {
+                vfx2.destroy();
+            });
         })
     },
 }
@@ -186,9 +215,9 @@ const verthunder = {
         if (!target) return false;
         if (!target.hasHealth) return false;
         if (target.health <= 0) return false;
-        const inRange = Phaser.Geom.Rectangle.Overlaps(
-            player.rangedRect.getBounds(),
-            target.hitboxRect.getBounds(),
+        const inRange = player.isTargetInRange(
+            target.hitboxRect,
+            player.ref_x, player.ref_y,  1028, 128 + 4, 0.5, 0.5,
         )
         if (!inRange) {
             store.dispatch(setAlert('Target is out of range.'));
@@ -216,9 +245,9 @@ const fleche = {
         if (!target) return false;
         if (!target.hasHealth) return false;
         if (target.health <= 0) return false;
-        const inRange = Phaser.Geom.Rectangle.Overlaps(
-            player.rangedRect.getBounds(),
-            target.hitboxRect.getBounds(),
+        const inRange = player.isTargetInRange(
+            target.hitboxRect,
+            player.ref_x, player.ref_y,  1028, 128 + 4, 0.5, 0.5,
         )
         if (!inRange) {
             store.dispatch(setAlert('Target is out of range.'));
@@ -265,9 +294,9 @@ const corps_a_corps = {
         if (!target) return false;
         if (!target.hasHealth) return false;
         if (target.health <= 0) return false;
-        const inRange = Phaser.Geom.Rectangle.Overlaps(
-            player.rangedRect.getBounds(),
-            target.hitboxRect.getBounds(),
+        const inRange = player.isTargetInRange(
+            target.hitboxRect,
+            player.ref_x, player.ref_y,  1028, 128 + 4, 0.5, 0.5,
         )
         if (!inRange) {
             store.dispatch(setAlert('Target is out of range.'));
@@ -323,9 +352,9 @@ const displacement = {
         if (!target) return false;
         if (!target.hasHealth) return false;
         if (target.health <= 0) return false;
-        const inRange = Phaser.Geom.Rectangle.Overlaps(
-            player.meleeRect.getBounds(),
-            target.hitboxRect.getBounds(),
+        const inRange = player.isTargetInRange(
+            target.hitboxRect,
+            player.ref_x, player.ref_y, 128, 86, 0.5, 0.5,
         )
         if (!inRange) {
             store.dispatch(setAlert('Target is out of range.'));
@@ -376,9 +405,9 @@ const vercure = {
         if (!target) return false;
         if (!target.hasHealth) return false;
         if (target.health <= 0) return false;
-        const inRange = (player == target) ? true : Phaser.Geom.Rectangle.Overlaps(
-            player.rangedRect.getBounds(),
-            target.hitboxRect.getBounds(),
+        const inRange = (player == target) ? true : player.isTargetInRange(
+            target.hitboxRect,
+            player.ref_x, player.ref_y,  1028, 128 + 4, 0.5, 0.5,
         )
         if (!inRange) {
             store.dispatch(setAlert('Target is out of range.'));
@@ -429,9 +458,10 @@ const slice = {
         if (!target) return false;
         if (!target.hasHealth) return false;
         if (target.health <= 0) return false;
-        const inRange = Phaser.Geom.Rectangle.Overlaps(
-            player.meleeRect.getBounds(),
-            target.hitboxRect.getBounds(),
+
+        const inRange = player.isTargetInRange(
+            target.hitboxRect,
+            player.ref_x, player.ref_y, 128, 86, 0.5, 0.5,
         )
         if (!inRange) {
             store.dispatch(setAlert('Target is out of range.'));

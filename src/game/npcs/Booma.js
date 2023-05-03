@@ -1,5 +1,6 @@
 import {
     ArcadeContainer,
+    ArcadeRectangle,
     CompositeSprite,
 } from '../utils';
 
@@ -221,18 +222,10 @@ export class Booma extends ArcadeContainer {
             this.handleClick();
         });
 
-        let hitboxRect = { width: 24, height: 48 };
-        this.hitboxRect = scene.add.rectangle(
-            0, 0,
-            this.width + hitboxRect.width, this.height + hitboxRect.height,
-        );
+        this.hitboxRect = new ArcadeRectangle(scene, this.ref_x, this.ref_y, 24, 42);
         this.hitboxRect.setOrigin(0.5, 1);
-        this.hitboxRect.setPosition(this.ref_x + 0, this.ref_y);
 
-        let meleePadding = { width: 128, height: 86 };
-        this.meleeRect = scene.add.rectangle(
-            0, 0, meleePadding.width, meleePadding.height,
-        );
+        this.meleeRect = scene.add.rectangle(0, 0, 128, 86);
         this.meleeRect.setOrigin(0.5, 1);
         this.meleeRect.setPosition(this.ref_x + 0, this.ref_y + 24);
 
