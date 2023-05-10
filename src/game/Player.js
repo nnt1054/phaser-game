@@ -422,12 +422,6 @@ export class Player extends ArcadeContainer {
         this.setGravityY(1600)
     }
 
-    stopDash() {
-        this.isDashing = false;
-        if (this.dashTween) this.dashTween.stop();
-        this.dashTween = null;
-    }
-
     updateMovement(delta) {
 
         // ladder/climbing movement
@@ -804,14 +798,45 @@ export class Player extends ArcadeContainer {
         }
     }
 
-    dash(position, duration) {
+    dash(targetPosition, duration) {
+        let position = targetPosition;
+        let dashingRight = position > this.body.x;
+        let distance = position - this.body.x;
+
+        let rectX = dashingRight ? this.body.x + this.body.width : this.body.x;
+        let rect = this.scene.add.rectangle(
+            rectX, this.body.y,
+            distance, this.body.height, 0xff0000, 0.5,
+        );
+        rect.setOrigin(0, 0);
+        for (const wall of this.walls) {
+            if (
+                Phaser.Geom.Rectangle.Overlaps(rect.getBounds(), wall.getBounds())
+            ) {
+                if (dashingRight) {
+                    position = Math.min(position, wall.getBounds().left - this.body.width)
+                } else {
+                    position = Math.max(position, wall.getBounds().right)
+                }
+            }
+        };
+        rect.destroy();
+        let newDistance = position - this.body.x;
+        let newDuration = Math.abs((newDistance / distance) * duration);
+
         this.isDashing = true;
         this.dashTween = this.scene.tweens.add({
             targets: [ this ],
             x: position,
-            duration: duration,
+            duration: newDuration,
             ease: 'Sine.easeIn',
         });
         return this.dashTween;
+    }
+
+    stopDash() {
+        this.isDashing = false;
+        if (this.dashTween) this.dashTween.stop();
+        this.dashTween = null;
     }
 }

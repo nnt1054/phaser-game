@@ -222,7 +222,7 @@ export class Booma extends ArcadeContainer {
             this.handleClick();
         });
 
-        this.hitboxRect = new ArcadeRectangle(scene, this.ref_x, this.ref_y, 24, 42);
+        this.hitboxRect = new ArcadeRectangle(scene, this.ref_x, this.ref_y, 32, 42);
         this.hitboxRect.setOrigin(0.5, 1);
 
         this.meleeRect = scene.add.rectangle(0, 0, 128, 86);
