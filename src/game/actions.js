@@ -564,8 +564,10 @@ const combo2 = {
     canExecute: inMeleeRange,
     execute: (player, target) => {
         const isCombo = player.comboAction == 'combo1';
-        if (!isCombo) {
-            player.comboAction = null;
+        if (isCombo) {
+            player.setPlayerComboAction('combo2');
+        } else {
+            player.setPlayerComboAction(null);
         }
 
         const damage = isCombo ? 25 : 15;
@@ -575,6 +577,7 @@ const combo2 = {
         }
         _meleeAnimation(player, target);
     },
+    isComboAction: true,
 }
 
 const combo3 = {
@@ -587,6 +590,12 @@ const combo3 = {
     canExecute: inMeleeRange,
     execute: (player, target) => {
         const isCombo = player.comboAction == 'combo2';
+        if (isCombo) {
+            player.setPlayerComboAction('combo3');
+        } else {
+            player.setPlayerComboAction(null);
+        }
+
         const damage = isCombo ? 30 : 15;
         target.reduceHealth(damage, 500);
         if (target.hasAggro) {
@@ -594,6 +603,7 @@ const combo3 = {
         }
         _meleeAnimation(player, target);
     },
+    isComboAction: true,
 }
 
 const actionMap = {

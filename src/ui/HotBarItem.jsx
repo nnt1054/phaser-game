@@ -105,6 +105,8 @@ const HotBarItem = (props) => {
     const isVisible = (!empty || isSetting);
 
     const isHighlighted = action.isHighlighted ? action.isHighlighted() : false;
+    // force refresh on new comboAction
+    const comboAction = useSelector(state => state.playerState.comboAction);
 
     const buttonStyle = {
         position: 'absolute',

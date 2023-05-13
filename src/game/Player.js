@@ -333,8 +333,7 @@ export class Player extends ArcadeContainer {
 
         this.comboActionTimer = Math.max(0, this.comboActionTimer - delta);
         if (this.comboAction && this.comboActionTimer <= 0) {
-            this.comboAction = null;
-            store.dispatch(setComboAction(''));
+            this.setPlayerComboAction('');
         }
 
         this.updateDialogue(delta)
@@ -625,6 +624,11 @@ export class Player extends ArcadeContainer {
                             ability.execute(this, this.gcdTarget);
                             this.abilityTimer += 350;
                             this.directionLockTimer += 350;
+
+                            // if isComboAction, then combo action is set in execute
+                            if (!ability.isComboAction) {
+                                this.setPlayerComboAction(ability.name);
+                            }
                         }
                         this.gcdTimer += ability.cooldown;
                         store.dispatch(setGCD(ability.cooldown));
