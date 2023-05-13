@@ -12,6 +12,7 @@ import {
     setGCD,
     clearSystemAction,
     setRefreshCooldown,
+    setComboAction,
 } from '../store/playerState';
 import {
     setTarget,
@@ -297,6 +298,9 @@ export class Player extends ArcadeContainer {
 
         // remove me after raycast testing
         this.walls = []
+
+        this.comboAction = null;
+        this.comboActionTimer = 0;
     }
 
     handleClick() {
@@ -325,6 +329,12 @@ export class Player extends ArcadeContainer {
         // test fall damage
         if (this.body.onFloor() && this.previousVelocityY >= 800) {
                 this.setCurrentHealth(1);
+        }
+
+        this.comboActionTimer = Math.max(0, this.comboActionTimer - delta);
+        if (this.comboAction && this.comboActionTimer <= 0) {
+            this.comboAction = null;
+            store.dispatch(setComboAction(''));
         }
 
         this.updateDialogue(delta)
@@ -633,6 +643,12 @@ export class Player extends ArcadeContainer {
                 this.gcdTarget = null;
             }
         }
+    }
+
+    setPlayerComboAction(actionName) {
+        this.comboAction = actionName;
+        this.comboActionTimer = 15000;
+        store.dispatch(setComboAction(this.comboAction));
     }
 
     updateSystemAction(delta) {

@@ -496,6 +496,106 @@ const slice = {
     },
 }
 
+
+const inMeleeRange = (player, target) => {
+    if (!target) return false;
+    if (!target.hasHealth) return false;
+    if (target.health <= 0) return false;
+    const inRange = player.isTargetInRange(
+        target.hitboxRect,
+        player.ref_x, player.ref_y, 128, 86, 0.5, 0.5,
+    )
+    if (!inRange) {
+        store.dispatch(setAlert('Target is out of range.'));
+        return false;
+    }
+    return true;
+};
+
+const _meleeAnimation = (player, target) => {
+    let bounds = target.hitboxRect.getBounds();
+    let vfx = player.scene.add.sprite(player.ref_x, player.ref_y + 6);
+    player.add(vfx);
+    if (player.facingRight) {
+        vfx.scaleX = 1.5;
+    } else {
+        vfx.scaleX = -1.5;            
+    }
+    vfx.setOrigin(0.5, 1);
+    vfx.play('slice');
+    vfx.on('animationcomplete', () => {
+        vfx.destroy();
+    })
+
+    setTimeout(() => {
+        let vfx2 = player.scene.add.sprite(bounds.centerX, bounds.bottom + 24);
+        vfx2.setOrigin(0.5, 1);
+        vfx2.play('impact');
+        vfx2.on('animationcomplete', () => {
+            vfx2.destroy();
+        })
+    }, 400);
+};
+
+const combo1 = {
+    name: 'combo1',
+    type: 'weaponskill',
+    gcd: true,
+    castTime: 0,
+    cooldown: 2500,
+    canTarget: isEnemy,
+    canExecute: inMeleeRange,
+    execute: (player, target) => {
+        target.reduceHealth(15, 500);
+        if (target.hasAggro) {
+            target.addAggro(player, 15);
+        }
+        _meleeAnimation(player, target);
+    },
+}
+
+const combo2 = {
+    name: 'combo2',
+    type: 'weaponskill',
+    gcd: true,
+    castTime: 0,
+    cooldown: 2500,
+    canTarget: isEnemy,
+    canExecute: inMeleeRange,
+    execute: (player, target) => {
+        const isCombo = player.comboAction == 'combo1';
+        if (!isCombo) {
+            player.comboAction = null;
+        }
+
+        const damage = isCombo ? 25 : 15;
+        target.reduceHealth(damage, 500);
+        if (target.hasAggro) {
+            target.addAggro(player, damage);
+        }
+        _meleeAnimation(player, target);
+    },
+}
+
+const combo3 = {
+    name: 'combo3',
+    type: 'weaponskill',
+    gcd: true,
+    castTime: 0,
+    cooldown: 2500,
+    canTarget: isEnemy,
+    canExecute: inMeleeRange,
+    execute: (player, target) => {
+        const isCombo = player.comboAction == 'combo2';
+        const damage = isCombo ? 30 : 15;
+        target.reduceHealth(damage, 500);
+        if (target.hasAggro) {
+            target.addAggro(player, damage);
+        }
+        _meleeAnimation(player, target);
+    },
+}
+
 const actionMap = {
     'jolt': jolt,
     'verthunder': verthunder,
@@ -504,6 +604,10 @@ const actionMap = {
     'slice': slice,
     'corps_a_corps': corps_a_corps,
     'displacement': displacement,
+
+    'combo1': combo1,
+    'combo2': combo2,
+    'combo3': combo3,
 
     // items
     'potion': potion,

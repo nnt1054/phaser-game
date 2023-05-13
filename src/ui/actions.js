@@ -381,6 +381,7 @@ export const abilities = {
         description: `
             Melee Slash; Deals 15 Damage to Target.
         `,  
+        isHighlighted: () => {}   
     },
     'corps_a_corps': {
         label: 'corps-a-corps',
@@ -399,6 +400,47 @@ export const abilities = {
         description: `
             Dash away from the target; Deals 10 Damage to Target.
         `,
+    },
+    'combo1': {
+        label: 'combo1',
+        action: () => { store.dispatch(setQueuedAbility('combo1')) },
+        icon: 'melee1',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,  
+    },
+    'combo2': {
+        label: 'combo2',
+        action: () => { store.dispatch(setQueuedAbility('combo2')) },
+        icon: 'melee2',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,  
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'combo1')
+        },
+    },
+    'combo3': {
+        label: 'combo3',
+        action: () => { store.dispatch(setQueuedAbility('combo3')) },
+        icon: 'melee3',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,  
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'combo2')
+        },
     },
 };
 

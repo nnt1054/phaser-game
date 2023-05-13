@@ -6,6 +6,7 @@ import {
     setGCD,
     setCast,
     setCooldowns,
+    setComboAction,
 } from '../store/playerState';
 import {
     setTarget,

@@ -44,10 +44,10 @@ const HotBarItem = (props) => {
     const gcd = useSelector(state => state.playerState.gcd);
 
     const slot = props.slot;
-    const tile = actionMap[slot.name];
+    const action = actionMap[slot.name];
     const empty = (slot.name === 'empty');
 
-    const isItem = (tile.type === 'item');
+    const isItem = (action.type === 'item');
     const items = useSelector(state => state.inventory.items);
     const itemCount = items.filter(item => item.name === slot.name).reduce((sum, item) => {
         return sum + item.count;
@@ -100,9 +100,11 @@ const HotBarItem = (props) => {
         () => dispatch(setHoverKey(null)),
     );
 
-    const icon = icons[tile.icon];
+    const icon = icons[action.icon];
 
     const isVisible = (!empty || isSetting);
+
+    const isHighlighted = action.isHighlighted ? action.isHighlighted() : false;
 
     const buttonStyle = {
         position: 'absolute',
@@ -113,6 +115,7 @@ const HotBarItem = (props) => {
         zIndex: 1,
         border: (isHovering && isSetting) ? '4px solid white' : '4px solid black',
         visibility: isVisible ? 'visible' : 'hidden',
+        boxShadow: isHighlighted ? '0 0 12px 2px yellow' : 'none',
     }
 
     const hotbarIconStyle = {
@@ -188,7 +191,7 @@ const HotBarItem = (props) => {
         borderRadius: `12px`,
         backgroundColor: 'rgba(0, 0, 0, .8)',
         pointerEvents: 'none',
-        display: (tile.gcd && gcd) ? 'block' : 'none',
+        display: (action.gcd && gcd) ? 'block' : 'none',
         animation: gcd ? `${ styles.roll } ${ (gcd) / 1000 }s infinite linear` : 'none',
         zIndex: 5
     }
@@ -223,11 +226,11 @@ const HotBarItem = (props) => {
             dispatch(setSkillsActiveState(activeSkillStates.actions));
             dispatch(setRefreshCooldown(true));
         } else {
-            if (tile.action) {
+            if (action.action) {
                 if (targetName) {
-                    tile.action(TARGET_CONSTANTS.CURRENT_TARGET);
+                    action.action(TARGET_CONSTANTS.CURRENT_TARGET);
                 } else {
-                    tile.action();
+                    action.action();
                 }
             }
         }
