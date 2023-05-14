@@ -675,6 +675,8 @@ export const CastingMixin = {
         this.castTarget = target;
         this.castingTimer = ability.castTime;
 
+        if (this.isPlayer) this.faceTarget(this.gcdTarget);
+
         if (ability.startCast) ability.startCast(this, target);
 
         if (this.isPlayer) {
@@ -725,21 +727,9 @@ export const CastingMixin = {
     updateCast(delta) {
         this.castingTimer = Math.max(0, this.castingTimer - delta);
         if (this.casting && this.castingTimer === 0) {
-            const ability = this.casting;
-            ability.execute(this, this.castTarget);
+            this.executeAbility(this.casting, this.castTarget);
             this.casting = null;
             this.castTarget = null;
-
-            if (this.isPlayer) {
-                // todo: figure out where to put this
-                this.faceTarget(this.castTarget);
-                this.abilityTimer += 500;
-                this.directionLockTimer += 500;
-
-                if (!ability.isComboAction) {
-                    this.setPlayerComboAction(ability.name);
-                }
-            }
 
             if (this.isPlayer) {
                 store.dispatch(setCast({
@@ -754,6 +744,27 @@ export const CastingMixin = {
                     progress: 0,
                     duration: 0,
                 }));
+            }
+        }
+    },
+
+    executeAbility(ability, target) {
+        if (this.isPlayer) {
+            this.faceTarget(target);
+        }
+
+        ability.execute(this, target);
+
+        if (this.isPlayer) {
+            this.faceTarget(target);
+
+            // todo: add lock duration prop to abilities
+            const duration = ability.gcd ? 500 : 350;
+            this.abilityTimer += duration;
+            this.directionLockTimer += duration;
+
+            if (ability.gcd && !ability.isComboAction) {
+                this.setPlayerComboAction(ability.name);
             }
         }
     }

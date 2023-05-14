@@ -30,17 +30,6 @@ const hotBarsSlice = createSlice({
             { name: 'combo3', active: false, keybind: 'R'},
             { name: 'corps_a_corps', active: false, keybind: 'F'},
             { name: 'fleche', active: false, keybind: 'G'},
-
-            // { name: 'combo1', active: false, keybind: '1'},
-            // { name: 'combo2', active: false, keybind: '2'},
-            // { name: 'combo3', active: false, keybind: '3'},
-            // { name: 'empty', active: false, keybind: '4'},
-            // { name: 'empty', active: false, keybind: '5'},
-            // { name: 'jolt', active: false, keybind: 'Q'},
-            // { name: 'slice', active: false, keybind: 'E'},
-            // { name: 'vercure', active: false, keybind: 'R'},
-            // { name: 'corps_a_corps', active: false, keybind: 'F'},
-            // { name: 'fleche', active: false, keybind: 'G'},
         ]
     },
     4: {
@@ -54,8 +43,8 @@ const hotBarsSlice = createSlice({
             { name: 'empty', active: false, keybind: '↑4'},
             { name: 'empty', active: false, keybind: '↑5'},
             { name: 'vercure', active: false, keybind: '↑Q'},
-            { name: 'empty', active: false, keybind: '↑E'},
-            { name: 'empty', active: false, keybind: '↑R'},
+            { name: 'jolt', active: false, keybind: '↑E'},
+            { name: 'slice', active: false, keybind: '↑R'},
             { name: 'displacement', active: false, keybind: '↑F'},
             { name: 'empty', active: false, keybind: '↑G'},
         ]

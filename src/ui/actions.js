@@ -374,7 +374,7 @@ export const abilities = {
     'slice': {
         label: 'slice',
         action: () => { store.dispatch(setQueuedAbility('slice')) },
-        icon: 'melee1',
+        icon: 'melee4',
         gcd: true,
         castTime: '0s',
         cooldown: '1.5s',

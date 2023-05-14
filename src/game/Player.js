@@ -604,49 +604,36 @@ export class Player extends ArcadeContainer {
     }
 
     updateAbilityState(delta) {
-        const previousGCD = this.gcdTimer;
+        const previousGcdTimer = this.gcdTimer;
         this.gcdTimer = Math.max(0, this.gcdTimer - delta);
         this.abilityTimer = Math.max(0, this.abilityTimer - delta);
-        if (previousGCD && this.gcdTimer == 0) {
+        if (previousGcdTimer && this.gcdTimer == 0) {
             store.dispatch(setGCD(0));
         }
-        const ability = this.gcdQueue;
-        if (ability && this.abilityTimer == 0 && this.castingTimer == 0) {
-            if (ability.gcd) {
-                if (this.gcdTimer == 0) {
-                    // if (!(ability.canExecute && !ability.canExecute(this, this.gcdTarget))) {
-                    if (ability.canExecute(this, this.gcdTarget)) {
-                        this.faceTarget(this.gcdTarget);
-                        if (ability.castTime) {
-                            this.startCast(ability, this.gcdTarget);
-                            this.directionLockTimer += ability.castTime;
-                        } else {
-                            ability.execute(this, this.gcdTarget);
-                            this.abilityTimer += 350;
-                            this.directionLockTimer += 350;
 
-                            // if isComboAction, then combo action is set in execute
-                            if (!ability.isComboAction) {
-                                this.setPlayerComboAction(ability.name);
-                            }
-                        }
-                        this.gcdTimer += ability.cooldown;
-                        store.dispatch(setGCD(ability.cooldown));
-                    }
-                    this.gcdQueue = null;
-                    this.gcdTarget = null;
-                }
-            } else {
-                if (!(ability.canExecute && !ability.canExecute(this, this.gcdTarget))) {
-                    this.faceTarget(this.gcdTarget);
-                    ability.execute(this, this.gcdTarget);
-                    this.abilityTimer += 350;
-                    this.directionLockTimer += 350;
-                }
-                this.gcdQueue = null;
-                this.gcdTarget = null;
-            }
+        // check if can execute
+        const ability = this.gcdQueue;
+        if (!ability) return;
+        if (this.abilityTimer > 0) return;
+        if (this.castingTimer > 0) return;
+        if (ability.gcd && this.gcdTimer > 0) return;
+        if (!ability.canExecute(this, this.gcdTarget)) return;
+
+        // ability execution
+        if (ability.castTime) {
+            this.startCast(ability, this.gcdTarget);
+            this.directionLockTimer += ability.castTime;
+        } else {
+            this.executeAbility(ability, this.gcdTarget);
         }
+
+        if (ability.gcd) {
+            this.gcdTimer += ability.cooldown;
+            store.dispatch(setGCD(ability.cooldown));
+        }
+
+        this.gcdQueue = null;
+        this.gcdTarget = null;
     }
 
     setPlayerComboAction(actionName) {

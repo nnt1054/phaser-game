@@ -11,6 +11,7 @@ import verholy_icon from '../assets/icons/verholy.png';
 import melee1_icon from '../assets/icons/riposte.png';
 import melee2_icon from '../assets/icons/zwerchhau.png';
 import melee3_icon from '../assets/icons/redoublement.png';
+import melee4_icon from '../assets/icons/enchanted_riposte.png';
 import corps_a_corps_icon from '../assets/icons/corps-a-corps.png';
 import displacement_icon from '../assets/icons/displacement.png';
 
@@ -21,6 +22,7 @@ export default {
     melee1: melee1_icon,
     melee2: melee2_icon,
     melee3: melee3_icon,
+    melee4: melee4_icon,
     embolden: embolden_icon,
     manafication: manafication_icon,
     fleche: fleche_icon,
