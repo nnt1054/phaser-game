@@ -442,6 +442,16 @@ export const abilities = {
             return (state.playerState.comboAction == 'combo2')
         },
     },
+    'acceleration': {
+        label: 'acceleration',
+        action: () => { store.dispatch(setQueuedAbility('acceleration')) },
+        icon: 'acceleration',
+        gcd: false,
+        cooldown: '2.5s',
+        description: `
+            Next Non-instant Spell will be instant.
+        `,
+    },
 };
 
 export const items = {

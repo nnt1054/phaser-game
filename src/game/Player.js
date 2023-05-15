@@ -619,8 +619,10 @@ export class Player extends ArcadeContainer {
         if (ability.gcd && this.gcdTimer > 0) return;
         if (!ability.canExecute(this, this.gcdTarget)) return;
 
+        const castTime = this.calculateCastTime(ability);
+
         // ability execution
-        if (ability.castTime) {
+        if (castTime > 0) {
             this.startCast(ability, this.gcdTarget);
             this.directionLockTimer += ability.castTime;
         } else {
@@ -634,6 +636,16 @@ export class Player extends ArcadeContainer {
 
         this.gcdQueue = null;
         this.gcdTarget = null;
+    }
+
+    calculateCastTime(ability) {
+        let castTime = ability.castTime || 0;
+        for (const buff of this._buffs) {
+            if (buff.modifyCastTime) {
+                castTime = buff.modifyCastTime(castTime, buff);
+            }
+        };
+        return Math.max(0, castTime);
     }
 
     setPlayerComboAction(actionName) {

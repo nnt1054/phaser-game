@@ -464,6 +464,12 @@ export const BuffMixin = {
         this.updateStatusInfoStore();
     },
 
+    removeBuff: function(buff) {
+        buff.unapply(this);
+        this._buffs = this._buffs.filter((x) => (x !== buff));
+        this.updateStatusInfoStore();
+    },
+
     updateBuffs: function(delta) {
         let shouldUpdate = false;
 

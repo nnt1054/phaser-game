@@ -131,7 +131,6 @@ const jolt = {
             store.dispatch(setAlert('Target is out of range.'));
             return false;
         }
-        if (player.isMoving()) return false;
         return true;
     },
     execute: (player, target) => {
@@ -222,8 +221,6 @@ const verthunder = {
             store.dispatch(setAlert('Target is out of range.'));
             return false;
         }
-        // TODO: move to player logic; if castTime > 0; then check if player.isMoving
-        // if (player.isMoving()) return false;
         return true;
     },
     execute: (player, target) => {
@@ -236,6 +233,7 @@ const verthunder = {
 }
 
 const fleche = {
+    name: 'fleche',
     type: 'ability',
     gcd: false,
     cooldown: 500,
@@ -285,6 +283,7 @@ const fleche = {
 }
 
 const corps_a_corps = {
+    name: 'corps_a_corps',
     type: 'ability',
     gcd: false,
     cooldown: 500,
@@ -340,6 +339,7 @@ const corps_a_corps = {
 }
 
 const displacement = {
+    name: 'displacement',
     type: 'ability',
     gcd: false,
     cooldown: 500,
@@ -409,7 +409,6 @@ const vercure = {
             store.dispatch(setAlert('Target is out of range.'));
             return false;
         }
-        if (player.isMoving()) return false;
         return true;
     },
     execute: (player, target) => {
@@ -606,6 +605,23 @@ const combo3 = {
     isComboAction: true,
 }
 
+const acceleration = {
+    name: 'acceleration',
+    type: 'ability',
+    gcd: false,
+    cooldown: 500,
+    canTarget: isAny,
+    canExecute: (player) => {
+        const [cooldown, duration] = player.getCooldown('acceleration');
+        if (cooldown > 0) return false;
+        return true;
+    },
+    execute: (player) => {
+        player.applyBuff(buffs['acceleration']);
+        player.startCooldown('acceleration', 30000);
+    },
+}
+
 const actionMap = {
     'jolt': jolt,
     'verthunder': verthunder,
@@ -618,6 +634,8 @@ const actionMap = {
     'combo1': combo1,
     'combo2': combo2,
     'combo3': combo3,
+
+    'acceleration': acceleration,
 
     // items
     'potion': potion,

@@ -46,7 +46,7 @@ const hotBarsSlice = createSlice({
             { name: 'jolt', active: false, keybind: '↑E'},
             { name: 'slice', active: false, keybind: '↑R'},
             { name: 'displacement', active: false, keybind: '↑F'},
-            { name: 'empty', active: false, keybind: '↑G'},
+            { name: 'acceleration', active: false, keybind: '↑G'},
         ]
     },
   },

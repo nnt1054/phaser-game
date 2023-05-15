@@ -50,10 +50,31 @@ const dot = (target, source) => {
     }
 }
 
+const acceleration = (target, source) => {
+    return {
+        key: 'acceleration',
+        target: target,
+        source: source,
+        timer: 30000,
+        tickTimer: 3000,
+        icon: 'acceleration',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyCastTime(castTime, ability) {
+            if (castTime > 0) {
+                this.target.removeBuff(this);
+                return 0;
+            }
+            return castTime;
+        },
+    }
+}
 
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
+    'acceleration': acceleration,
 }
 
 export default buffMap
