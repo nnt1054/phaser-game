@@ -465,10 +465,7 @@ const slice = {
         return true;
     },
     execute: (player, target) => {
-        target.reduceHealth(15, 500);
-        if (target.hasAggro) {
-            target.addAggro(player, 15);
-        }
+        player.dealPhysicalDamage(target, 15, 500);
 
         let bounds = target.hitboxRect.getBounds();
         let vfx = player.scene.add.sprite(player.ref_x, player.ref_y + 6);
@@ -476,7 +473,7 @@ const slice = {
         if (player.facingRight) {
             vfx.scaleX = 1.5;
         } else {
-            vfx.scaleX = -1.5;            
+            vfx.scaleX = -1.5;
         }
         vfx.setOrigin(0.5, 1);
         vfx.play('slice');

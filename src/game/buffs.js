@@ -56,7 +56,6 @@ const acceleration = (target, source) => {
         target: target,
         source: source,
         timer: 30000,
-        tickTimer: 3000,
         icon: 'acceleration',
         apply() {},
         unapply() {},
@@ -71,10 +70,27 @@ const acceleration = (target, source) => {
     }
 }
 
+const embolden = (target, source) => {
+    return {
+        key: 'embolden',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'embolden',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyPhysicalDamage(damage) {
+            return damage * 1.15;
+        },
+    }
+}
+
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
     'acceleration': acceleration,
+    'embolden': embolden,
 }
 
 export default buffMap

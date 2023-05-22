@@ -95,6 +95,13 @@ const compositeConfigIndexes = {
 };
 
 
+export const StrengthStatMixin = {
+    getStrengthStat: function() {
+        return 10;
+    }
+}
+
+
 export class Player extends ArcadeContainer {
 
     mixins = [
@@ -106,6 +113,7 @@ export class Player extends ArcadeContainer {
         BuffMixin,
         CastingMixin,
         CooldownMixin,
+        StrengthStatMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -638,16 +646,6 @@ export class Player extends ArcadeContainer {
         this.gcdTarget = null;
     }
 
-    calculateCastTime(ability) {
-        let castTime = ability.castTime || 0;
-        for (const buff of this._buffs) {
-            if (buff.modifyCastTime) {
-                castTime = buff.modifyCastTime(castTime, buff);
-            }
-        };
-        return Math.max(0, castTime);
-    }
-
     setPlayerComboAction(actionName) {
         this.comboAction = actionName;
         this.comboActionTimer = 15000;
@@ -857,5 +855,35 @@ export class Player extends ArcadeContainer {
         this.isDashing = false;
         if (this.dashTween) this.dashTween.stop();
         this.dashTween = null;
+    }
+
+    calculateCastTime(ability) {
+        let castTime = ability.castTime || 0;
+        for (const buff of this._buffs) {
+            if (buff.modifyCastTime) {
+                castTime = buff.modifyCastTime(castTime, buff);
+            }
+        };
+        return Math.max(0, castTime);
+    }
+
+    dealPhysicalDamage(target, potency, delay) {
+        const STR = this.getStrengthStat();
+        let damage = STR * potency;
+
+        for (const buff of this._buffs) {
+            if (buff.modifyDamage) {
+                damage = buff.modifyDamage(damage);
+            }
+
+            if (buff.modifyPhysicalDamage) {
+                damage = buff.modifyPhysicalDamage(damage);
+            }
+        };
+
+        target.reduceHealth(damage, 500);
+        if (target.hasAggro) {
+            target.addAggro(this, damage);
+        }
     }
 }

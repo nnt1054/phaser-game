@@ -133,6 +133,30 @@ const inputManagerSlice = createSlice({
 
     keymap: movementOnly,
     shiftKeymap: {
+
+      // cursors
+      [KeyCodes.SPACE]: {
+        type: 'cursor',
+        cursor: 'jumpCursor',
+      },
+      [KeyCodes.W]: {
+        type: 'cursor',
+        cursor: 'up',
+      },
+      [KeyCodes.A]: {
+        type: 'cursor',
+        cursor: 'left',
+      },
+      [KeyCodes.S]: {
+        type: 'cursor',
+        cursor: 'down',
+      },
+      [KeyCodes.D]: {
+        type: 'cursor',
+        cursor: 'right',
+      },
+
+
       [KeyCodes.ONE]: {
         type: 'hotbar',
         hotbar: 4,
