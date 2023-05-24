@@ -140,10 +140,8 @@ const jolt = {
         let distance = Phaser.Math.Distance.Between(bounds.centerX, bounds.centerY, targetBounds.centerX, targetBounds.centerY);
         var duration = distance / 0.75;
 
-        target.reduceHealth(25, duration);
-        if (target.hasAggro) {
-            target.addAggro(player, 25);
-        }
+
+        player.dealMagicalDamage(target, 25, duration);
 
         // find and damage other enemies around target
         let rect = player.scene.add.rectangle(
@@ -157,8 +155,7 @@ const jolt = {
                 && enemy.visible
                 && enemy != target
             ) {
-                if (enemy.hasHealth) enemy.reduceHealth(25, duration);
-                if (enemy.hasAggro) enemy.addAggro(player, 25);
+                player.dealMagicalDamage(target, 25, duration);
             }
         };
         rect.destroy();

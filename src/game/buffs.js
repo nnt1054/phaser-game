@@ -31,20 +31,14 @@ const dot = (target, source) => {
         tickTimer: 3000,
         icon: 'verthunder',
         apply() {
-            this.target.reduceHealth(5);
-            if (this.target.hasAggro) {
-        		this.target.addAggro(this.source, 10);
-    		}
+            this.source.dealMagicalDamage(this.target, 5);
         },
         unapply() {},
         update(delta) {
             this.tickTimer -= delta;
             if (this.tickTimer <= 0) {
                 this.tickTimer += 3000;
-                this.target.reduceHealth(5);
-                if (this.target.hasAggro) {
-            		this.target.addAggro(this.source, 10);
-        		}
+                this.source.dealMagicalDamage(this.target, 5);
             }
         },
     }
@@ -80,7 +74,7 @@ const embolden = (target, source) => {
         apply() {},
         unapply() {},
         update(delta) {},
-        modifyPhysicalDamage(damage) {
+        modifyMagicalDamage(damage) {
             return damage * 1.15;
         },
     }
@@ -89,7 +83,7 @@ const embolden = (target, source) => {
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
-    'acceleration': acceleration,
+    'acceleration': embolden,
     'embolden': embolden,
 }
 

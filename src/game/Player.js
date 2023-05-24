@@ -97,10 +97,15 @@ const compositeConfigIndexes = {
 
 export const StrengthStatMixin = {
     getStrengthStat: function() {
-        return 10;
+        return 1;
     }
 }
 
+export const IntelligenceStatMixin = {
+    getIntelligenceStat: function() {
+        return 1;
+    }
+}
 
 export class Player extends ArcadeContainer {
 
@@ -114,6 +119,7 @@ export class Player extends ArcadeContainer {
         CastingMixin,
         CooldownMixin,
         StrengthStatMixin,
+        IntelligenceStatMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -881,7 +887,31 @@ export class Player extends ArcadeContainer {
             }
         };
 
-        target.reduceHealth(damage, 500);
+        damage = Math.max(0, Math.ceil(damage));
+
+        target.reduceHealth(damage, delay);
+        if (target.hasAggro) {
+            target.addAggro(this, damage);
+        }
+    }
+
+    dealMagicalDamage(target, potency, delay) {
+        const INT = this.getIntelligenceStat();
+        let damage = INT * potency;
+
+        for (const buff of this._buffs) {
+            if (buff.modifyDamage) {
+                damage = buff.modifyDamage(damage);
+            }
+
+            if (buff.modifyPhysicalDamage) {
+                damage = buff.modifyMagicalDamage(damage);
+            }
+        };
+
+        damage = Math.max(0, Math.ceil(damage));
+
+        target.reduceHealth(damage, delay);
         if (target.hasAggro) {
             target.addAggro(this, damage);
         }
