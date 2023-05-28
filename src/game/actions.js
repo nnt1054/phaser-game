@@ -140,8 +140,7 @@ const jolt = {
         let distance = Phaser.Math.Distance.Between(bounds.centerX, bounds.centerY, targetBounds.centerX, targetBounds.centerY);
         var duration = distance / 0.75;
 
-
-        player.dealMagicalDamage(target, 25, duration);
+        player.dealDamage(target, 25, 'magical', duration);
 
         // find and damage other enemies around target
         let rect = player.scene.add.rectangle(
@@ -155,7 +154,7 @@ const jolt = {
                 && enemy.visible
                 && enemy != target
             ) {
-                player.dealMagicalDamage(target, 25, duration);
+                player.dealDamage(enemy, 25, 'magical', duration);
             }
         };
         rect.destroy();
@@ -462,7 +461,7 @@ const slice = {
         return true;
     },
     execute: (player, target) => {
-        player.dealPhysicalDamage(target, 15, 500);
+        player.dealDamage(target, 15, 'physical', 500);
 
         let bounds = target.hitboxRect.getBounds();
         let vfx = player.scene.add.sprite(player.ref_x, player.ref_y + 6);

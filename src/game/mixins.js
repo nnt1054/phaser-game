@@ -151,6 +151,31 @@ export const HealthMixin = {
             text.destroy();
         })
     },
+
+    receiveDamage(source, damage, type, delay) {
+        const isPhysical = type == 'physical';
+        const isMagical = type == 'magical';
+
+        for (const buff of this._buffs) {
+            if (buff.modifyDamageReceived) {
+                damage = buff.modifyDamageReceived(damage);
+            }
+
+            if (isPhysical && buff.modifyPhysicalDamageReceived) {
+                damage = buff.modifyPhysicalDamageReceived(damage);
+            }
+
+            if (isMagical && buff.modifyMagicalDamageReceived) {
+                damage = buff.modifyMagicalDamageReceived(damage);
+            }
+        };
+
+        damage = Math.max(0, Math.ceil(damage));
+        this.reduceHealth(damage, delay);
+        if (this.hasAggro) {
+            this.addAggro(source, damage);
+        }
+    },
 }
 
 
@@ -321,6 +346,120 @@ export const TargetMixin = {
             }));
         }
     },
+
+
+    cycleTargets: function(isReverse=false) {
+        if (!this.isPlayer) return;
+
+        const camera = this.scene.cameras.main;
+        const targets = [];
+        for (const target of this.availableTargets) {
+            if (
+                Phaser.Geom.Rectangle.Overlaps(camera.worldView, target.getBounds())
+                && target.visible
+            ) {
+                targets.push(target);
+            }
+        };
+
+
+        // TODO: if no targets in current direction; check behind
+        const playerX = this.body.center.x;
+        let currentX = this.currentTarget ? this.currentTarget.clickRect.getBounds().centerX : playerX;
+        if (this.facingRight) {
+            currentX = Math.max(playerX, currentX);
+        } else {
+            currentX = Math.min(playerX, currentX);
+        }
+
+        let furthestTarget = null;
+        let closestTarget = null;
+        let nextTarget = null;
+
+        if (this.facingRight) {
+            for (const target of targets) {
+                const targetX = target.clickRect.getBounds().centerX;
+                if (isReverse) {
+                    if (playerX < targetX && targetX < currentX) {
+                        if (!nextTarget) {
+                            nextTarget = target;
+                        } else if (targetX > nextTarget.clickRect.getBounds().centerX) {
+                            nextTarget = target;
+                        }
+                    }
+                } else {
+                    if (currentX < targetX) {
+                        // check if target is to the right of currentTarget
+                        if (!nextTarget) {
+                            nextTarget = target;
+                        } else if (targetX < nextTarget.clickRect.getBounds().centerX) {
+                            nextTarget = target;
+                        }
+                    }
+                }
+
+                if (playerX < targetX) {
+                    if (!closestTarget) {
+                        closestTarget = target;
+                    } else if (targetX < closestTarget.clickRect.getBounds().centerX) {
+                        closestTarget = target;
+                    }
+
+                    if (!furthestTarget) {
+                        furthestTarget = target;
+                    } else if (targetX > furthestTarget.clickRect.getBounds().centerX) {
+                        furthestTarget = target;
+                    }
+                }
+            }
+        } else {
+            for (const target of targets) {
+                const targetX = target.clickRect.getBounds().centerX;
+                if (isReverse) {
+                    if (currentX < targetX && targetX < playerX) {
+                        if (!nextTarget) {
+                            nextTarget = target;
+                        } else if (targetX < nextTarget.clickRect.getBounds().centerX) {
+                            nextTarget = target;
+                        }
+                    }
+                } else {
+                    if (targetX < currentX) {
+                        // check if target is to the right of currentTarget
+                        if (!nextTarget) {
+                            nextTarget = target;
+                        } else if (nextTarget.clickRect.getBounds().centerX < targetX) {
+                            // check if target is closer to the currentTarget than current next potential target
+                            nextTarget = target;
+                        }
+                    }
+                }
+
+               if (targetX < playerX) {
+                    if (!closestTarget) {
+                        closestTarget = target;
+                    } else if (closestTarget.clickRect.getBounds().centerX < targetX) {
+                        closestTarget = target;
+                    }
+
+                    if (!furthestTarget) {
+                        furthestTarget = target;
+                    } else if (targetX < furthestTarget.clickRect.getBounds().centerX) {
+                        furthestTarget = target;
+                    }
+                }
+            }
+        }
+
+        if (nextTarget && nextTarget != this.currentTarget) {
+            this.targetObject(nextTarget);
+        } else if (isReverse && furthestTarget && furthestTarget != this.currentTarget) {
+            this.targetObject(furthestTarget);
+        } else if (!isReverse && closestTarget && closestTarget != this.currentTarget) {
+            this.targetObject(closestTarget);
+        }
+    },
+
 }
 
 
@@ -822,4 +961,55 @@ export const CooldownMixin = {
             );
         }
     },
-}
+};
+
+export const ExperienceMixin = {
+    hasExperience: true,
+    currentExperience: 1,
+    getCurrentLevel() {
+    },
+};
+
+export const CombatMixin = {
+    getStrengthStat: function() {
+        return 1;
+    },
+
+    getIntelligenceStat: function() {
+        return 1;
+    },
+
+    calculateDamageFromPotency(potency, type) {
+        let damage = 0;
+        if (type == 'physical') {
+            const STR = this.getStrengthStat();
+            damage = STR * potency;
+        } else if (type == 'magical') {
+            const INT = this.getIntelligenceStat();
+            damage = INT * potency;
+        }
+        return damage
+    },
+
+    dealDamage(target, potency, type, delay) {
+        const isPhysical = type == 'physical';
+        const isMagical = type == 'magical';
+
+        let damage = this.calculateDamageFromPotency(potency, type);
+        for (const buff of this._buffs) {
+            if (buff.modifyDamage) {
+                damage = buff.modifyDamage(damage);
+            }
+
+            if (isPhysical && buff.modifyPhysicalDamage) {
+                damage = buff.modifyPhysicalDamage(damage);
+            }
+
+            if (isMagical && buff.modifyMagicalDamage) {
+                damage = buff.modifyMagicalDamage(damage);
+            }
+        };
+
+        target.receiveDamage(this, damage, type, delay)
+    },
+};

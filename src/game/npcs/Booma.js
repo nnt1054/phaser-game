@@ -11,6 +11,7 @@ import {
     BuffMixin,
     CastingMixin,
     CooldownMixin,
+    CombatMixin,
 } from '../mixins';
 
 import store from '../../store/store';
@@ -156,6 +157,7 @@ export class Booma extends ArcadeContainer {
         BuffMixin,
         CastingMixin,
         CooldownMixin,
+        CombatMixin,
     ]
 
     constructor(scene, x, y, displayName='Non-Player') {

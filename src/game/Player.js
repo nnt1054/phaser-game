@@ -30,6 +30,7 @@ import {
     EnemyListMixin,
     CastingMixin,
     CooldownMixin,
+    CombatMixin,
 } from './mixins';
 import {
     setAlert,
@@ -95,18 +96,6 @@ const compositeConfigIndexes = {
 };
 
 
-export const StrengthStatMixin = {
-    getStrengthStat: function() {
-        return 1;
-    }
-}
-
-export const IntelligenceStatMixin = {
-    getIntelligenceStat: function() {
-        return 1;
-    }
-}
-
 export class Player extends ArcadeContainer {
 
     mixins = [
@@ -118,8 +107,7 @@ export class Player extends ArcadeContainer {
         BuffMixin,
         CastingMixin,
         CooldownMixin,
-        StrengthStatMixin,
-        IntelligenceStatMixin,
+        CombatMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -713,114 +701,6 @@ export class Player extends ArcadeContainer {
         }
     }
 
-    cycleTargets(isReverse=false) {
-        const camera = this.scene.cameras.main;
-        const targets = [];
-        for (const target of this.availableTargets) {
-            if (
-                Phaser.Geom.Rectangle.Overlaps(camera.worldView, target.getBounds())
-                && target.visible
-            ) {
-                targets.push(target);
-            }
-        };
-
-        const playerX = this.body.center.x;
-        let currentX = this.currentTarget ? this.currentTarget.clickRect.getBounds().centerX : playerX;
-        if (this.facingRight) {
-            currentX = Math.max(playerX, currentX);
-        } else {
-            currentX = Math.min(playerX, currentX);
-        }
-
-        let furthestTarget = null;
-        let closestTarget = null;
-        let nextTarget = null;
-
-        if (this.facingRight) {
-            for (const target of targets) {
-                const targetX = target.clickRect.getBounds().centerX;
-                if (isReverse) {
-                    if (playerX < targetX && targetX < currentX) {
-                        if (!nextTarget) {
-                            nextTarget = target;
-                        } else if (targetX > nextTarget.clickRect.getBounds().centerX) {
-                            nextTarget = target;
-                        }
-                    }
-                } else {
-                    if (currentX < targetX) {
-                        // check if target is to the right of currentTarget
-                        if (!nextTarget) {
-                            nextTarget = target;
-                        } else if (targetX < nextTarget.clickRect.getBounds().centerX) {
-                            nextTarget = target;
-                        }
-                    }
-                }
-
-                if (playerX < targetX) {
-                    if (!closestTarget) {
-                        closestTarget = target;
-                    } else if (targetX < closestTarget.clickRect.getBounds().centerX) {
-                        closestTarget = target;
-                    }
-
-                    if (!furthestTarget) {
-                        furthestTarget = target;
-                    } else if (targetX > furthestTarget.clickRect.getBounds().centerX) {
-                        furthestTarget = target;
-                    }
-                }
-            }
-        } else {
-            for (const target of targets) {
-                const targetX = target.clickRect.getBounds().centerX;
-                if (isReverse) {
-                    if (currentX < targetX && targetX < playerX) {
-                        if (!nextTarget) {
-                            nextTarget = target;
-                        } else if (targetX < nextTarget.clickRect.getBounds().centerX) {
-                            nextTarget = target;
-                        }
-                    }
-                } else {
-                    if (targetX < currentX) {
-                        // check if target is to the right of currentTarget
-                        if (!nextTarget) {
-                            nextTarget = target;
-                        } else if (nextTarget.clickRect.getBounds().centerX < targetX) {
-                            // check if target is closer to the currentTarget than current next potential target
-                            nextTarget = target;
-                        }
-                    }
-                }
-
-               if (targetX < playerX) {
-                    if (!closestTarget) {
-                        closestTarget = target;
-                    } else if (closestTarget.clickRect.getBounds().centerX < targetX) {
-                        closestTarget = target;
-                    }
-
-                    if (!furthestTarget) {
-                        furthestTarget = target;
-                    } else if (targetX < furthestTarget.clickRect.getBounds().centerX) {
-                        furthestTarget = target;
-                    }
-                }
-            }
-        }
-
-        if (nextTarget && nextTarget != this.currentTarget) {
-            this.targetObject(nextTarget);
-        } else if (isReverse && furthestTarget && furthestTarget != this.currentTarget) {
-            this.targetObject(furthestTarget);
-        } else if (!isReverse && closestTarget && closestTarget != this.currentTarget) {
-            this.targetObject(closestTarget);
-        }
-    }
-
     dash(targetPosition, duration) {
         let position = targetPosition;
         let dashingRight = position > this.body.x;
@@ -871,49 +751,5 @@ export class Player extends ArcadeContainer {
             }
         };
         return Math.max(0, castTime);
-    }
-
-    dealPhysicalDamage(target, potency, delay) {
-        const STR = this.getStrengthStat();
-        let damage = STR * potency;
-
-        for (const buff of this._buffs) {
-            if (buff.modifyDamage) {
-                damage = buff.modifyDamage(damage);
-            }
-
-            if (buff.modifyPhysicalDamage) {
-                damage = buff.modifyPhysicalDamage(damage);
-            }
-        };
-
-        damage = Math.max(0, Math.ceil(damage));
-
-        target.reduceHealth(damage, delay);
-        if (target.hasAggro) {
-            target.addAggro(this, damage);
-        }
-    }
-
-    dealMagicalDamage(target, potency, delay) {
-        const INT = this.getIntelligenceStat();
-        let damage = INT * potency;
-
-        for (const buff of this._buffs) {
-            if (buff.modifyDamage) {
-                damage = buff.modifyDamage(damage);
-            }
-
-            if (buff.modifyPhysicalDamage) {
-                damage = buff.modifyMagicalDamage(damage);
-            }
-        };
-
-        damage = Math.max(0, Math.ceil(damage));
-
-        target.reduceHealth(damage, delay);
-        if (target.hasAggro) {
-            target.addAggro(this, damage);
-        }
     }
 }
