@@ -31,6 +31,7 @@ import {
     CastingMixin,
     CooldownMixin,
     CombatMixin,
+    ExperienceMixin,
 } from './mixins';
 import {
     setAlert,
@@ -108,6 +109,7 @@ export class Player extends ArcadeContainer {
         CastingMixin,
         CooldownMixin,
         CombatMixin,
+        ExperienceMixin,
     ]
 
     constructor(scene, x, y, children) {

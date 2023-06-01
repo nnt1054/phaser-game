@@ -264,6 +264,7 @@ export class Booma extends ArcadeContainer {
     }
 
     handleDeath() {
+        console.log('handle death');
         const player = this.scene.player;
         this.visible = false;
         if (this.isTargeted) {
@@ -277,6 +278,7 @@ export class Booma extends ArcadeContainer {
         
         player.addItem('potion', 1);
         player.removeEnemyFromEnemyList(this);
+        player.gainExperience(100);
 
         this.isDead = true;
         this.respawnTimer = 8000;

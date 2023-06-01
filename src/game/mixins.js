@@ -963,16 +963,61 @@ export const CooldownMixin = {
     },
 };
 
+
+
+
 export const ExperienceMixin = {
     hasExperience: true,
-    currentExperience: 1,
+    currentExperience: 0,
+
+    maxExperience: 257,
+
+    gainExperience(exp) {
+        const _previousLevel = this.getCurrentLevel();
+        this.currentExperience += exp;
+        this.currentExperience = Math.min(this.currentExperience, this.maxExperience);
+
+        if (_previousLevel < this.getCurrentLevel()) {
+            console.log('Level Up!');
+            console.log( this.getCurrentLevel());
+        }
+    },
+
     getCurrentLevel() {
+        const inLevelRange = (min, max) => {
+            return min <= this.currentExperience && this.currentExperience < max;
+        }
+
+        switch(true) {
+            case inLevelRange(0, 10):
+                return 1;
+            case inLevelRange(10, 15):
+                return 2;
+            case inLevelRange(15, 23):
+                return 3;
+            case inLevelRange(23, 34):
+                return 4;
+            case inLevelRange(34, 51):
+                return 5;
+            case inLevelRange(51, 76):
+                return 6;
+            case inLevelRange(76, 114):
+                return 7
+            case inLevelRange(114, 171):
+                return 8;
+            case inLevelRange(171, 257):
+                return 9;
+            case inLevelRange(257, 257+1):
+                return 10;
+        }
+
+        return 1;
     },
 };
 
 export const CombatMixin = {
     getStrengthStat: function() {
-        return 1;
+        return this.getCurrentLevel();
     },
 
     getIntelligenceStat: function() {
