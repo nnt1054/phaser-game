@@ -12,6 +12,9 @@ import {
     CastingMixin,
     CooldownMixin,
     CombatMixin,
+    ExperienceMixin,
+    BaseStatsMixin,
+    LevelMixin,
 } from '../mixins';
 
 import store from '../../store/store';
@@ -158,6 +161,8 @@ export class Booma extends ArcadeContainer {
         CastingMixin,
         CooldownMixin,
         CombatMixin,
+        BaseStatsMixin,
+        LevelMixin,
     ]
 
     constructor(scene, x, y, displayName='Non-Player') {
@@ -168,6 +173,8 @@ export class Booma extends ArcadeContainer {
             Object.assign(this, mixin);
         })
         this.initializeCooldowns();
+
+        this.setLevel(1);
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -264,7 +271,6 @@ export class Booma extends ArcadeContainer {
     }
 
     handleDeath() {
-        console.log('handle death');
         const player = this.scene.player;
         this.visible = false;
         if (this.isTargeted) {
@@ -275,10 +281,11 @@ export class Booma extends ArcadeContainer {
         this.untargetObject();
         this.clearBuffs();
         this.setVelocityX(0);
-        
+        this.setLevel(this.currentLevel + 1);
+
         player.addItem('potion', 1);
         player.removeEnemyFromEnemyList(this);
-        player.gainExperience(100);
+        player.gainExperience(10);
 
         this.isDead = true;
         this.respawnTimer = 8000;
@@ -289,7 +296,7 @@ export class Booma extends ArcadeContainer {
             this.respawnTimer = Math.max(0, this.respawnTimer - delta);
             if (this.respawnTimer <= 0) {
                 this.setPosition(...this.initialPosition);
-                this.setCurrentHealth(100);
+                this.setCurrentHealth(this.maxHealth);
                 this.visible = true;
                 this.isDead = false;
             }

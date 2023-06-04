@@ -154,6 +154,7 @@ const jolt = {
                 && enemy.visible
                 && enemy != target
             ) {
+                // UPDATE AOE'S SUCH THAT EXP IS GRATNED AFTER ALL TARGETS ARE DEALT DAMAGE
                 player.dealDamage(enemy, 25, 'magical', duration);
             }
         };
@@ -433,7 +434,7 @@ const potion = {
             name: 'potion',
             value: 1,
         }))
-        player.setCurrentHealth(100, true);
+        player.setCurrentHealth(player.maxHealth, true);
         player.startCooldown('potion', 8000);
     },
 };

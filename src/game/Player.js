@@ -32,6 +32,8 @@ import {
     CooldownMixin,
     CombatMixin,
     ExperienceMixin,
+    BaseStatsMixin,
+    LevelMixin,
 } from './mixins';
 import {
     setAlert,
@@ -110,6 +112,8 @@ export class Player extends ArcadeContainer {
         CooldownMixin,
         CombatMixin,
         ExperienceMixin,
+        BaseStatsMixin,
+        LevelMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -122,6 +126,8 @@ export class Player extends ArcadeContainer {
         scene.physics.add.existing(this);
 
         this.isPlayer = true;
+
+        this.setExperience(0);
         this.setCurrentHealth(50);
 
         this.setSize(20, 48);
@@ -287,7 +293,6 @@ export class Player extends ArcadeContainer {
         if (this.hasCooldowns) {
             this.initializeCooldowns();
         }
-
 
 
         this.isClimbing = false;

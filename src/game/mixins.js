@@ -1,6 +1,7 @@
 import store from '../store/store';
 import {
-    setPlayerCurrentHealth
+    setPlayerCurrentHealth,
+    setPlayerHealth,
 } from '../store/playerHealth';
 import {
     setGCD,
@@ -53,6 +54,11 @@ export const HealthMixin = {
     maxHealth: 100,
     // hitboxRect: null,
 
+    setMaxHealth(value) {
+        this.maxHealth = value;
+        this.updateStore();
+    },
+
     setCurrentHealth: function(value, generateText) {
         let diff = this.health - value;
         let health = Math.max(value, 0);
@@ -72,28 +78,34 @@ export const HealthMixin = {
     increaseHealth: function(value, delay) {
         if (!delay) delay = 0;
         this.health = Math.min(this.health + value, this.maxHealth);
-        setTimeout(() => this.generateHealNumbers(value), delay);
+        this.scene.time.delayedCall(delay, () => {
+            this.generateHealNumbers(value)
+        })
         this.updateStore();
     },
 
     reduceHealth: function(value, delay) {
         if (!delay) delay = 0;
         this.health = Math.max(this.health - value, 0);
-        setTimeout(() => {
+
+        this.scene.time.delayedCall(delay, () => {
             this.generateDamageNumbers(value)
             this.updateStore();
             if (this.health <= 0) {
                 if (this.handleDeath) {
                     this.handleDeath();
                 }
-            }
-        }, delay);
+            }     
+        })
     },
 
     updateStore: function() {
         if (this.isPlayer) {
             store.dispatch(
-                setPlayerCurrentHealth(this.health)
+                setPlayerHealth({
+                    currentHealth: this.health,
+                    maxHealth: this.maxHealth,
+                })
             )
         }
 
@@ -964,26 +976,40 @@ export const CooldownMixin = {
 };
 
 
+export const LevelMixin = {
+    currentLevel: 1,
+
+    setLevel(level) {
+        this.currentLevel = level;
+        this.updateBaseStats();
+    },
+}
 
 
 export const ExperienceMixin = {
     hasExperience: true,
-    currentExperience: 0,
 
+    currentExperience: 0,
     maxExperience: 257,
 
+    setExperience(exp) {
+        this.currentExperience = exp;
+        this.setLevel(this.getExperienceLevel());
+    },
+
     gainExperience(exp) {
-        const _previousLevel = this.getCurrentLevel();
         this.currentExperience += exp;
         this.currentExperience = Math.min(this.currentExperience, this.maxExperience);
+        this.updateExperienceLevel();
+    },
 
-        if (_previousLevel < this.getCurrentLevel()) {
-            console.log('Level Up!');
-            console.log( this.getCurrentLevel());
+    updateExperienceLevel() {
+        if (this.getExperienceLevel() > this.currentLevel) {
+            this.handleLevelUp();
         }
     },
 
-    getCurrentLevel() {
+    getExperienceLevel() {
         const inLevelRange = (min, max) => {
             return min <= this.currentExperience && this.currentExperience < max;
         }
@@ -1013,17 +1039,49 @@ export const ExperienceMixin = {
 
         return 1;
     },
+
+    handleLevelUp() {
+        console.log('Level Up!');
+        this.setLevel(this.getExperienceLevel());
+        this.setCurrentHealth(this.maxHealth);
+    },
 };
 
-export const CombatMixin = {
+
+const BASE_STATS = [1.0, 1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.3, 2.7, 3.1, 3.5, 4.0, 4.7, 5.4, 6.2, 7.1, 8.1, 9.4, 10.8, 12.4, 14.2, 16.4, 18.8, 21.6, 24.9, 28.6, 32.9, 37.9, 43.5, 50.1, 57.6]
+
+
+export const BaseStatsMixin = {
+
+    baseStrength: 1,
+    baseIntelligence: 1,
+    baseHealth: 1,
+    baseMana: 1,
+
+    updateBaseStats() {
+        // TODO: base stats will also include class modifiers
+        const level = this.currentLevel;
+
+        this.baseStrength = BASE_STATS.at(level);
+        this.baseIntelligence = BASE_STATS.at(level);
+
+        this.baseHealth = Math.ceil(100 * BASE_STATS.at(level));
+        this.setMaxHealth(this.baseHealth);
+
+        this.baseMana = Math.ceil(100 * BASE_STATS.at(level));
+    },
+
     getStrengthStat: function() {
-        return this.getCurrentLevel();
+        return this.baseStrength
     },
 
     getIntelligenceStat: function() {
-        return 1;
+        return this.baseIntelligence
     },
+}
 
+
+export const CombatMixin = {
     calculateDamageFromPotency(potency, type) {
         let damage = 0;
         if (type == 'physical') {

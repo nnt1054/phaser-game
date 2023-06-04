@@ -189,7 +189,7 @@ const TargetInfo = () => {
 
     const barStyles = {
         position: 'absolute',
-        width: `${ percentHealth * 100 }%`,
+        width: `${ percentHealth }%`,
         transition: (increasing == null) ? `width 0s` : increasing ? `width 0.1s` : `width 0s`,
         transitionDelay: (increasing == null) ? `0s` : increasing ? `0.2s` : `0s`,
         backgroundColor: color,
@@ -197,7 +197,7 @@ const TargetInfo = () => {
 
     const underlayBarStyles = {
         position: 'absolute',
-        width: `${ percentHealth * 100 }%`,
+        width: `${ percentHealth }%`,
         transition: (increasing == null) ? `width 0s` : increasing ? `width 0s` : `width 0.1s`,
         transitionDelay: (increasing == null) ? `0s` : increasing ? `0s` : `0.2s`,
         backgroundColor: 'white',
@@ -237,7 +237,7 @@ const TargetInfo = () => {
 
     const cotargetBarStyles = {
         position: 'absolute',
-        width: `${ cotargetPercentHealth * 100 }%`,
+        width: `${ cotargetPercentHealth }%`,
         transition: (cotargetIncreasing == null) ? `width 0s` : cotargetIncreasing ? `width 0.1s` : `width 0s`,
         transitionDelay: (cotargetIncreasing == null) ? `0s` : cotargetIncreasing ? `0.2s` : `0s`,
         backgroundColor: cotargetColor,
@@ -245,7 +245,7 @@ const TargetInfo = () => {
 
     const cotargetUnderlayBarStyles = {
         position: 'absolute',
-        width: `${ cotargetPercentHealth * 100 }%`,
+        width: `${ cotargetPercentHealth }%`,
         transition: (cotargetIncreasing == null) ? `width 0s` : cotargetIncreasing ? `width 0s` : `width 0.1s`,
         transitionDelay: (cotargetIncreasing == null) ? `0s` : cotargetIncreasing ? `0s` : `0.2s`,
         backgroundColor: 'white',
@@ -320,7 +320,7 @@ const TargetInfo = () => {
         >
             <div style={ targetContainerStyles }>
                 <div style={ targetTextStyles }>
-                    <span style={ percentHealthStyle }> { currentHealth }% </span>
+                    <span style={ percentHealthStyle }> { percentHealth }% </span>
                     <span style={ textStyle }> { targetName } </span>
                 </div>
                 <div style={ greenLine } />
@@ -351,7 +351,7 @@ const TargetInfo = () => {
 
             <div style={ cotargetContainerStyles }>
                 <div style={ targetTextStyles }>
-                    <span style={ percentHealthStyle }> { cotargetCurrentHealth }% </span>
+                    <span style={ percentHealthStyle }> { cotargetPercentHealth }% </span>
                     <span style={ textStyle }> { cotargetName } </span>
                 </div>
                 <div style={ cotargetGreenLine }/>

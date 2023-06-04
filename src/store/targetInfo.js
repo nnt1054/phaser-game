@@ -6,7 +6,7 @@ const _calculateTargetHealthState = (state) => {
     state.currentHealth = Math.min(state.currentHealth, state.maxHealth);
 
     const previousPercentHealth = state.percentHealth;
-    state.percentHealth = state.currentHealth / state.maxHealth;
+    state.percentHealth = Math.ceil((state.currentHealth / state.maxHealth) * 1000) / 10;
     state.increasing = (previousPercentHealth <= state.percentHealth);
 }
 
@@ -16,7 +16,7 @@ const _calculateCotargetHealthState = (state) => {
     state.cotargetCurrentHealth = Math.min(state.cotargetCurrentHealth, state.cotargetMaxHealth);
 
     const previousPercentHealth = state.cotargetPercentHealth;
-    state.cotargetPercentHealth = state.cotargetCurrentHealth / state.cotargetMaxHealth;
+    state.cotargetPercentHealth = Math.ceil((state.cotargetCurrentHealth / state.cotargetMaxHealth) * 1000) / 10;
     state.cotargetIncreasing = (previousPercentHealth <= state.cotargetPercentHealth);
 }
 
@@ -51,7 +51,7 @@ const targetInfoSlice = createSlice({
         state.targetName = action.payload.targetName;
         state.currentHealth = action.payload.currentHealth;
         state.maxHealth = action.payload.maxHealth;
-        if (state.currentHealth && state.maxHealth) {
+        if (state.maxHealth) {
             _calculateTargetHealthState(state);
         }
         state.increasing = null;
