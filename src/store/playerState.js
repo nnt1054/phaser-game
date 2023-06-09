@@ -30,6 +30,11 @@ const playerStateSlice = createSlice({
     refreshCooldown: false,
 
     comboAction: '',
+
+    currentLevel: '?',
+    currentExp: '-',
+    maxExp: '-',
+    expProgress: 0,
   },
   reducers: {
     setQueuedAbility: (state, action) => {
@@ -94,6 +99,15 @@ const playerStateSlice = createSlice({
     setComboAction: (state, action) => {
         state.comboAction = action.payload;
     },
+    updateExperience: (state, action) => {
+        state.currentExp = action.payload.currentExp;
+        state.maxExp = action.payload.maxExp;
+        state.expProgress = action.payload.expProgress;
+        console.log(state.expProgress);
+    },
+    updateLevel: (state, action) => {
+        state.currentLevel = action.payload;
+    },
   }
 })
 
@@ -112,6 +126,8 @@ export const {
     clearSystemAction,
     setRefreshCooldown,
     setComboAction,
+    updateExperience,
+    updateLevel,
 } = playerStateSlice.actions;
 
 export default playerStateSlice;

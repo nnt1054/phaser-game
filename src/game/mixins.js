@@ -8,6 +8,8 @@ import {
     setCast,
     setCooldowns,
     setComboAction,
+    updateExperience,
+    updateLevel,
 } from '../store/playerState';
 import {
     setTarget,
@@ -982,7 +984,14 @@ export const LevelMixin = {
     setLevel(level) {
         this.currentLevel = level;
         this.updateBaseStats();
+        this.updateLevelStore();
     },
+
+    updateLevelStore() {
+        if (this.isPlayer) {
+            store.dispatch(updateLevel(this.currentLevel));
+        }
+    }
 }
 
 
@@ -990,22 +999,67 @@ export const ExperienceMixin = {
     hasExperience: true,
 
     currentExperience: 0,
-    maxExperience: 257,
+    maxExperience: 394,
 
     setExperience(exp) {
         this.currentExperience = exp;
         this.setLevel(this.getExperienceLevel());
+        this.updateExpStore();
     },
 
     gainExperience(exp) {
         this.currentExperience += exp;
         this.currentExperience = Math.min(this.currentExperience, this.maxExperience);
         this.updateExperienceLevel();
+        this.updateExpStore();
     },
 
     updateExperienceLevel() {
         if (this.getExperienceLevel() > this.currentLevel) {
             this.handleLevelUp();
+        }
+    },
+
+    updateExpStore() {
+        if (this.isPlayer) {
+            const maxExp = this.getNextLevelRequiredExperience(this.currentLevel);
+            const baseExp = this.getNextLevelRequiredExperience(this.currentLevel - 1);
+            const expProgress = (this.currentExperience - baseExp) / (maxExp - baseExp);
+            store.dispatch(
+                updateExperience({
+                    currentExp: this.currentExperience - baseExp,
+                    maxExp: maxExp - baseExp,
+                    expProgress: expProgress,
+                })
+            );
+        }
+    },
+
+    getNextLevelRequiredExperience(level) {
+        switch(level) {
+            case 0:
+                return 0;
+            case 1:
+                return 15;
+            case 2:
+                return 32;
+            case 3:
+                return 52;
+            case 4:
+                return 74;
+            case 5:
+                return 101;
+            case 6:
+                return 131;
+            case 7:
+                return 166;
+            case 8:
+                return 205;
+            case 9:
+                return 251;
+            case 10:
+                return this.maxExperience;
+            return this.maxExperience;
         }
     },
 
@@ -1015,25 +1069,25 @@ export const ExperienceMixin = {
         }
 
         switch(true) {
-            case inLevelRange(0, 10):
+            case inLevelRange(0, 15):
                 return 1;
-            case inLevelRange(10, 15):
+            case inLevelRange(15, 32):
                 return 2;
-            case inLevelRange(15, 23):
+            case inLevelRange(32, 52):
                 return 3;
-            case inLevelRange(23, 34):
+            case inLevelRange(52, 74):
                 return 4;
-            case inLevelRange(34, 51):
+            case inLevelRange(74, 101):
                 return 5;
-            case inLevelRange(51, 76):
+            case inLevelRange(101, 131):
                 return 6;
-            case inLevelRange(76, 114):
+            case inLevelRange(131, 166):
                 return 7
-            case inLevelRange(114, 171):
+            case inLevelRange(166, 205):
                 return 8;
-            case inLevelRange(171, 257):
+            case inLevelRange(205, 251):
                 return 9;
-            case inLevelRange(257, 257+1):
+            case inLevelRange(251, 304+1):
                 return 10;
         }
 
@@ -1048,8 +1102,7 @@ export const ExperienceMixin = {
 };
 
 
-const BASE_STATS = [1.0, 1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.3, 2.7, 3.1, 3.5, 4.0, 4.7, 5.4, 6.2, 7.1, 8.1, 9.4, 10.8, 12.4, 14.2, 16.4, 18.8, 21.6, 24.9, 28.6, 32.9, 37.9, 43.5, 50.1, 57.6]
-
+const BASE_STATS = [1.0, 1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.3, 2.7, 3.1, 3.5, 4.0, 4.7, 5.4, 6.2, 7.1, 8.1, 9.4, 10.8, 12.4, 14.2, 16.4, 18.8, 21.6, 24.9, 28.6, 32.9, 37.9, 43.5, 50.1, 57.6];
 
 export const BaseStatsMixin = {
 

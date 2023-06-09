@@ -15,6 +15,7 @@ import * as styles from './App.module.css';
 import { FrameAnimator } from './game/plugins';
 import HealthBar from './ui/HealthBar';
 import ManaBar from './ui/ManaBar';
+import ExperienceBar from './ui/ExperienceBar';
 import HotBar from './ui/HotBar';
 import InputManager from './ui/InputManager';
 import CastBar from './ui/CastBar';
@@ -109,6 +110,7 @@ const App = () => {
                     <HealthBar />
                     <ManaBar />
                 </div>
+                <ExperienceBar />
 
                 <DialogueBox />
                 <CastBar />

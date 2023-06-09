@@ -252,11 +252,7 @@ const fleche = {
         return true;
     },
     execute: (player, target) => {
-        target.reduceHealth(10);
-        if (target.hasAggro) {
-            target.addAggro(player, 10);
-        }
-
+        player.dealDamage(target, 10, 'magical');
         player.startCooldown('fleche', 12000);
 
         let bounds = target.hitboxRect.getBounds();
@@ -327,10 +323,7 @@ const corps_a_corps = {
             })
         }
 
-        target.reduceHealth(10);
-        if (target.hasAggro) {
-            target.addAggro(player, 10);
-        }
+        player.dealDamage(target, 10, 'physical', 500);
         player.startCooldown('corps_a_corps', 12000);
     },
 }
@@ -359,10 +352,7 @@ const displacement = {
         return true;
     },
     execute: (player, target) => {
-        target.reduceHealth(10);
-        if (target.hasAggro) {
-            target.addAggro(player, 10);
-        }
+        player.dealDamage(target, 10, 'physical', 500);
 
         const hitboxRect = target.hitboxRect;
         const playerX = player.hitboxRect.getBounds().centerX;
@@ -539,10 +529,7 @@ const combo1 = {
     canTarget: isEnemy,
     canExecute: inMeleeRange,
     execute: (player, target) => {
-        target.reduceHealth(15, 500);
-        if (target.hasAggro) {
-            target.addAggro(player, 15);
-        }
+        player.dealDamage(target, 15, 'physical', 500);
         _meleeAnimation(player, target);
     },
 }
@@ -564,10 +551,7 @@ const combo2 = {
         }
 
         const damage = isCombo ? 25 : 15;
-        target.reduceHealth(damage, 500);
-        if (target.hasAggro) {
-            target.addAggro(player, damage);
-        }
+        player.dealDamage(target, damage, 'physical', 500);
         _meleeAnimation(player, target);
     },
     isComboAction: true,
@@ -590,10 +574,7 @@ const combo3 = {
         }
 
         const damage = isCombo ? 30 : 15;
-        target.reduceHealth(damage, 500);
-        if (target.hasAggro) {
-            target.addAggro(player, damage);
-        }
+        player.dealDamage(target, damage, 'physical', 500);
         _meleeAnimation(player, target);
     },
     isComboAction: true,

@@ -285,7 +285,7 @@ export class Booma extends ArcadeContainer {
 
         player.addItem('potion', 1);
         player.removeEnemyFromEnemyList(this);
-        player.gainExperience(10);
+        player.gainExperience(5);
 
         this.isDead = true;
         this.respawnTimer = 8000;
