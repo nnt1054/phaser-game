@@ -4,7 +4,11 @@ import {
     CompositeSprite,
 } from './utils'
 
-import actionMap from './actions';
+import {
+    systemActionMap,
+    itemActionMap,
+} from './actions';
+
 import store from '../store/store';
 import {
     clearInputQueues,
@@ -35,6 +39,9 @@ import {
     BaseStatsMixin,
     LevelMixin,
 } from './mixins';
+import {
+    JobMixin
+} from './jobs';
 import {
     setAlert,
 } from '../store/alert';
@@ -114,6 +121,7 @@ export class Player extends ArcadeContainer {
         ExperienceMixin,
         BaseStatsMixin,
         LevelMixin,
+        JobMixin,
     ]
 
     constructor(scene, x, y, children) {
@@ -281,7 +289,7 @@ export class Player extends ArcadeContainer {
         this.currentFrame = 0;
         const getFrameIndex = state => state.aniEditor;
         this.animationObserver = observeStore(store, getFrameIndex, (animState) => {
-            if (animState.frameIndex != this.currentFrame) {
+            if (animState.frameIndex != null && animState.frameIndex != this.currentFrame) {
                 this.currentFrame = animState.frameIndex;
                 this.queueAbility(`frame${animState.frameIndex}`);
             }
@@ -345,7 +353,7 @@ export class Player extends ArcadeContainer {
             this.setPlayerComboAction('');
         }
 
-        this.updateDialogue(delta)
+        this.updateDialogue(delta);
         this.updateMovement(delta);
         this.updateCooldowns(delta);
         this.updateBuffs(delta);
@@ -359,7 +367,7 @@ export class Player extends ArcadeContainer {
 
     queueSystemAction(actionName, target) {
         if (!actionName) return;
-        const action = actionMap[actionName];
+        const action = systemActionMap[actionName];
         if (!action) return;
         if (this.systemAction) return;
         this.systemAction = action;
@@ -368,8 +376,17 @@ export class Player extends ArcadeContainer {
 
     queueAbility(abilityName, target) {
         if (!abilityName) return;
-        const ability = actionMap[abilityName];
-        if (!ability) return;
+
+        let ability;
+        if (abilityName in this.currentJob.abilities) {
+            ability = this.currentJob.abilities[abilityName];
+        } else if (abilityName in itemActionMap) {
+            ability = itemActionMap[abilityName];
+        };
+        if (!ability) {
+            store.dispatch(setAlert('Invalid Action.'));
+            return;
+        }
 
         if (this.gcdQueue) return;
         if (ability.gcd && this.gcdTimer > 500) return;
@@ -388,6 +405,7 @@ export class Player extends ArcadeContainer {
             if (this.currentTarget == null) {
                 store.dispatch(setAlert('Invalid Target.'));
             }
+            return;
         } else {
             store.dispatch(setAlert('Invalid Target.'));
             return;

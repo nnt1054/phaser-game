@@ -108,9 +108,32 @@ const embolden = (target, source) => {
     }
 }
 
+const aero = (target, source) => {
+    return {
+        key: 'aero',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'verthunder',
+        apply() {
+            this.tickTimer = 3000;
+            this.source.dealDamage(this.target, 'magical', 5);
+        },
+        unapply() {},
+        update(delta) {
+            this.tickTimer -= delta;
+            if (this.tickTimer <= 0) {
+                this.tickTimer += 3000;
+                this.source.dealDamage(this.target, 'magical', 5);
+            }
+        },
+    }
+}
+
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
+    'aero': aero,
     'acceleration': acceleration,
     'embolden': embolden,
 }

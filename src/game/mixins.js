@@ -48,6 +48,7 @@ import {
 import {
     updateStatuses,
 } from '../store/statusInfo';
+import buffs from './buffs';
 
 export const HealthMixin = {
 
@@ -602,10 +603,12 @@ export const BuffMixin = {
         })
 
         if (this.isPlayer) {
+            store.dispatch(updateStatuses([]));
             store.dispatch(updateStatuses(buffs));
         }
 
         if (this.isTargeted) {
+            store.dispatch(updateTargetStatuses([]));
             store.dispatch(updateTargetStatuses(buffs));
         }
     },
@@ -621,6 +624,20 @@ export const BuffMixin = {
         buff.unapply(this);
         this._buffs = this._buffs.filter((x) => (x !== buff));
         this.updateStatusInfoStore();
+    },
+
+    getBuff: function(key) {
+        return this._buffs.find(x => x.key == key);
+    },
+
+    updateOrApplyBuff: function(key, source, timer) {
+        const buff = this._buffs.find(x => x.key == key && x.source == source);
+        if (buff) {
+            buff.timer = timer;
+            this.updateStatusInfoStore();
+        } else {
+            this.applyBuff(buffs[key], source);
+        }
     },
 
     updateBuffs: function(delta) {
@@ -916,12 +933,8 @@ export const CastingMixin = {
 
         if (this.isPlayer) {
             this.faceTarget(target);
-
-            // todo: add lock duration prop to abilities
-            const duration = ability.gcd ? 500 : 350;
-            this.abilityTimer += duration;
-            this.directionLockTimer += duration;
-
+            this.abilityTimer += 750;
+            this.directionLockTimer += 500;
             if (ability.gcd && !ability.isComboAction) {
                 this.setPlayerComboAction(ability.name);
             }

@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import * as styles from './../App.module.css';
 
 const ExperienceBar = () => {
+    const currentJob = useSelector(state => state.playerState.currentJob);
     const currentLevel = useSelector(state => state.playerState.currentLevel);
     const currentExp = useSelector(state => state.playerState.currentExp);
     const maxExp = useSelector(state => state.playerState.maxExp);
@@ -48,7 +49,7 @@ const ExperienceBar = () => {
                 />
             </div>
             <div style={ textContainerStyles }>
-                <span> RDM </span>
+                <span> { currentJob } </span>
                 <span> Lvl { currentLevel } </span>
                 <span> { currentExp } / { maxExp } </span>
             </div>

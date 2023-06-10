@@ -7,7 +7,17 @@ const ManaBar = () => {
     const dispatch = useDispatch();
 
     const barStyles = {
+        height: '24px',
         width: `${ percentMana * 100 }%`,
+        transition: 'width 0.2s',
+        backgroundColor: 'blue',
+    }
+
+    const textContainerStyles = {
+        marginLeft: '4px',
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '16px',
     }
 
     return (
@@ -15,12 +25,11 @@ const ManaBar = () => {
             <div className={ styles.ManaBar }>
                 <div
                     style={ barStyles }
-                    className={ styles.ManaBarPrimary }
                 ></div>
             </div>
-            <div className={ styles.BarText }>
+            <div style={ textContainerStyles }>
                 <span> Mana </span>
-                <span className={ styles.BarValue }> { currentMana } </span>
+                <span> { currentMana } </span>
             </div>
         </div>
     )

@@ -3,7 +3,6 @@ import {
     CompositeSprite,
 } from './utils'
 
-import actionMap from './actions';
 import store from '../store/store';
 import {
     clearInputQueues,

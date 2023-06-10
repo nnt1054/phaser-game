@@ -8,7 +8,19 @@ const HealthBar = () => {
     const increasing = useSelector(state => state.playerHealth.increasing);
     const dispatch = useDispatch();
 
+    const healthBarStyles = {
+        position: 'relative',
+        height: '16px',
+        width: '256px',
+        border:  '4px solid black',
+        borderRadius: '4px',
+        backgroundColor: 'rgba(0, 0, 0, .5)',
+        overflow: 'hidden',
+    };
+
     const barStyles = {
+        position: 'absolute',
+        height: '24px',
         width: `${ percentHealth * 100 }%`,
         transition: increasing ? `width 0.1s` : `width 0s`,
         transitionDelay: increasing ? `0.2s` : `0s`,
@@ -16,6 +28,8 @@ const HealthBar = () => {
     }
 
     const underlayBarStyles = {
+        position: 'absolute',
+        height: '24px',
         width: `${ percentHealth * 100 }%`,
         transition: increasing ? `width 0s` : `width 0.1s`,
         transitionDelay: increasing ? `0s` : `0.2s`,
@@ -23,21 +37,26 @@ const HealthBar = () => {
         opacity: 0.5,
     }
 
+    const textContainerStyles = {
+        marginLeft: '4px',
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '16px',
+    }
+
     return (
         <div>
-            <div className={ styles.HealthBar }>
+            <div style={ healthBarStyles }>
                 <div
                     style={ underlayBarStyles }
-                    className={ styles.BarPrimary }
                 />
                 <div
                     style={ barStyles }
-                    className={ styles.BarPrimary }
                 />
             </div>
-            <div className={ styles.BarText }>
+            <div style={ textContainerStyles }>
                 <span> Health </span>
-                <span className={ styles.BarValue }> { currentHealth } </span>
+                <span> { currentHealth } </span>
             </div>
         </div>
     )

@@ -18,7 +18,7 @@ const hotBarsSlice = createSlice({
     3: {
         visible: true,
         left: 50,
-        bottom: 10,
+        bottom: 11,
         slots: [
             { name: 'potion', active: false, keybind: '1'},
             { name: 'empty', active: false, keybind: '2'},
@@ -35,7 +35,7 @@ const hotBarsSlice = createSlice({
     4: {
         visible: true,
         left: 50,
-        bottom: 16,
+        bottom: 17,
         slots: [
             { name: 'empty', active: false, keybind: '↑1'},
             { name: 'empty', active: false, keybind: '↑2'},

@@ -35,6 +35,8 @@ const playerStateSlice = createSlice({
     currentExp: '-',
     maxExp: '-',
     expProgress: 0,
+
+    currentJob: 'TMP',
   },
   reducers: {
     setQueuedAbility: (state, action) => {
@@ -103,7 +105,6 @@ const playerStateSlice = createSlice({
         state.currentExp = action.payload.currentExp;
         state.maxExp = action.payload.maxExp;
         state.expProgress = action.payload.expProgress;
-        console.log(state.expProgress);
     },
     updateLevel: (state, action) => {
         state.currentLevel = action.payload;
