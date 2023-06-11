@@ -30,7 +30,11 @@ const isFriendly = (player, target) => { return target && target.hasHealth && !t
 const untarget = {
     type: 'system',
     execute: (player) => {
-        player.untargetObject();
+        if (player.casting) {
+            player.cancelCast();
+        } else {
+            player.untargetObject();
+        }
     },
 };
 
@@ -104,6 +108,9 @@ const equipHelmet = {
 
         player.removeItem(item.name);
         player.equipHelmet(item);
+        if (player.currentJob.name != item.job) {
+            player.setJob(item.job);
+        }
 
         // store.dispatch(setHelmet(item));
         if (currentItem) {

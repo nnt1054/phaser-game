@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import Phaser from 'phaser';
 const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
 
-const movementOnly = {
+const defaultKeymap = {
 
     // cursors
     [KeyCodes.SPACE]: {
@@ -70,193 +70,202 @@ const movementOnly = {
     // basic keybinds
     [KeyCodes.ONE]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 0,
     },
     [KeyCodes.TWO]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 1,
     },
     [KeyCodes.THREE]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 2,
     },
     [KeyCodes.FOUR]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 3,
     },
     [KeyCodes.FIVE]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 4,
     },
     [KeyCodes.Q]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 5,
     },
     [KeyCodes.E]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 6,
     },
     [KeyCodes.R]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 7,
     },
     [KeyCodes.F]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 8,
     },
     [KeyCodes.G]: {
       type: 'hotbar',
-      hotbar: 3,
+      hotbar: 1,
       slot: 9,
     },
+};
+
+const defaultShiftKeymap = {
+
+    // cursors
+    [KeyCodes.SPACE]: {
+      type: 'cursor',
+      cursor: 'jumpCursor',
+    },
+    [KeyCodes.W]: {
+      type: 'cursor',
+      cursor: 'up',
+    },
+    [KeyCodes.A]: {
+      type: 'cursor',
+      cursor: 'left',
+    },
+    [KeyCodes.S]: {
+      type: 'cursor',
+      cursor: 'down',
+    },
+    [KeyCodes.D]: {
+      type: 'cursor',
+      cursor: 'right',
+    },
+
+
+    [KeyCodes.ONE]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 0,
+    },
+    [KeyCodes.TWO]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 1,
+    },
+    [KeyCodes.THREE]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 2,
+    },
+    [KeyCodes.FOUR]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 3,
+    },
+    [KeyCodes.FIVE]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 4,
+    },
+    [KeyCodes.Q]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 5,
+    },
+    [KeyCodes.E]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 6,
+    },
+    [KeyCodes.R]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 7,
+    },
+    [KeyCodes.F]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 8,
+    },
+    [KeyCodes.G]: {
+      type: 'hotbar',
+      hotbar: 2,
+      slot: 9,
+    },
+    [KeyCodes.TAB]: {
+      type: 'simple',
+      key: 'cycleTargetReverse',
+    },
+    [KeyCodes.ENTER]: {
+      type: 'simple',
+      key: 'focusChatInput',
+    },
+};
+
+const defaultHotbarLabelMap = {
+  1: {
+    0: '1',
+    1: '2',
+    2: '3',
+    3: '4',
+    4: '5',
+    5: 'Q',
+    6: 'E',
+    7: 'R',
+    8: 'F',
+    9: 'G',
+  },
+  2: {
+    0: '↑1',
+    1: '↑2',
+    2: '↑3',
+    3: '↑4',
+    4: '↑5',
+    5: '↑Q',
+    6: '↑E',
+    7: '↑R',
+    8: '↑F',
+    9: '↑G',
+  },
+};
+
+const generateHotbarLabelMap = (state) => {
+  // TODO: fill this in when we add keybind remaps :)
 }
 
 const inputManagerSlice = createSlice({
   name: 'inputManagerState',
   initialState: {
-    queuedAbility: null,
-
-    // cursors
-    up: 0,
-    down: 0,
-    left: 0,
-    right: 0,
-
-    keymap: movementOnly,
-    shiftKeymap: {
-
-      // cursors
-      [KeyCodes.SPACE]: {
-        type: 'cursor',
-        cursor: 'jumpCursor',
-      },
-      [KeyCodes.W]: {
-        type: 'cursor',
-        cursor: 'up',
-      },
-      [KeyCodes.A]: {
-        type: 'cursor',
-        cursor: 'left',
-      },
-      [KeyCodes.S]: {
-        type: 'cursor',
-        cursor: 'down',
-      },
-      [KeyCodes.D]: {
-        type: 'cursor',
-        cursor: 'right',
-      },
-
-
-      [KeyCodes.ONE]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 0,
-      },
-      [KeyCodes.TWO]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 1,
-      },
-      [KeyCodes.THREE]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 2,
-      },
-      [KeyCodes.FOUR]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 3,
-      },
-      [KeyCodes.FIVE]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 4,
-      },
-      [KeyCodes.Q]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 5,
-      },
-      [KeyCodes.E]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 6,
-      },
-      [KeyCodes.R]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 7,
-      },
-      [KeyCodes.F]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 8,
-      },
-      [KeyCodes.G]: {
-        type: 'hotbar',
-        hotbar: 4,
-        slot: 9,
-      },
-      [KeyCodes.TAB]: {
-        type: 'simple',
-        key: 'cycleTargetReverse',
-      },
-      [KeyCodes.ENTER]: {
-        type: 'simple',
-        key: 'focusChatInput',
-      },
-    },
+    keymap: defaultKeymap,
+    shiftKeymap: defaultShiftKeymap,
     ctrlKeymap: {},
     altKeymap: {},
+    hotbarLabelMap: defaultHotbarLabelMap,
   },
-  reducers: {
-    setQueuedAbility: (state, action) => {
-      if (!state.queuedAbility) {
-        state.queuedAbility = action.payload;
-      }
-    },
-    clearQueuedAbility: (state) => {
-      state.queuedAbility = null;
-    },
-    clearInputQueues: (state) => {
-      state.queuedAbility = null;
-      state.jump = false;
-    }
-  }
+  reducers: {},
 })
 
-export const {
-    setQueuedAbility,
-    clearQueuedAbility,
-    clearInputQueues,
-} = inputManagerSlice.actions;
+export const {} = inputManagerSlice.actions;
 
 export default inputManagerSlice;
 
 
-    // [KeyCodes.UP]: {
-    //   type: 'cursor',
-    //   cursor: 'up',
-    // },
-    // [KeyCodes.LEFT]: {
-    //   type: 'cursor',
-    //   cursor: 'left',
-    // },
-    // [KeyCodes.DOWN]: {
-    //   type: 'cursor',
-    //   cursor: 'down',
-    // },
-    // [KeyCodes.RIGHT]: {
-    //   type: 'cursor',
-    //   cursor: 'right',
-    // },
+// [KeyCodes.UP]: {
+//   type: 'cursor',
+//   cursor: 'up',
+// },
+// [KeyCodes.LEFT]: {
+//   type: 'cursor',
+//   cursor: 'left',
+// },
+// [KeyCodes.DOWN]: {
+//   type: 'cursor',
+//   cursor: 'down',
+// },
+// [KeyCodes.RIGHT]: {
+//   type: 'cursor',
+//   cursor: 'right',
+// },

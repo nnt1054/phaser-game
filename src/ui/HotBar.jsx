@@ -6,13 +6,22 @@ import HotBarItem from './HotBarItem';
 
 import * as styles from '../App.module.css';
 
+const hotbarNameToIndex = {
+    'Hotbar 1': 1,
+    'Hotbar 2': 2,
+};
 
 const HotBar = (props) => {
     const ref = useRef();
     const dispatch = useDispatch();
 
-    const position = useSelector(state => state.hotBars[props.index]);
+    const currentJob = useSelector(state => state.playerState.currentJob);
+    const position = useSelector(state => state.hotBars[props.name]);
     const activeMenu = useSelector(state => state.menuStates.activeMenu)
+
+    const hotbarLabelMap = useSelector(state => state.inputManager.hotbarLabelMap);
+    const hotbarIndex = hotbarNameToIndex[props.name];
+    const hotbarLabels = hotbarLabelMap[hotbarIndex];
 
     const dialogueActive = (activeMenu === 'dialogue');
     const isVisible = (position.visible && !dialogueActive);
@@ -35,12 +44,13 @@ const HotBar = (props) => {
             className={ styles.HotBar }
         >
             {
-                position.slots.map((slot, i) => {
+                position.slotsMap[currentJob].map((slot, i) => {
                     return <HotBarItem
                         key={ i }
                         slot={ slot }
-                        hotbar={ props.index }
+                        hotbar={ props.name }
                         index={ i }
+                        keybind={ hotbarLabels[i] }
                     />
                 })
             }

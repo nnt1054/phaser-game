@@ -246,7 +246,7 @@ const HotBarItem = (props) => {
             onTouchStart= { e => e.stopPropagation() }
             onTouchEnd= { e => e.stopPropagation() }
         >
-            <span style={ keybindStyle }> { slot.keybind } </span>
+            <span style={ keybindStyle }> { props.keybind } </span>
             <span style={ itemCountStyle }> x{ itemCount } </span>
             <button
                 ref={ ref }

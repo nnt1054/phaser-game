@@ -109,6 +109,9 @@ const playerStateSlice = createSlice({
     updateLevel: (state, action) => {
         state.currentLevel = action.payload;
     },
+    updateJob: (state, action) => {
+        state.currentJob = action.payload;
+    },
   }
 })
 
@@ -129,6 +132,7 @@ export const {
     setComboAction,
     updateExperience,
     updateLevel,
+    updateJob,
 } = playerStateSlice.actions;
 
 export default playerStateSlice;

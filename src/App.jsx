@@ -104,8 +104,8 @@ const App = () => {
                 style={ uiContainerStyles }
             >
                 <InputManager />
-                <HotBar index='3' />
-                <HotBar index='4' />
+                <HotBar name='Hotbar 1' index='3' />
+                <HotBar name='Hotbar 2' index='4' />
                 <div className={ styles.PlayerBars }>
                     <HealthBar />
                     <ManaBar />

@@ -933,7 +933,9 @@ export const CastingMixin = {
 
         if (this.isPlayer) {
             this.faceTarget(target);
-            this.abilityTimer += 750;
+
+            const duration = ability.gcd ? 350 : 750;
+            this.abilityTimer += duration;
             this.directionLockTimer += 500;
             if (ability.gcd && !ability.isComboAction) {
                 this.setPlayerComboAction(ability.name);

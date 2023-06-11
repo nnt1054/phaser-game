@@ -2,6 +2,9 @@ import store from '../store/store';
 import {
     setAlert,
 } from '../store/alert';
+import {
+    updateJob,
+} from '../store/playerState';
 import buffs from './buffs';
 
 const isAny = (player, target) => { return true };
@@ -34,9 +37,9 @@ const inRangedRange = (player, target) => {
     return true;
 }
 
-const TempJob = {
-    name: 'TMP',
-    abilities: {
+const HealerJob = {
+    name: 'HEAL',
+    abilities :{
         'stone': {
             name: 'stone',
             display_name: 'Stone',
@@ -74,6 +77,13 @@ const TempJob = {
                 target.updateOrApplyBuff('regen', player, 12000);
             },
         },
+    },
+};
+
+
+const TempJob = {
+    name: 'TMP',
+    abilities: {
         'combo1': {
             name: 'combo1',
             display_name: 'Combo 1',
@@ -391,7 +401,21 @@ const _meleeAnimationHelper = (player, target) => {
     });
 };
 
+const jobMap = {
+    'TMP': TempJob,
+    'HEAL': HealerJob,
+}
+
 export const JobMixin = {
     hasJob: true,
     currentJob: TempJob,
+    setJob(key) {
+        const job = jobMap[key]
+        this.currentJob = job;
+        this.updateJobStore();
+    },
+
+    updateJobStore() {
+        store.dispatch(updateJob(this.currentJob.name));
+    }
 };

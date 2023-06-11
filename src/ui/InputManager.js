@@ -86,6 +86,11 @@ const useKeyPress = callback => {
 };
 
 
+const hotbarIndexToName = {
+  1: 'Hotbar 1',
+  2: 'Hotbar 2',
+};
+
 const InputManager = () => {
     const targetName = useSelector(state => state.targetInfo.targetName);
 
@@ -113,8 +118,9 @@ const InputManager = () => {
       if (!keybind) return;
 
       if (keybind.type === 'hotbar') {
+        const hotbarName = hotbarIndexToName[keybind.hotbar]
         dispatch(setSlotActive({
-          key: keybind.hotbar,
+          key: hotbarName,
           index: keybind.slot,
           active: true,
         }))
@@ -128,7 +134,8 @@ const InputManager = () => {
       let actionKey, action;
       switch (keybind.type) {
         case 'hotbar':
-          const hotbar = hotbars[keybind.hotbar];
+          const hotbarName = hotbarIndexToName[keybind.hotbar]
+          const hotbar = hotbars[hotbarName];
           if (!hotbar) return;
 
           const slot = hotbar.slots[keybind.slot]
@@ -166,8 +173,9 @@ const InputManager = () => {
       const keybind = keymap[input.key]
       if (!keybind) return;
       if (keybind.type === 'hotbar') {
+        const hotbarName = hotbarIndexToName[keybind.hotbar]
         dispatch(setSlotActive({
-          key: keybind.hotbar,
+          key: hotbarName,
           index: keybind.slot,
           active: false,
         }))
@@ -201,8 +209,9 @@ const InputManager = () => {
               if (!keybind) break;
               if (keybind.type === 'hotbar') {
                 const name = getSettingName(state);
+                const hotbarName = hotbarIndexToName[keybind.hotbar]
                 dispatch(setSlot({
-                    hotbar: keybind.hotbar,
+                    hotbar: hotbarName,
                     slot: keybind.slot,
                     name: name,
                 }))

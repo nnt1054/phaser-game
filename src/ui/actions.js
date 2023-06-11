@@ -213,14 +213,14 @@ const systemActions = {
         label: 'close',
         action: () => {
             const state = store.getState();
+            const menuKey = state.menuStates.activeMenu;
             if (state.menuStates.chatInputIsActive) {
                 store.dispatch(setChatInputIsActive(false));
-            } else if (state.menuStates.activeMenu) {
-                const menuKey = state.menuStates.activeMenu;
+            } else if (menuKey != menus.default) {
                 const config = navActions[menuKey];
                 if (!config || !config.close) return;
                 config.close();
-            } else if (state.targetInfo.display) {
+            } else if (state.targetInfo.display || state.playerState.castKey) {
                 store.dispatch(setSystemAction('untarget'));
             } else {
                 store.dispatch(openMenu('gameMenu'));
