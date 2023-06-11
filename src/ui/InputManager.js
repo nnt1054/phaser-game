@@ -92,6 +92,7 @@ const hotbarIndexToName = {
 };
 
 const InputManager = () => {
+    const currentJob = useSelector(state => state.playerState.currentJob);
     const targetName = useSelector(state => state.targetInfo.targetName);
 
     const inputManager = useSelector(state => state.inputManager);
@@ -138,7 +139,9 @@ const InputManager = () => {
           const hotbar = hotbars[hotbarName];
           if (!hotbar) return;
 
-          const slot = hotbar.slots[keybind.slot]
+          const slots = hotbar.slotsMap[currentJob];
+          const slot = slots[keybind.slot];
+          console.log(slot);
           if (!slot) return;
 
           actionKey = slot.name;

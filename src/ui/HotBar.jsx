@@ -17,7 +17,7 @@ const HotBar = (props) => {
 
     const currentJob = useSelector(state => state.playerState.currentJob);
     const position = useSelector(state => state.hotBars[props.name]);
-    const activeMenu = useSelector(state => state.menuStates.activeMenu)
+    const activeMenu = useSelector(state => state.menuStates.activeMenu);
 
     const hotbarLabelMap = useSelector(state => state.inputManager.hotbarLabelMap);
     const hotbarIndex = hotbarNameToIndex[props.name];
@@ -51,6 +51,7 @@ const HotBar = (props) => {
                         hotbar={ props.name }
                         index={ i }
                         keybind={ hotbarLabels[i] }
+                        active={ position.slots[i].active }
                     />
                 })
             }

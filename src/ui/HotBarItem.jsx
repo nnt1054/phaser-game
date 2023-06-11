@@ -127,7 +127,7 @@ const HotBarItem = (props) => {
         borderRadius: `12px`,
         position: `absolute`,
         filter:
-            slot.active ? `brightness(50%)`
+            props.active ? `brightness(50%)`
             : (isHovering || timer > 0 || (isItem && itemCount === 0)) ? `brightness(75%)`
             : `brightness(100%)`,
         pointerEvents: `auto`,
