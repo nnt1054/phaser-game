@@ -592,6 +592,7 @@ export const AggroMixin = {
 export const BuffMixin = {
     hasBuffs: true,
     _buffs: [],
+    _buffsApplied: [],
 
     updateStatusInfoStore() {
         const buffs = this._buffs.map(buff => {
@@ -617,12 +618,16 @@ export const BuffMixin = {
         const buff = buffClass(this, source);
         buff.apply();
         this._buffs.push(buff);
+        this.addBuffToSource(buff);
         this.updateStatusInfoStore();
     },
 
-    removeBuff: function(buff) {
+    removeBuff: function(buff, updateSource=true) {
         buff.unapply(this);
         this._buffs = this._buffs.filter((x) => (x !== buff));
+        if (updateSource) {
+            this.removeBuffFromSource(buff);
+        }
         this.updateStatusInfoStore();
     },
 
@@ -640,6 +645,22 @@ export const BuffMixin = {
         }
     },
 
+    addBuffToSource(buff) {
+        const source = buff.source;
+        source._buffsApplied.push(buff);
+    },
+
+    removeBuffFromSource: function(buff) {
+        const source = buff.source;
+        source._buffsApplied = source._buffsApplied.filter((x) => (x !== buff));
+    },
+
+    unapplyAllBuffsFromSource: function() {
+        for (const buff of this._buffsApplied) {
+            buff.target.removeBuff(buff, false);
+        }
+    },
+
     updateBuffs: function(delta) {
         let shouldUpdate = false;
 
@@ -647,11 +668,12 @@ export const BuffMixin = {
             buff.timer = Math.max(0, buff.timer - delta);
             if (buff.timer <= 0) {
                 buff.unapply(this);
+                this.removeBuffFromSource(buff);
                 shouldUpdate = true;
             }
         };
-
         this._buffs = this._buffs.filter((buff) => buff.timer > 0);
+
         if (shouldUpdate) {
             this.updateStatusInfoStore();
         }
@@ -994,6 +1016,7 @@ export const CooldownMixin = {
 
 
 export const LevelMixin = {
+    hasLevel: true,
     currentLevel: 1,
 
     setLevel(level) {
@@ -1016,15 +1039,35 @@ export const ExperienceMixin = {
     currentExperience: 0,
     maxExperience: 394,
 
+    jobExperienceMap: {},
+
     setExperience(exp) {
+        // todo: update for multiple jobs
         this.currentExperience = exp;
+        this.jobExperienceMap = {
+            'TMP': exp,
+            'HEAL': exp,
+        };
+        this.setLevel(this.getExperienceLevel());
+        this.updateExpStore();
+    },
+
+    refreshExperience() {
+        this.currentExperience = this.jobExperienceMap[this.currentJob.name];
         this.setLevel(this.getExperienceLevel());
         this.updateExpStore();
     },
 
     gainExperience(exp) {
-        this.currentExperience += exp;
-        this.currentExperience = Math.min(this.currentExperience, this.maxExperience);
+        if (this.hasJob) {
+            const updatedExp = Math.min(this.jobExperienceMap[this.currentJob.name] + exp, this.maxExperience)
+            this.jobExperienceMap[this.currentJob.name] = updatedExp;
+            this.currentExperience = updatedExp;
+        } else {
+            this.currentExperience += exp;
+            this.currentExperience = Math.min(this.currentExperience, this.maxExperience);
+        }
+
         this.updateExperienceLevel();
         this.updateExpStore();
     },
@@ -1117,7 +1160,7 @@ export const ExperienceMixin = {
 };
 
 
-const BASE_STATS = [1.0, 1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.3, 2.7, 3.1, 3.5, 4.0, 4.7, 5.4, 6.2, 7.1, 8.1, 9.4, 10.8, 12.4, 14.2, 16.4, 18.8, 21.6, 24.9, 28.6, 32.9, 37.9, 43.5, 50.1, 57.6];
+export const BASE_STATS = [1.0, 1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.3, 2.7, 3.1, 3.5, 4.0, 4.7, 5.4, 6.2, 7.1, 8.1, 9.4, 10.8, 12.4, 14.2, 16.4, 18.8, 21.6, 24.9, 28.6, 32.9, 37.9, 43.5, 50.1, 57.6];
 
 export const BaseStatsMixin = {
 
@@ -1150,6 +1193,17 @@ export const BaseStatsMixin = {
 
 
 export const CombatMixin = {
+
+    inCombat() {
+        if (this.hasEnemyList) {
+            if (this.enemyList.length > 0) {
+                return true;
+            }
+        }
+        if (this.hasCasting && this.casting) return true;
+        return false;
+    },
+
     calculateDamageFromPotency(potency, type) {
         let damage = 0;
         if (type == 'physical') {

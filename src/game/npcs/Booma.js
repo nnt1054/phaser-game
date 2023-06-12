@@ -15,6 +15,7 @@ import {
     ExperienceMixin,
     BaseStatsMixin,
     LevelMixin,
+    BASE_STATS,
 } from '../mixins';
 
 import store from '../../store/store';
@@ -58,12 +59,12 @@ const compositeConfigIndexes = {
 };
 
 const abilities = {
-    'temp': {
-        name: 'temp',
+    'attack': {
+        name: 'attack',
         cooldown: 12000,
         castTime: 3000,
         canCast: (caster, target) => {
-            const [cooldown, duration] = caster.getCooldown('temp');
+            const [cooldown, duration] = caster.getCooldown('attack');
             if (cooldown > 0) {
                 return false
             }
@@ -90,13 +91,13 @@ const abilities = {
                     rect.updateDisplayOrigin();
                 }
             });
-            caster.startCooldown('temp', 12000)
+            caster.startCooldown('attack', 12000)
         },
         cancelCast: (caster, target) => {
             if (caster.telegraphRectTween) caster.telegraphRectTween.stop()
             caster.telegraphRect.width = 0;
             caster.telegraphRect.updateDisplayOrigin();
-            caster.startCooldown('temp', 0)
+            caster.startCooldown('attack', 0)
         },
         execute: (caster, target) => {
             let player = caster.scene.player;
@@ -281,11 +282,13 @@ export class Booma extends ArcadeContainer {
         this.untargetObject();
         this.clearBuffs();
         this.setVelocityX(0);
-        this.setLevel(this.currentLevel + 1);
+
+        const exp = Math.ceil(BASE_STATS.at(this.currentLevel) * 5);
+        this.setLevel(Math.min(this.currentLevel + 1, 30));
 
         player.addItem('potion', 1);
         player.removeEnemyFromEnemyList(this);
-        player.gainExperience(5);
+        player.gainExperience(exp);
 
         this.isDead = true;
         this.respawnTimer = 8000;
@@ -316,12 +319,12 @@ export class Booma extends ArcadeContainer {
             }
 
             if (this.currentTarget) {
-                const tempAbility = abilities['temp'];
+                const attackAbility = abilities['attack'];
                 const autoAttackAbility = abilities['autoAttack'];
-                if (this.canCast(tempAbility, this.currentTarget)) {
+                if (this.canCast(attackAbility, this.currentTarget)) {
 
                     // start explosion cast
-                    this.startCast(tempAbility);
+                    this.startCast(attackAbility);
                     this.setVelocityX(0);
 
                 } else if (this.canCast(autoAttackAbility, this.currentTarget)) {

@@ -44,16 +44,16 @@ const hotBarsSlice = createSlice({
                 { name: 'fleche' },
             ],
             'HEAL': [
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'stone' },
+                { name: 'aero' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
             ],
         },
     },
@@ -87,16 +87,16 @@ const hotBarsSlice = createSlice({
                 { name: 'acceleration' },
             ],
             'HEAL': [
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
-                { name: 'vercure' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
+                { name: 'regen' },
             ],
         },
     },
@@ -126,8 +126,10 @@ const hotBarsSlice = createSlice({
         state.draggingSource.index = null;
     },
     setSlot: (state, action) => {
+        const job = action.payload.job;
         const hotbar = state[action.payload.hotbar];
-        const slot = hotbar.slots[action.payload.slot];
+        const slots = hotbar.slotsMap[job];
+        const slot = slots[action.payload.slot];
         slot.name = action.payload.name;
     },
     setHoverKey: (state, action) => {

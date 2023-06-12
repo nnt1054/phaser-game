@@ -33,7 +33,7 @@ const regen = (target, source) => {
         target: target,
         source: source,
         timer: 12000,
-        icon: 'vercure',
+        icon: 'regen',
         apply() {
             this.tickTimer = 3000;
             this.target.increaseHealth(10);
@@ -72,6 +72,28 @@ const dot = (target, source) => {
     }
 }
 
+const aero = (target, source) => {
+    return {
+        key: 'aero',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'aero',
+        apply() {
+            this.tickTimer = 3000;
+            this.source.dealDamage(this.target, 5, 'magical');
+        },
+        unapply() {},
+        update(delta) {
+            this.tickTimer -= delta;
+            if (this.tickTimer <= 0) {
+                this.tickTimer += 3000;
+                this.source.dealDamage(this.target, 5, 'magical');
+            }
+        },
+    }
+}
+
 const acceleration = (target, source) => {
     return {
         key: 'acceleration',
@@ -104,28 +126,6 @@ const embolden = (target, source) => {
         update(delta) {},
         modifyMagicalDamage(damage) {
             return damage * 1.15;
-        },
-    }
-}
-
-const aero = (target, source) => {
-    return {
-        key: 'aero',
-        target: target,
-        source: source,
-        timer: 30000,
-        icon: 'verthunder',
-        apply() {
-            this.tickTimer = 3000;
-            this.source.dealDamage(this.target, 'magical', 5);
-        },
-        unapply() {},
-        update(delta) {
-            this.tickTimer -= delta;
-            if (this.tickTimer <= 0) {
-                this.tickTimer += 3000;
-                this.source.dealDamage(this.target, 'magical', 5);
-            }
         },
     }
 }

@@ -163,7 +163,7 @@ const TempJob = {
                 return true;
             },
             execute: (player) => {
-                player.applyBuff(buffs['acceleration']);
+                player.applyBuff(buffs['acceleration'], player);
                 player.startCooldown('acceleration', 30000);
             },
         },
@@ -410,9 +410,14 @@ export const JobMixin = {
     hasJob: true,
     currentJob: TempJob,
     setJob(key) {
+        this.unapplyAllBuffsFromSource();
         const job = jobMap[key]
         this.currentJob = job;
         this.updateJobStore();
+        if (this.hasExperience) {
+            this.refreshExperience();
+        };
+        this.updateCooldownsStore();
     },
 
     updateJobStore() {

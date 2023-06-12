@@ -14,6 +14,9 @@ import melee3_icon from '../assets/icons/redoublement.png';
 import melee4_icon from '../assets/icons/enchanted_riposte.png';
 import corps_a_corps_icon from '../assets/icons/corps-a-corps.png';
 import displacement_icon from '../assets/icons/displacement.png';
+import stone_icon from '../assets/icons/stone.png';
+import aero_icon from '../assets/icons/aero.png';
+import regen_icon from '../assets/icons/regen.png';
 
 export default {
     acceleration: acceleration_icon,
@@ -32,4 +35,7 @@ export default {
     verholy: verholy_icon,
     corps_a_corps: corps_a_corps_icon,
     displacement: displacement_icon,
+    stone: stone_icon,
+    aero: aero_icon,
+    regen: regen_icon,
 }

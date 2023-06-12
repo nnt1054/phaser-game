@@ -452,6 +452,46 @@ export const abilities = {
             Next Non-instant Spell will be instant.
         `,
     },
+    'stone': {
+        label: 'stone',
+        action: () => { store.dispatch(setQueuedAbility('stone')) },
+        icon: 'stone',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Deals 25 Magic Damage to Target.
+        `,
+    },
+    'aero': {
+        label: 'aero',
+        action: () => { store.dispatch(setQueuedAbility('aero')) },
+        icon: 'aero',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Dash to target; Deals 10 Damage to Target.
+        `,
+    },
+    'regen': {
+        label: 'regen',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'regen',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'regen',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: `
+            Restores target HP by 10.
+        `,
+    },
 };
 
 export const items = {

@@ -98,6 +98,11 @@ const cycleTargetFromEnemyListReverse = {
 const equipHelmet = {
     type: 'system',
     execute: (player, itemId) => {
+        if (player.inCombat()) {
+            store.dispatch(setAlert('Cannot change equipment while in combat.'));
+            return;
+        }
+
         const item = helmets[itemId]
         if (!item) return;
 

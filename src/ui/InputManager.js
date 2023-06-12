@@ -141,7 +141,6 @@ const InputManager = () => {
 
           const slots = hotbar.slotsMap[currentJob];
           const slot = slots[keybind.slot];
-          console.log(slot);
           if (!slot) return;
 
           actionKey = slot.name;
@@ -214,6 +213,7 @@ const InputManager = () => {
                 const name = getSettingName(state);
                 const hotbarName = hotbarIndexToName[keybind.hotbar]
                 dispatch(setSlot({
+                    job: currentJob,
                     hotbar: hotbarName,
                     slot: keybind.slot,
                     name: name,
