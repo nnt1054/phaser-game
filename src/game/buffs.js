@@ -130,12 +130,29 @@ const embolden = (target, source) => {
     }
 }
 
+const surgingTempest = (target, source) => {
+    return {
+        key: 'surgingTempest',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'embolden',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyDamage(damage) {
+            return damage * 1.10;
+        },
+    }
+}
+
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
     'aero': aero,
     'acceleration': acceleration,
     'embolden': embolden,
+    'surgingTempest': surgingTempest,
 }
 
 export default buffMap

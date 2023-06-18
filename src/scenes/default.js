@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-const KeyCodes = Phaser.Input.Keyboard.KeyCodes;
 
 import {
     scaleToWidth,

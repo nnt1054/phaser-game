@@ -1,85 +1,13 @@
-import store from '../store/store';
 import {
-    setAlert,
-} from '../store/alert';
-import {
-    updateJob,
-} from '../store/playerState';
-import buffs from './buffs';
+    isAny,
+    isEnemy,
+    isFriendly,
+    inMeleeRange,
+    inRangedRange,
+    animationHelpers,
+} from './utils';
 
-const isAny = (player, target) => { return true };
-const isEnemy = (player, target) => { return target && target.isEnemy && target.visible && target.hasHealth };
-const isFriendly = (player, target) => { return target && !target.isEnemy && target.visible && target.hasHealth};
-const inMeleeRange = (player, target) => {
-    if (!target) return false;
-    if (!target.hasHealth) return false;
-    if (target.health <= 0) return false;
-    const inRange = player.isTargetInRange(
-        target.hitboxRect,
-        player.ref_x, player.ref_y, 128, 86, 0.5, 0.5,
-    )
-    if (!inRange) {
-        store.dispatch(setAlert('Target is out of range.'));
-        return false;
-    }
-    return true;
-};
-const inRangedRange = (player, target) => {
-    if (target.health <= 0) return false;
-    const inRange = player.isTargetInRange(
-        target.hitboxRect,
-        player.ref_x, player.ref_y,  1028, 128 + 4, 0.5, 0.5,
-    )
-    if (!inRange) {
-        store.dispatch(setAlert('Target is out of range.'));
-        return false;
-    }
-    return true;
-}
-
-const HealerJob = {
-    name: 'HEAL',
-    abilities :{
-        'stone': {
-            name: 'stone',
-            display_name: 'Stone',
-            castTime: 1500,
-            gcd: true,
-            cooldown: 2500,
-            canTarget: isEnemy,
-            canExecute: inRangedRange,
-            execute: (player, target) => {
-                const duration = _stoneAnimationHelper(player, target)
-                player.dealDamage(target, 25, 'magical', duration);
-            },
-        },
-        'aero': {
-            name: 'aero',
-            display_name: 'Aero',
-            castTime: 0,
-            gcd: true,
-            cooldown: 2500,
-            canTarget: isEnemy,
-            canExecute: inRangedRange,
-            execute: (player, target) => {
-                target.updateOrApplyBuff('aero', player, 30000);
-            },
-        },
-        'regen': {
-            name: 'regen',
-            display_name: 'Regen',
-            castTime: 0,
-            gcd: true,
-            cooldown: 2500,
-            canTarget: isFriendly,
-            canExecute: inRangedRange,
-            execute: (player, target) => {
-                target.updateOrApplyBuff('regen', player, 12000);
-            },
-        },
-    },
-};
-
+import buffs from '../buffs';
 
 const TempJob = {
     name: 'TMP',
@@ -94,7 +22,7 @@ const TempJob = {
             canExecute: inMeleeRange,
             execute: (player, target) => {
                 player.dealDamage(target, 15, 'physical', 500);
-                _meleeAnimationHelper(player, target);
+                animationHelpers.melee(player, target);
             },
         },
         'combo2': {
@@ -115,7 +43,7 @@ const TempJob = {
 
                 const damage = isCombo ? 25 : 15;
                 player.dealDamage(target, damage, 'physical', 500);
-                _meleeAnimationHelper(player, target);
+                animationHelpers.melee(player, target);
             },
             isComboAction: true,
         },
@@ -136,7 +64,7 @@ const TempJob = {
 
                 const damage = isCombo ? 30 : 15;
                 player.dealDamage(target, damage, 'physical', 500);
-                _meleeAnimationHelper(player, target);
+                animationHelpers.melee(player, target);
             },
             isComboAction: true,
         },
@@ -149,7 +77,7 @@ const TempJob = {
             canExecute: inMeleeRange,
             execute: (player, target) => {
                 player.dealDamage(target, 15, 'physical', 500);
-                _meleeAnimationHelper(player, target);
+                animationHelpers.melee(player, target);
             },
         },
         'acceleration': {
@@ -305,7 +233,7 @@ const TempJob = {
             canTarget: isEnemy,
             canExecute: inRangedRange,
             execute: (player, target) => {
-                const duration = _stoneAnimationHelper(player, target)
+                const duration = animationHelpers.stone(player, target)
                 player.dealDamage(target, 25, 'magical', duration);
                 
                 // find and damage other enemies around target
@@ -331,96 +259,4 @@ const TempJob = {
     }
 };
 
-// animation helpers
-const _stoneAnimationHelper = (player, target) => {
-    let bounds = player.hitboxRect.getBounds();
-    let targetBounds = target.hitboxRect.getBounds();
-    let angle = Phaser.Math.Angle.Between(bounds.centerX, bounds.centerY, targetBounds.centerX, targetBounds.centerY);
-    let distance = Phaser.Math.Distance.Between(bounds.centerX, bounds.centerY, targetBounds.centerX, targetBounds.centerY);
-    var duration = distance / 0.75;
-    let vfx = player.scene.add.sprite(bounds.centerX, bounds.centerY);
-    let facingRight = bounds.centerX < targetBounds.centerX;
-    vfx.setOrigin(0.5, 0.5);
-    vfx.setRotation(angle);
-    vfx.play('jolt');
-    let tween = player.scene.tweens.add({
-        targets: [ vfx ],
-        x: targetBounds.centerX,
-        y: targetBounds.centerY,
-        duration: duration,
-        ease: 'Sine.easeIn',
-    });
-    tween.on('complete', () => {
-        vfx.destroy();
-        let bounds = target.hitboxRect.getBounds();
-        let smoke = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
-        if (!facingRight) {
-            smoke.scaleX = -1;
-        }
-        smoke.setOrigin(0.5, 1);
-        smoke.play('smoke');
-        smoke.on('animationcomplete', () => {
-            smoke.destroy();
-        })
-
-        // testing for fun
-        let vfx2 = player.scene.add.sprite(bounds.centerX, bounds.bottom + 16);
-        vfx2.scaleX = 3;
-        vfx2.setOrigin(0.5, 1);
-        vfx2.setDepth(1000);
-        vfx2.play('explosion');
-        vfx2.on('animationcomplete', () => {
-            vfx2.destroy();
-        });
-    })
-    return duration;
-};
-
-const _meleeAnimationHelper = (player, target) => {
-    let bounds = target.hitboxRect.getBounds();
-    let vfx = player.scene.add.sprite(player.ref_x, player.ref_y + 6);
-    player.add(vfx);
-    if (player.facingRight) {
-        vfx.scaleX = 1.5;
-    } else {
-        vfx.scaleX = -1.5;            
-    }
-    vfx.setOrigin(0.5, 1);
-    vfx.play('slice');
-    vfx.on('animationcomplete', () => {
-        vfx.destroy();
-    })
-
-    player.scene.time.delayedCall(400, () => {
-        let vfx2 = player.scene.add.sprite(bounds.centerX, bounds.bottom + 24);
-        vfx2.setOrigin(0.5, 1);
-        vfx2.play('impact');
-        vfx2.on('animationcomplete', () => {
-            vfx2.destroy();
-        })
-    });
-};
-
-const jobMap = {
-    'TMP': TempJob,
-    'HEAL': HealerJob,
-}
-
-export const JobMixin = {
-    hasJob: true,
-    currentJob: TempJob,
-    setJob(key) {
-        this.unapplyAllBuffsFromSource();
-        const job = jobMap[key]
-        this.currentJob = job;
-        this.updateJobStore();
-        if (this.hasExperience) {
-            this.refreshExperience();
-        };
-        this.updateCooldownsStore();
-    },
-
-    updateJobStore() {
-        store.dispatch(updateJob(this.currentJob.name));
-    }
-};
+export default TempJob;

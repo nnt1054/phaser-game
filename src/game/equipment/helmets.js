@@ -16,12 +16,12 @@ const helmets = {
         job: 'HEAL',
     },
     '3': {
-        id: 2,
+        id: 3,
         name: 'horns',
         sprites: {
             'headband': 3,
         },
-        job: 'HEAL',
+        job: 'MELEE',
     },
 }
 

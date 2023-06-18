@@ -38,10 +38,8 @@ import {
     ExperienceMixin,
     BaseStatsMixin,
     LevelMixin,
+    JobMixin,
 } from './mixins';
-import {
-    JobMixin
-} from './jobs';
 import {
     setAlert,
 } from '../store/alert';
@@ -134,9 +132,6 @@ export class Player extends ArcadeContainer {
         scene.physics.add.existing(this);
 
         this.isPlayer = true;
-
-        this.setExperience(0);
-        this.setCurrentHealth(50);
 
         this.setSize(20, 48);
         this.setMaxVelocity(800);
@@ -277,12 +272,21 @@ export class Player extends ArcadeContainer {
             }
         });
 
+        this.addItem('horns', 1);
         this.addItem('potion', 3);
         this.addItem('halo', 1);
         this.addItem('foxears', 1);
 
         const ears = helmets[1];
         this.equipHelmet(ears);
+
+        this.setExperience(0);
+        this.setCurrentHealth(50);
+        this.updateCharacterPreview();
+        this.initializeCooldowns();
+
+        // TODO: initial job should be set based on equipment
+        this.setJob('TMP');
 
         // Animation Editor
         this.paused = false;
@@ -295,13 +299,6 @@ export class Player extends ArcadeContainer {
             }
             this.character.setActiveCompositeStates(animState.compositeStates);
         })
-
-        this.updateCharacterPreview();
-
-        if (this.hasCooldowns) {
-            this.initializeCooldowns();
-        }
-
 
         this.isClimbing = false;
         this.climbingDisabled = false;

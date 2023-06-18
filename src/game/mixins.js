@@ -10,6 +10,7 @@ import {
     setComboAction,
     updateExperience,
     updateLevel,
+    updateJob,
 } from '../store/playerState';
 import {
     setTarget,
@@ -49,6 +50,7 @@ import {
     updateStatuses,
 } from '../store/statusInfo';
 import buffs from './buffs';
+import jobMap from './jobs';
 
 export const HealthMixin = {
 
@@ -635,10 +637,10 @@ export const BuffMixin = {
         return this._buffs.find(x => x.key == key);
     },
 
-    updateOrApplyBuff: function(key, source, timer) {
+    updateOrApplyBuff: function(key, source, duration, maxDuration) {
         const buff = this._buffs.find(x => x.key == key && x.source == source);
         if (buff) {
-            buff.timer = timer;
+            buff.timer = Math.min(buff.timer + duration, maxDuration);
             this.updateStatusInfoStore();
         } else {
             this.applyBuff(buffs[key], source);
@@ -1047,6 +1049,7 @@ export const ExperienceMixin = {
         this.jobExperienceMap = {
             'TMP': exp,
             'HEAL': exp,
+            'MELEE': exp,
         };
         this.setLevel(this.getExperienceLevel());
         this.updateExpStore();
@@ -1237,4 +1240,23 @@ export const CombatMixin = {
 
         target.receiveDamage(this, damage, type, delay)
     },
+};
+
+export const JobMixin = {
+    hasJob: true,
+    currentJob: null,
+    setJob(key) {
+        this.unapplyAllBuffsFromSource();
+        const job = jobMap[key]
+        this.currentJob = job;
+        this.updateJobStore();
+        if (this.hasExperience) {
+            this.refreshExperience();
+        };
+        this.updateCooldownsStore();
+    },
+
+    updateJobStore() {
+        store.dispatch(updateJob(this.currentJob.name));
+    }
 };

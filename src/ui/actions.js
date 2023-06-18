@@ -442,6 +442,21 @@ export const abilities = {
             return (state.playerState.comboAction == 'combo2')
         },
     },
+    'combo4': {
+        label: 'combo4',
+        action: () => { store.dispatch(setQueuedAbility('combo4')) },
+        icon: 'melee4',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,  
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'combo2')
+        },
+    },
     'acceleration': {
         label: 'acceleration',
         action: () => { store.dispatch(setQueuedAbility('acceleration')) },
@@ -513,7 +528,7 @@ export const equipment = {
     'foxears': {
         itemId: 1,
         label: 'foxears',
-        icon: 'verflare',
+        icon: 'embolden',
         type: 'item',
         itemType: 'helmet',
         description: `fox ears! ripped out of a real live fox.`,
@@ -547,6 +562,26 @@ export const equipment = {
             store.dispatch(setSystemActionAndTarget({
                 action: 'equipHelmet',
                 target: 2,
+            }))
+        },
+    },
+    'horns': {
+        itemId: 3,
+        label: 'horns',
+        icon: 'verflare',
+        type: 'item',
+        itemType: 'helmet',
+        description: `this is another helmet thing; horns though`,
+        action: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 3,
+            }))
+        },
+        equip: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 3,
             }))
         },
     },
