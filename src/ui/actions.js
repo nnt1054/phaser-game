@@ -457,6 +457,17 @@ export const abilities = {
             return (state.playerState.comboAction == 'combo2')
         },
     },
+    'sinawali': {
+        label: 'sinawali',
+        action: () => { store.dispatch(setQueuedAbility('sinawali')) },
+        icon: 'melee4',
+        gcd: false,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,
+    },
     'acceleration': {
         label: 'acceleration',
         action: () => { store.dispatch(setQueuedAbility('acceleration')) },

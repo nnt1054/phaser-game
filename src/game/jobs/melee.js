@@ -91,6 +91,23 @@ const MeleeJob = {
             },
             isComboAction: true,
         },
+        'sinawali': {
+            name: 'sinawali',
+            gcd: false,
+            canTarget: isEnemy,
+            canExecute: inMeleeRange,
+            canExecute: (player, target) => {
+                if (!inRangedRange(player, target)) return false;
+                const [cooldown, duration] = player.getCooldown('sinawali');
+                if (cooldown > 0) return false;
+                return true;
+            },
+            execute: (player, target) => {
+                player.startCooldown('sinawali', 1000);
+                player.dealDamage(target, 10, 'physical', 500);
+                animationHelpers.melee(player, target);
+            },
+        },
     },
 }
 

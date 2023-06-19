@@ -117,7 +117,7 @@ const hotBarsSlice = createSlice({
                 { name: 'empty' },
                 { name: 'empty' },
                 { name: 'potion' },
-                { name: 'empty' },
+                { name: 'sinawali' },
                 { name: 'empty' },
                 { name: 'empty' },
                 { name: 'empty' },
