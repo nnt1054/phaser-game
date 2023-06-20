@@ -130,13 +130,13 @@ const embolden = (target, source) => {
     }
 }
 
-const surgingTempest = (target, source) => {
+const flow = (target, source) => {
     return {
-        key: 'surgingTempest',
+        key: 'flow',
         target: target,
         source: source,
         timer: 30000,
-        icon: 'embolden',
+        icon: 'redondo',
         apply() {},
         unapply() {},
         update(delta) {},
@@ -146,13 +146,114 @@ const surgingTempest = (target, source) => {
     }
 }
 
+const cortoManoReady = (target, source) => {
+    return {
+        key: 'cortoManoReady',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'corto_mano_dash',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+const earthlyComboReady = (target, source) => {
+    return {
+        key: 'earthlyComboReady',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'earthly_combo',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+const heavenlyComboReady = (target, source) => {
+    return {
+        key: 'heavenlyComboReady',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'heavenly_combo',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+const earthAligned = (target, source) => {
+    return {
+        key: 'earthAligned',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'earthly_strike',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+const heavenAligned = (target, source) => {
+    return {
+        key: 'heavenAligned',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'heavenly_strike',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+const enlightenment = (target, source) => {
+    return {
+        key: 'enlightenment',
+        target: target,
+        source: source,
+        timer: 21000,
+        icon: 'enlightenment',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyDamage(damage) {
+            return damage * 1.15;
+        },
+    }
+}
+
+const chakra = (target, source) => {
+    return {
+        key: 'chakra',
+        target: target,
+        source: source,
+        timer: 120000,
+        icon: 'chakra',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
     'aero': aero,
     'acceleration': acceleration,
     'embolden': embolden,
-    'surgingTempest': surgingTempest,
+    'flow': flow,
+    'cortoManoReady': cortoManoReady,
+    'earthlyComboReady': earthlyComboReady,
+    'heavenlyComboReady': heavenlyComboReady,
+    'earthAligned': earthAligned,
+    'heavenAligned': heavenAligned,
+    'enlightenment': enlightenment,
+    'chakra': chakra,
 }
 
 export default buffMap

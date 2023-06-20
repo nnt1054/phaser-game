@@ -44,14 +44,26 @@ const HotBarItem = (props) => {
     const gcd = useSelector(state => state.playerState.gcd);
 
     const slot = props.slot;
-    const action = actionMap[slot.name];
     const empty = (slot.name === 'empty');
+
+    let actionName = slot.name;
+    let action = actionMap[actionName];
+
+    if (action.override) {
+        const actionNameOverride = action.override();
+        if (actionNameOverride) {
+            actionName = actionNameOverride;
+            action = actionMap[actionName];
+        }
+    }
 
     const isItem = (action.type === 'item');
     const items = useSelector(state => state.inventory.items);
-    const itemCount = items.filter(item => item.name === slot.name).reduce((sum, item) => {
+    const itemCount = items.filter(item => item.name === actionName).reduce((sum, item) => {
         return sum + item.count;
     }, 0)
+
+    const isDisabled = action.isDisabled ? action.isDisabled() : false;
 
     const activeMenu = useSelector(state => state.menuStates.activeMenu);
     const inventoryState = useSelector(state => state.inventory.state);
@@ -61,11 +73,14 @@ const HotBarItem = (props) => {
     const isSettingSkill = (activeMenu === menus.skills && skillsState === activeSkillStates.setting);
     const isSetting = isSettingItem || isSettingSkill;
 
-    const cooldowns = useSelector(state => state.playerState.cooldowns[slot.name]);
+    const cooldowns = useSelector(state => state.playerState.cooldowns[actionName]);
     const [current, duration] = cooldowns ? cooldowns : [0, 0];
 
     const [progress, setProgress] = useState(0);
     const timeLeft = duration - current;
+
+    // force refresh on new comboAction
+    const comboAction = useSelector(state => state.playerState.comboAction);
 
     useEffect(() => {
         setProgress(current);
@@ -96,7 +111,7 @@ const HotBarItem = (props) => {
     // might be good to replace useHover with css classes
     // slot.active should already handle the third tier press
     const isHovering = useHover(ref,
-        () => dispatch(setHoverKey(slot.name)),
+        () => dispatch(setHoverKey(actionName)),
         () => dispatch(setHoverKey(null)),
     );
 
@@ -105,8 +120,7 @@ const HotBarItem = (props) => {
     const isVisible = (!empty || isSetting);
 
     const isHighlighted = action.isHighlighted ? action.isHighlighted() : false;
-    // force refresh on new comboAction
-    const comboAction = useSelector(state => state.playerState.comboAction);
+
 
     const buttonStyle = {
         position: 'absolute',
@@ -127,7 +141,8 @@ const HotBarItem = (props) => {
         borderRadius: `12px`,
         position: `absolute`,
         filter:
-            props.active ? `brightness(50%)`
+            isDisabled ? `brightness(50%)`
+            : props.active ? `brightness(50%)`
             : (isHovering || timer > 0 || (isItem && itemCount === 0)) ? `brightness(75%)`
             : `brightness(100%)`,
         pointerEvents: `auto`,

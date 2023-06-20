@@ -303,7 +303,177 @@ export const targetingActions = {
     },
 };
 
+
+const meleeAbilities = {
+    'linear_strike': {
+        label: 'Linear Strike',
+        action: () => { store.dispatch(setQueuedAbility('linear_strike')) },
+        icon: 'linear_strike',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,
+    },
+    'fanning_strike': {
+        label: 'Fanning Strike',
+        action: () => { store.dispatch(setQueuedAbility('fanning_strike')) },
+        icon: 'fanning_strike',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,  
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'linear_strike')
+        },
+    },
+    'redondo': {
+        label: 'Redondo',
+        action: () => { store.dispatch(setQueuedAbility('redondo')) },
+        icon: 'redondo',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,  
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'fanning_strike')
+        },
+    },
+    'exis_strike': {
+        label: 'Exis Strike',
+        action: () => { store.dispatch(setQueuedAbility('exis_strike')) },
+        icon: 'exis_strike',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,  
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'fanning_strike')
+        },
+    },
+    'largo_mano_strike': {
+        label: 'Largo Mano Strike',
+        action: () => { store.dispatch(setQueuedAbility('largo_mano_strike')) },
+        override: () => {
+            const state = store.getState();
+            const cortoManoReady = state.statusInfo.statuses.find(buff => buff.key == 'cortoManoReady');
+            if (cortoManoReady) {
+                return 'corto_mano_dash';
+            }
+        },
+        icon: 'largo_mano_strike',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,
+    },
+    'corto_mano_dash': {
+        label: 'Corto Mano Dash',
+        action: () => { store.dispatch(setQueuedAbility('largo_mano_strike')) },
+        icon: 'corto_mano_dash',
+        gcd: true,
+        cooldown: '12.0s',
+        description: `
+            Dash to target; Deals 10 Damage to Target.
+        `,
+        isHighlighted: () => {
+            const state = store.getState();
+            return state.statusInfo.statuses.find(buff => buff.key == 'cortoManoReady');
+        },
+    },
+    'earthly_strike': {
+        label: 'Earthly Strike',
+        action: () => { store.dispatch(setQueuedAbility('earthly_strike')) },
+        icon: 'earthly_strike',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'heavenly_strike' || state.playerState.comboAction == 'earthly_strike')
+        },
+    },
+    'earthly_combo': {
+        label: 'Earthly Combo',
+        action: () => { store.dispatch(setQueuedAbility('earthly_combo')) },
+        icon: 'earthly_combo',
+        cooldown: '12.0s',
+        description: `
+            Dash to target; Deals 10 Damage to Target.
+        `,
+        isHighlighted: () => {
+            const state = store.getState();
+            return state.statusInfo.statuses.find(buff => buff.key == 'earthlyComboReady');
+        },
+        isDisabled: () => {
+            const state = store.getState();
+            const earthlyComboReady = state.statusInfo.statuses.find(buff => buff.key == 'earthlyComboReady');
+            return earthlyComboReady ? false : true;
+        },
+    },
+    'heavenly_strike': {
+        label: 'Heavenly Strike',
+        action: () => { store.dispatch(setQueuedAbility('heavenly_strike')) },
+        icon: 'heavenly_strike',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '5s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'heavenly_strike' || state.playerState.comboAction == 'earthly_strike')
+        },
+    },
+    'heavenly_combo': {
+        label: 'Heavenly Combo',
+        action: () => { store.dispatch(setQueuedAbility('heavenly_combo')) },
+        icon: 'heavenly_combo',
+        cooldown: '12.0s',
+        description: `
+            Dash to target; Deals 10 Damage to Target.
+        `,
+        isHighlighted: () => {
+            const state = store.getState();
+            return state.statusInfo.statuses.find(buff => buff.key == 'heavenlyComboReady');
+        },
+        isDisabled: () => {
+            const state = store.getState();
+            const heavenlyComboReady = state.statusInfo.statuses.find(buff => buff.key == 'heavenlyComboReady');
+            return heavenlyComboReady ? false : true;
+        },
+    },
+    'enlightenment': {
+        label: 'Enlightenment',
+        action: () => { store.dispatch(setQueuedAbility('enlightenment')) },
+        icon: 'enlightenment',
+        castTime: '0s',
+        cooldown: '90s',
+        description: `
+            Melee Slash; Deals 15 Damage to Target.
+        `,
+    },
+};
+
+
 export const abilities = {
+    ...meleeAbilities,
     'jolt': {
         label: 'jolt',
         action: (target) => {
@@ -381,7 +551,6 @@ export const abilities = {
         description: `
             Melee Slash; Deals 15 Damage to Target.
         `,  
-        isHighlighted: () => {}   
     },
     'corps_a_corps': {
         label: 'corps-a-corps',
@@ -456,17 +625,6 @@ export const abilities = {
             const state = store.getState();
             return (state.playerState.comboAction == 'combo2')
         },
-    },
-    'sinawali': {
-        label: 'sinawali',
-        action: () => { store.dispatch(setQueuedAbility('sinawali')) },
-        icon: 'melee4',
-        gcd: false,
-        castTime: '0s',
-        cooldown: '2.5s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,
     },
     'acceleration': {
         label: 'acceleration',

@@ -380,6 +380,21 @@ export class Player extends ArcadeContainer {
         } else if (abilityName in itemActionMap) {
             ability = itemActionMap[abilityName];
         };
+
+        if (!ability) {
+            store.dispatch(setAlert('Invalid Action.'));
+            return;
+        }
+
+        // override
+        if (ability.override) {
+            const abilityNameOverride = ability.override(this);
+            if (abilityNameOverride) {
+                abilityName = abilityNameOverride;
+                ability = this.currentJob.abilities[abilityName];
+            }
+        };
+
         if (!ability) {
             store.dispatch(setAlert('Invalid Action.'));
             return;
@@ -643,6 +658,7 @@ export class Player extends ArcadeContainer {
         if (ability.gcd && this.gcdTimer > 0) return;
         if (!ability.canExecute(this, this.gcdTarget)) return;
 
+        const gcdCooldown = this.calculateGcdCooldown(ability);
         const castTime = this.calculateCastTime(ability);
 
         // ability execution
@@ -654,8 +670,8 @@ export class Player extends ArcadeContainer {
         }
 
         if (ability.gcd) {
-            this.gcdTimer += ability.cooldown;
-            store.dispatch(setGCD(ability.cooldown));
+            this.gcdTimer += gcdCooldown;
+            store.dispatch(setGCD(gcdCooldown));
         }
 
         this.gcdQueue = null;
@@ -773,5 +789,18 @@ export class Player extends ArcadeContainer {
             }
         };
         return Math.max(0, castTime);
+    }
+
+    calculateGcdCooldown(ability) {
+        let gcdCooldown = ability.cooldown || 0;
+        if (ability.overrideCooldown) {
+            gcdCooldown = ability.overrideCooldown(this);
+        }
+        for (const buff of this._buffs) {
+            if (buff.modifyGcdCooldown) {
+                gcdCooldown = buff.modifyGcdCooldown(gcdCooldown, buff);
+            }
+        };
+        return Math.max(0, gcdCooldown);
     }
 }

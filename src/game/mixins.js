@@ -616,7 +616,12 @@ export const BuffMixin = {
         }
     },
 
-    applyBuff: function(buffClass, source) {
+    getBuffCount: function(key) {
+        return this._buffs.filter(x => x.key == key).length;
+    },
+
+    applyBuff: function(key, source) {
+        const buffClass = buffs[key];
         const buff = buffClass(this, source);
         buff.apply();
         this._buffs.push(buff);
@@ -637,13 +642,18 @@ export const BuffMixin = {
         return this._buffs.find(x => x.key == key);
     },
 
+    getAndRemoveBuff: function(key) {
+        const buff = this.getBuff(key);
+        this.removeBuff(buff);
+    },
+
     updateOrApplyBuff: function(key, source, duration, maxDuration) {
         const buff = this._buffs.find(x => x.key == key && x.source == source);
         if (buff) {
             buff.timer = Math.min(buff.timer + duration, maxDuration);
             this.updateStatusInfoStore();
         } else {
-            this.applyBuff(buffs[key], source);
+            this.applyBuff(key, source);
         }
     },
 

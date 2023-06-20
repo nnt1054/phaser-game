@@ -91,7 +91,7 @@ const TempJob = {
                 return true;
             },
             execute: (player) => {
-                player.applyBuff(buffs['acceleration'], player);
+                player.applyBuff('acceleration', player);
                 player.startCooldown('acceleration', 30000);
             },
         },
@@ -221,7 +221,7 @@ const TempJob = {
             canTarget: isEnemy,
             canExecute: inRangedRange,
             execute: (player, target) => {
-                target.applyBuff(buffs['miasma'], player)
+                target.applyBuff('miasma', player)
             },
         },
         'jolt': {
