@@ -61,7 +61,7 @@ const MeleeJob = {
                 animationHelpers.melee(player, target);
 
                 if (isCombo) {
-                    player.updateOrApplyBuff('flow', player, 30000, 90000);
+                    player.updateOrApplyBuff('flow', player, 45000, 90000);
                     if (player.getBuffCount('chakra') < 4)  {
                         player.applyBuff('chakra', player);
                     };
@@ -113,6 +113,7 @@ const MeleeJob = {
                     return 'corto_mano_dash';
                 };
             },
+            isComboAction: true,
         },
         'corto_mano_dash': {
             name: 'corto_mano_dash',
@@ -152,18 +153,27 @@ const MeleeJob = {
                 player.dealDamage(target, 10, 'physical', 500);
                 player.getAndRemoveBuff('cortoManoReady');
             },
+            isComboAction: true,
         },
         'earthly_combo': {
             name: 'earthly_combo',
             gcd: false,
             canTarget: isEnemy,
             canExecute: (player, target) => {
-                return inMeleeRange(player, target) && player.getBuff('earthlyComboReady');
+                if (!inMeleeRange(player, target)) return false;
+                
+                const [cooldown, duration] = player.getCooldown('earthly_combo');
+                if (cooldown > 0) return false;
+
+                if (!player.getBuff('earthlyComboReady')) return false;
+
+                return true;
             },
             execute: (player, target) => {
                 player.dealDamage(target, 10, 'physical', 500);
                 animationHelpers.melee(player, target);
                 player.getAndRemoveBuff('earthlyComboReady');
+                player.startCooldown('earthly_combo', 1000);
             },
         },
         'heavenly_combo': {
@@ -171,12 +181,20 @@ const MeleeJob = {
             gcd: false,
             canTarget: isEnemy,
             canExecute: (player, target) => {
-                return inMeleeRange(player, target) && player.getBuff('heavenlyComboReady');
+                if (!inMeleeRange(player, target)) return false;
+                
+                const [cooldown, duration] = player.getCooldown('heavenly_combo');
+                if (cooldown > 0) return false;
+
+                if (!player.getBuff('heavenlyComboReady')) return false;
+
+                return true;
             },
             execute: (player, target) => {
                 player.dealDamage(target, 10, 'physical', 500);
                 animationHelpers.melee(player, target);
                 player.getAndRemoveBuff('heavenlyComboReady');
+                player.startCooldown('heavenly_combo', 1000);
             },
         },
         'earthly_strike': {
@@ -191,7 +209,7 @@ const MeleeJob = {
                 if (isEarthCombo || isHeavenCombo) {
                     return 2500;
                 } else {
-                    return 2000;
+                    return 1500;
                 }
             },
             canTarget: isEnemy,
@@ -207,14 +225,15 @@ const MeleeJob = {
                 return false;
             },
             execute: (player, target) => {
-                let damage = 30;
+                let damage = 20;
                 const isEarthCombo = player.comboAction == 'earthly_strike';
                 const isHeavenCombo = player.comboAction == 'heavenly_strike';
                 if (isEarthCombo) {
                     player.updateOrApplyBuff('heavenAligned', player, 15000, 15000);
                     player.setPlayerComboAction(null);
                 } else if (isHeavenCombo) {
-                    damage = 50;
+                    damage = 25;
+                    target.updateOrApplyBuff('blighted', player, 45000, 45000);
                     player.setPlayerComboAction(null);
                 } else {
                     player.getAndRemoveBuff('chakra');
@@ -244,7 +263,7 @@ const MeleeJob = {
                 if (isEarthCombo || isHeavenCombo) {
                     return 2500;
                 } else {
-                    return 2000;
+                    return 1500;
                 }
             },
             canTarget: isEnemy,
@@ -297,7 +316,7 @@ const MeleeJob = {
             },
             execute: (player) => {
                 player.updateOrApplyBuff('enlightenment', player, 15000, 15000);
-                player.startCooldown('enlightenment', 120000);
+                player.startCooldown('enlightenment', 90000);
             },
         },
     },

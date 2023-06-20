@@ -87,7 +87,7 @@ const App = () => {
         top: '12px',
         right: '12px',
         zIndex: '1000',
-        width: '420px',
+        minWidth: '420px',
         pointerEvents: 'none',
     }
 

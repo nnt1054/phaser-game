@@ -651,6 +651,7 @@ export const BuffMixin = {
         const buff = this._buffs.find(x => x.key == key && x.source == source);
         if (buff) {
             buff.timer = Math.min(buff.timer + duration, maxDuration);
+            if (buff.reapply) buff.reapply();
             this.updateStatusInfoStore();
         } else {
             this.applyBuff(key, source);
@@ -1248,7 +1249,32 @@ export const CombatMixin = {
             }
         };
 
-        target.receiveDamage(this, damage, type, delay)
+        target.receiveDamage(this, damage, type, delay);
+    },
+
+    calculateDotDamage(potency, type, delay) {
+        const isPhysical = type == 'physical';
+        const isMagical = type == 'magical';
+
+        let damage = this.calculateDamageFromPotency(potency, type);
+        for (const buff of this._buffs) {
+            if (buff.modifyDamage) {
+                damage = buff.modifyDamage(damage);
+            }
+
+            if (isPhysical && buff.modifyPhysicalDamage) {
+                damage = buff.modifyPhysicalDamage(damage);
+            }
+
+            if (isMagical && buff.modifyMagicalDamage) {
+                damage = buff.modifyMagicalDamage(damage);
+            }
+        };
+        return damage;
+    },
+
+    dealDotDamage(target, damage, type) {
+        target.receiveDamage(this, damage, type);
     },
 };
 

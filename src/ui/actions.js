@@ -310,22 +310,20 @@ const meleeAbilities = {
         action: () => { store.dispatch(setQueuedAbility('linear_strike')) },
         icon: 'linear_strike',
         gcd: true,
-        castTime: '0s',
         cooldown: '2.5s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,
+        description: `Delivers a Physical Attack with 15 Potency.`,
     },
     'fanning_strike': {
         label: 'Fanning Strike',
         action: () => { store.dispatch(setQueuedAbility('fanning_strike')) },
         icon: 'fanning_strike',
         gcd: true,
-        castTime: '0s',
         cooldown: '2.5s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,  
+        description: `Delivers a Physical Attack with 15 Potency.`,
+        extraDescription: [
+            ['Combo Action:', 'Linear Strike'],
+            ['Combo Potency:', '25'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return (state.playerState.comboAction == 'linear_strike')
@@ -336,11 +334,15 @@ const meleeAbilities = {
         action: () => { store.dispatch(setQueuedAbility('redondo')) },
         icon: 'redondo',
         gcd: true,
-        castTime: '0s',
         cooldown: '2.5s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,  
+        description: `Delivers a Physical Attack with 15 Potency.`,
+        extraDescription: [
+            ['Combo Action:', 'Fanning Strike'],
+            ['Combo Potency:', '30'],
+            ['Combo Bonus:', 'Grants Flow, increasing damage dealt by 10%'],
+            ['Duration:', '45s; Extends Flow by 45s to maximum of 90s'],
+            ['Combo Bonus:', 'Grants 1 Chakra (Max 4)'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return (state.playerState.comboAction == 'fanning_strike')
@@ -351,11 +353,13 @@ const meleeAbilities = {
         action: () => { store.dispatch(setQueuedAbility('exis_strike')) },
         icon: 'exis_strike',
         gcd: true,
-        castTime: '0s',
         cooldown: '2.5s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,  
+        description: `Delivers a Physical Attack with 15 Potency.`,
+        extraDescription: [
+            ['Combo Action:', 'Fanning Strike'],
+            ['Combo Potency:', '35'],
+            ['Combo Bonus:', 'Grants 1 Chakra (Max 4)'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return (state.playerState.comboAction == 'fanning_strike')
@@ -373,21 +377,25 @@ const meleeAbilities = {
         },
         icon: 'largo_mano_strike',
         gcd: true,
-        castTime: '0s',
-        cooldown: '5s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,
+        cooldown: '3.5s',
+        description: `Delivers a Physical Attack with 45 Potency.`,
+        extraDescription: [
+            ['Additional Effect:', 'Grants 1 Chakra (Max 4)'],
+            ['Additional Effect:', 'Grants Corto Mano Ready'],
+            ['', '※Changes to Corto Mano Dash when under the effect of Corto Mano Ready'],
+        ],
     },
     'corto_mano_dash': {
         label: 'Corto Mano Dash',
         action: () => { store.dispatch(setQueuedAbility('largo_mano_strike')) },
         icon: 'corto_mano_dash',
         gcd: true,
-        cooldown: '12.0s',
-        description: `
-            Dash to target; Deals 10 Damage to Target.
-        `,
+        cooldown: '1.5s',
+        description: `Dashes to target and Delivers a Physical Attack with 10 Potency.`,
+        extraDescription: [
+            ['', 'Can only be executed when Corto Mano Ready'],
+            ['', '※This action cannot be assigned to a hotbar.'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return state.statusInfo.statuses.find(buff => buff.key == 'cortoManoReady');
@@ -399,23 +407,53 @@ const meleeAbilities = {
         icon: 'earthly_strike',
         gcd: true,
         castTime: '0s',
-        cooldown: '5s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,
+        cooldown: '1.5s',
+        description: `Delivers a Physical Attack with 20 Potency. Effect changes depending on previous Combo Action.`,
+        extraDescription: [
+            ['Chakra Cost:', '1'],
+            ['Additional Effect:', 'Grants Earthly Combo Ready'],
+
+            ['', ''],
+
+            ['Combo Action:', 'Heavenly Strike'],
+            ['Combo Potency (Heavenly Strike):', '25'],
+            ['Combo Bonus (Heavenly Strike):', 'Applies Blight to target'],
+            ['Blight:', 'Deals Physical Damage over time with 75 potency'],
+            ['Duration:', '45s'],
+
+            ['', ''],
+
+            ['Combo Action:', 'Earthly Strike'],
+            ['Combo Bonus (Earthly Strike):', 'Grants Heaven Aligned'],
+            ['Heaven Aligned:', 'Increase damage dealt by next Heavenly Strike by 100%'],
+
+            ['', ''],
+
+            ['Combo Additional Effect:', 'Recast Increased to 2.5s'],
+            ['Combo Additional Effect:', 'Ignores Chakra Cost'],
+            ['Combo Additional Effect:', 'Action Combo ended on usage'],
+            ['Combo Additional Effect:', 'Does not grant Earthly Combo Ready'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return (state.playerState.comboAction == 'heavenly_strike' || state.playerState.comboAction == 'earthly_strike')
+        },
+        isDisabled: () => {
+            const state = store.getState();
+            const hasChakra = state.statusInfo.statuses.find(buff => buff.key == 'chakra');
+            const isCombo = state.playerState.comboAction == 'heavenly_strike' || state.playerState.comboAction == 'earthly_strike';
+            return hasChakra || isCombo ? false : true;
         },
     },
     'earthly_combo': {
         label: 'Earthly Combo',
         action: () => { store.dispatch(setQueuedAbility('earthly_combo')) },
         icon: 'earthly_combo',
-        cooldown: '12.0s',
-        description: `
-            Dash to target; Deals 10 Damage to Target.
-        `,
+        cooldown: '1s',
+        description: `Delivers a Physical Attack with 10 Potency.`,
+        extraDescription: [
+            ['', 'Can only be executed when Earthly Combo Ready'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return state.statusInfo.statuses.find(buff => buff.key == 'earthlyComboReady');
@@ -432,23 +470,50 @@ const meleeAbilities = {
         icon: 'heavenly_strike',
         gcd: true,
         castTime: '0s',
-        cooldown: '5s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,
+        cooldown: '1.5s',
+        description: `Delivers a Physical Attack with 30 Potency. Effect changes depending on previous Combo Action.`,
+        extraDescription: [
+            ['Chakra Cost:', '1'],
+            ['Additional Effect:', 'Grants Heavenly Combo Ready'],
+
+            ['', ''],
+
+            ['Combo Action:', 'Earthly Strike'],
+            ['Combo Potency (Earthly Strike):', '50'],
+
+            ['', ''],
+
+            ['Combo Action:', 'Heavenly Strike'],
+            ['Combo Bonus (Heavenly Strike):', 'Grants Earth Aligned'],
+            ['Earth Aligned:', 'Increase damage dealt by next Earthly Strike by 100%'],
+
+            ['', ''],
+
+            ['Combo Additional Effect:', 'Recast Increased to 2.5s'],
+            ['Combo Additional Effect:', 'Ignores Chakra Cost'],
+            ['Combo Additional Effect:', 'Action Combo ended on usage'],
+            ['Combo Additional Effect:', 'Does not grant Heavenly Combo Ready'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return (state.playerState.comboAction == 'heavenly_strike' || state.playerState.comboAction == 'earthly_strike')
+        },
+        isDisabled: () => {
+            const state = store.getState();
+            const hasChakra = state.statusInfo.statuses.find(buff => buff.key == 'chakra');
+            const isCombo = state.playerState.comboAction == 'heavenly_strike' || state.playerState.comboAction == 'earthly_strike';
+            return hasChakra || isCombo ? false : true;
         },
     },
     'heavenly_combo': {
         label: 'Heavenly Combo',
         action: () => { store.dispatch(setQueuedAbility('heavenly_combo')) },
         icon: 'heavenly_combo',
-        cooldown: '12.0s',
-        description: `
-            Dash to target; Deals 10 Damage to Target.
-        `,
+        cooldown: '1s',
+        description: `Delivers a Physical Attack with 10 Potency.`,
+        extraDescription: [
+            ['', 'Can only be executed when Heavenly Combo Ready'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return state.statusInfo.statuses.find(buff => buff.key == 'heavenlyComboReady');
@@ -463,11 +528,11 @@ const meleeAbilities = {
         label: 'Enlightenment',
         action: () => { store.dispatch(setQueuedAbility('enlightenment')) },
         icon: 'enlightenment',
-        castTime: '0s',
         cooldown: '90s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,
+        description: `Increases damage dealt by 20%`,
+        extraDescription: [
+            ['Duration:', '20s'],
+        ],
     },
 };
 
@@ -740,7 +805,7 @@ export const equipment = {
         icon: 'verflare',
         type: 'item',
         itemType: 'helmet',
-        description: `this is another helmet thing; horns though`,
+        description: `Equip to swap to MELEE job.`,
         action: () => {
             store.dispatch(setSystemActionAndTarget({
                 action: 'equipHelmet',

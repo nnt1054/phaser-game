@@ -37,7 +37,8 @@ const flexColumn = {
     alignItems: 'stretch',
     padding: '12px 0px',
     rowGap: '12px',
-    width: '420px',
+    minWidth: '420px',
+    maxWidth: '512px',
 };
 
 

@@ -33,6 +33,7 @@ import heavenly_combo_icon from '../assets/icons/verholy.png';
 
 import enlightenment_icon from '../assets/icons/enlightenment.png';
 import chakra_icon from '../assets/icons/tether.png';
+import blighted_icon from '../assets/icons/rockbreaker.png';
 
 
 export default {
@@ -69,4 +70,5 @@ export default {
     heavenly_combo: heavenly_combo_icon,
     enlightenment: enlightenment_icon,
     chakra: chakra_icon,
+    blighted: blighted_icon,
 }

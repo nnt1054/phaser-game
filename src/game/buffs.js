@@ -135,7 +135,7 @@ const flow = (target, source) => {
         key: 'flow',
         target: target,
         source: source,
-        timer: 30000,
+        timer: 45000,
         icon: 'redondo',
         apply() {},
         unapply() {},
@@ -151,7 +151,7 @@ const cortoManoReady = (target, source) => {
         key: 'cortoManoReady',
         target: target,
         source: source,
-        timer: 30000,
+        timer: 15000,
         icon: 'corto_mano_dash',
         apply() {},
         unapply() {},
@@ -240,6 +240,34 @@ const chakra = (target, source) => {
     }
 }
 
+const blighted = (target, source) => {
+    return {
+        key: 'blighted',
+        target: target,
+        source: source,
+        timer: 45000,
+        icon: 'blighted',
+        apply() {
+            this.damage = this.source.calculateDotDamage(5, 'physical');
+
+            this.source.dealDotDamage(this.target, this.damage, 'physical', 5);
+
+            this.tickTimer = 3000;
+        },
+        reapply() {
+            this.damage = this.source.calculateDotDamage(5, 'physical');
+        },
+        unapply() {},
+        update(delta) {
+            this.tickTimer -= delta;
+            if (this.tickTimer <= 0) {
+                this.tickTimer += 3000;
+                this.source.dealDotDamage(this.target, this.damage, 'physical', 5);
+            }
+        },
+    }
+}
+
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
@@ -254,6 +282,7 @@ const buffMap = {
     'heavenAligned': heavenAligned,
     'enlightenment': enlightenment,
     'chakra': chakra,
+    'blighted': blighted,
 }
 
 export default buffMap

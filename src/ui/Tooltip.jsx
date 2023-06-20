@@ -1,3 +1,4 @@
+import React from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import actionMap from './actions';
 import icons from './icons';
@@ -26,11 +27,13 @@ const Tooltip = (props) => {
     const icon = ability  ? icons[ability.icon] : null;
     const empty = (abilityKey === 'empty');
 
+    const extraDescriptions = ability.extraDescription || [];
+
     const tooltipContainerStyles = {
         visibility: (ability && !empty) ? 'visible' : 'hidden',
         flex: 'flex',
         flexDirection: 'column',
-        height: '360px',
+        minHeight: '360px',
         padding: '4px',
         border:  '4px solid black',
         borderRadius: '12px',
@@ -78,7 +81,12 @@ const Tooltip = (props) => {
                 <span style={ {marginRight: '24px'} }> MP Cost: -- </span>
             </div>
             <p style={ {marginTop: `12px`} }>
-                <span style={{ color: 'green' }}> Description </span>: { ability && ability.description ? ability.description : "This is where I'd put my description... IF I HAD ONE."}
+                <span style={{ color: 'green' }}> Description: </span> { ability && ability.description ? ability.description : "This is where I'd put my description... IF I HAD ONE."} <br/>
+                {
+                    extraDescriptions.map((desc, i) => {
+                        return <React.Fragment key={ i }> <span style={{ color: 'green' }}> { desc[0] } </span>{ desc[1]}<br/> </React.Fragment>
+                    })
+                }
             </p>
         </div>
     )

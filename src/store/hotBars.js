@@ -32,7 +32,7 @@ const hotBarsSlice = createSlice({
         ],
         slotsMap: {
             'TMP': [
-                { name: 'potion' },
+                { name: 'horns' },
                 { name: 'empty' },
                 { name: 'empty' },
                 { name: 'empty' },
