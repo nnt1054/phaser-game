@@ -159,26 +159,26 @@ const cortoManoReady = (target, source) => {
     }
 }
 
-const earthlyComboReady = (target, source) => {
+const earthlyWeaveReady = (target, source) => {
     return {
-        key: 'earthlyComboReady',
+        key: 'earthlyWeaveReady',
         target: target,
         source: source,
         timer: 30000,
-        icon: 'earthly_combo',
+        icon: 'earthly_weave',
         apply() {},
         unapply() {},
         update(delta) {},
     }
 }
 
-const heavenlyComboReady = (target, source) => {
+const heavenlyWeaveReady = (target, source) => {
     return {
-        key: 'heavenlyComboReady',
+        key: 'heavenlyWeaveReady',
         target: target,
         source: source,
         timer: 30000,
-        icon: 'heavenly_combo',
+        icon: 'heavenly_weave',
         apply() {},
         unapply() {},
         update(delta) {},
@@ -268,6 +268,104 @@ const blighted = (target, source) => {
     }
 }
 
+const contrada = (target, source) => {
+    return {
+        key: 'contrada',
+        target: target,
+        source: source,
+        timer: 15000,
+        icon: 'contrada',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyDamageReceived(damage) {
+            return damage * 0.8;
+        },
+    }
+}
+
+const fireProc = (target, source) => {
+    return {
+        key: 'fireProc',
+        target: target,
+        source: source,
+        timer: 120000,
+        icon: 'fire_ii',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+const iceProc = (target, source) => {
+    return {
+        key: 'iceProc',
+        target: target,
+        source: source,
+        timer: 120000,
+        icon: 'ice_ii',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+const earthProc = (target, source) => {
+    return {
+        key: 'earthProc',
+        target: target,
+        source: source,
+        timer: 120000,
+        icon: 'earth_ii',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+
+const triplecastProc = (target, source) => {
+    return {
+        key: 'triplecastProc',
+        target: target,
+        source: source,
+        timer: 120000,
+        icon: 'triplecast',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+const shocked = (target, source) => {
+    return {
+        key: 'shocked',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'thunder',
+        apply() {
+            this.damage = this.source.calculateDotDamage(5, 'magical');
+
+            this.source.dealDotDamage(this.target, this.damage, 'magical', 5);
+
+            this.tickTimer = 3000;
+        },
+        reapply() {
+            this.damage = this.source.calculateDotDamage(5, 'magical');
+        },
+        unapply() {},
+        update(delta) {
+            this.tickTimer -= delta;
+            if (this.tickTimer <= 0) {
+                this.tickTimer += 3000;
+                this.source.dealDotDamage(this.target, this.damage, 'magical', 5);
+            }
+        },
+    }
+}
+
+
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
@@ -276,13 +374,19 @@ const buffMap = {
     'embolden': embolden,
     'flow': flow,
     'cortoManoReady': cortoManoReady,
-    'earthlyComboReady': earthlyComboReady,
-    'heavenlyComboReady': heavenlyComboReady,
+    'earthlyWeaveReady': earthlyWeaveReady,
+    'heavenlyWeaveReady': heavenlyWeaveReady,
     'earthAligned': earthAligned,
     'heavenAligned': heavenAligned,
     'enlightenment': enlightenment,
     'chakra': chakra,
     'blighted': blighted,
+    'contrada': contrada,
+    'fireProc': fireProc,
+    'iceProc': iceProc,
+    'earthProc': earthProc,
+    'triplecastProc': triplecastProc,
+    'shocked': shocked,
 }
 
 export default buffMap

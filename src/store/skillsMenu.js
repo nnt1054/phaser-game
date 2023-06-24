@@ -13,6 +13,10 @@ const skillsMenuSlice = createSlice({
     activeIndex: 0,
     activeActionsIndex: 0,
     options: [
+        'fire',
+        'ice',
+        'earth',
+        'air_walk',
         'linear_strike',
         'fanning_strike',
         'redondo',
@@ -21,9 +25,10 @@ const skillsMenuSlice = createSlice({
         'corto_mano_dash',
         'earthly_strike',
         'heavenly_strike',
-        'earthly_combo',
-        'heavenly_combo',
+        'earthly_weave',
+        'heavenly_weave',
         'enlightenment',
+        'contrada',
     ],
     actionOptions: [
       'setActiveSkill',

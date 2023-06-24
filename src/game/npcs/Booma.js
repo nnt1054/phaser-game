@@ -108,7 +108,7 @@ const abilities = {
                 playerBounds
             );
             if (inRange) {
-                player.reduceHealth(30, 250);
+                caster.dealDamage(player, 0.2, 'physical');
             }
 
             caster.telegraphRectTween = null;
@@ -146,11 +146,12 @@ const abilities = {
             return false;
         },
         execute: (caster, target) => {
-            target.reduceHealth(1);
+            caster.dealDamage(target, 0.01, 'physical', 500);
             caster.startCooldown('autoAttack', 1000);
         }
     }
 }
+
 
 export class Booma extends ArcadeContainer {
 
@@ -175,7 +176,7 @@ export class Booma extends ArcadeContainer {
         })
         this.initializeCooldowns();
 
-        this.setLevel(30);
+        this.setLevel(1);
         this.setCurrentHealth(this.maxHealth);
 
         scene.add.existing(this);
@@ -322,15 +323,15 @@ export class Booma extends ArcadeContainer {
             if (this.currentTarget) {
                 const attackAbility = abilities['attack'];
                 const autoAttackAbility = abilities['autoAttack'];
-                // if (this.canCast(attackAbility, this.currentTarget)) {
+                if (this.canCast(attackAbility, this.currentTarget)) {
 
-                //     // start explosion cast
-                //     this.startCast(attackAbility);
-                //     this.setVelocityX(0);
+                    // start explosion cast
+                    this.startCast(attackAbility);
+                    this.setVelocityX(0);
 
-                // } else if (this.canCast(autoAttackAbility, this.currentTarget)) {
+                } else if (this.canCast(autoAttackAbility, this.currentTarget)) {
 
-                if (this.canCast(autoAttackAbility, this.currentTarget)) {
+                // if (this.canCast(autoAttackAbility, this.currentTarget)) {
 
                     // execute auto attack
                     autoAttackAbility.execute(this, this.currentTarget);

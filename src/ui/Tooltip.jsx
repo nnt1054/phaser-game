@@ -81,7 +81,7 @@ const Tooltip = (props) => {
                 <span style={ {marginRight: '24px'} }> MP Cost: -- </span>
             </div>
             <p style={ {marginTop: `12px`} }>
-                <span style={{ color: 'green' }}> Description: </span> { ability && ability.description ? ability.description : "This is where I'd put my description... IF I HAD ONE."} <br/>
+                { ability && ability.description ? ability.description : "This is where I'd put my description... IF I HAD ONE."} <br/>
                 {
                     extraDescriptions.map((desc, i) => {
                         return <React.Fragment key={ i }> <span style={{ color: 'green' }}> { desc[0] } </span>{ desc[1]}<br/> </React.Fragment>

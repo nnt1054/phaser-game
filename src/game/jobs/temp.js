@@ -100,7 +100,12 @@ const TempJob = {
             display_name: 'Corps-a-corps',
             gcd: false,
             canTarget: isEnemy,
-            canExecute: inRangedRange,
+            canExecute: (player, target) => {
+                if (!inRangedRange(player, target)) return false;
+                const [cooldown, duration] = player.getCooldown('corps_a_corps');
+                if (cooldown > 0) return false;
+                return true;
+            },
             execute: (player, target) => {
                 const hitboxRect = target.hitboxRect;
                 const isOverlapping = Phaser.Geom.Rectangle.Overlaps(

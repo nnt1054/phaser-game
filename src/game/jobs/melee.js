@@ -95,34 +95,42 @@ const MeleeJob = {
         'largo_mano_strike': {
             name: 'largo_mano_strike',
             display_name: 'Largo Mano Strike',
-            gcd: true,
-            cooldown: 3500,
+            gcd: false,
+            cooldown: 2500,
             canTarget: isEnemy,
-            canExecute: inMeleeRange,
+            canExecute: (player, target) => {
+                if (!inMeleeRange(player, target)) return false;
+                const [cooldown, duration] = player.getCooldown('largo_mano_strike');
+                if (cooldown > 0) return false;
+                return true;
+            },
             execute: (player, target) => {
                 player.dealDamage(target, 45, 'physical', 500);
                 animationHelpers.melee(player, target);
-                player.updateOrApplyBuff('cortoManoReady', player, 15000, 15000);
 
                 if (player.getBuffCount('chakra') < 4)  {
                     player.applyBuff('chakra', player);
                 };
-            },
-            override: (player) => {
-                if (player.getBuff('cortoManoReady')) {
-                    return 'corto_mano_dash';
+
+                if (player.getBuffCount('chakra') < 4)  {
+                    player.applyBuff('chakra', player);
                 };
+
+                player.startCooldown('largo_mano_strike', 90000);
             },
             isComboAction: true,
         },
         'corto_mano_dash': {
             name: 'corto_mano_dash',
             display_name: 'Corto Mano Dash',
-            gcd: true,
+            gcd: false,
             cooldown: 1500,
             canTarget: isEnemy,
             canExecute: (player, target) => {
-                return inRangedRange(player, target) && player.getBuff('cortoManoReady');
+                if (!inRangedRange(player, target)) return false;
+                const [cooldown, duration] = player.getCooldown('corto_mano_dash');
+                if (cooldown > 0) return false;
+                return true;
             },
             execute: (player, target) => {
                 const hitboxRect = target.hitboxRect;
@@ -151,50 +159,50 @@ const MeleeJob = {
                 }
 
                 player.dealDamage(target, 10, 'physical', 500);
-                player.getAndRemoveBuff('cortoManoReady');
+                player.startCooldown('corto_mano_dash', 12000);
             },
             isComboAction: true,
         },
-        'earthly_combo': {
-            name: 'earthly_combo',
+        'earthly_weave': {
+            name: 'earthly_weave',
             gcd: false,
             canTarget: isEnemy,
             canExecute: (player, target) => {
                 if (!inMeleeRange(player, target)) return false;
                 
-                const [cooldown, duration] = player.getCooldown('earthly_combo');
+                const [cooldown, duration] = player.getCooldown('earthly_weave');
                 if (cooldown > 0) return false;
 
-                if (!player.getBuff('earthlyComboReady')) return false;
+                if (!player.getBuff('earthlyWeaveReady')) return false;
 
                 return true;
             },
             execute: (player, target) => {
                 player.dealDamage(target, 10, 'physical', 500);
                 animationHelpers.melee(player, target);
-                player.getAndRemoveBuff('earthlyComboReady');
-                player.startCooldown('earthly_combo', 1000);
+                player.getAndRemoveBuff('earthlyWeaveReady');
+                player.startCooldown('earthly_weave', 1000);
             },
         },
-        'heavenly_combo': {
-            name: 'heavenly_combo',
+        'heavenly_weave': {
+            name: 'heavenly_weave',
             gcd: false,
             canTarget: isEnemy,
             canExecute: (player, target) => {
                 if (!inMeleeRange(player, target)) return false;
                 
-                const [cooldown, duration] = player.getCooldown('heavenly_combo');
+                const [cooldown, duration] = player.getCooldown('heavenly_weave');
                 if (cooldown > 0) return false;
 
-                if (!player.getBuff('heavenlyComboReady')) return false;
+                if (!player.getBuff('heavenlyWeaveReady')) return false;
 
                 return true;
             },
             execute: (player, target) => {
                 player.dealDamage(target, 10, 'physical', 500);
                 animationHelpers.melee(player, target);
-                player.getAndRemoveBuff('heavenlyComboReady');
-                player.startCooldown('heavenly_combo', 1000);
+                player.getAndRemoveBuff('heavenlyWeaveReady');
+                player.startCooldown('heavenly_weave', 1000);
             },
         },
         'earthly_strike': {
@@ -228,22 +236,30 @@ const MeleeJob = {
                 let damage = 20;
                 const isEarthCombo = player.comboAction == 'earthly_strike';
                 const isHeavenCombo = player.comboAction == 'heavenly_strike';
+
+                // get base potency and update combo action;
                 if (isEarthCombo) {
-                    player.updateOrApplyBuff('heavenAligned', player, 15000, 15000);
                     player.setPlayerComboAction(null);
                 } else if (isHeavenCombo) {
                     damage = 25;
-                    target.updateOrApplyBuff('blighted', player, 45000, 45000);
                     player.setPlayerComboAction(null);
                 } else {
                     player.getAndRemoveBuff('chakra');
-                    player.updateOrApplyBuff('earthlyComboReady', player, 15000, 15000);
                     player.setPlayerComboAction('earthly_strike');
                 }
 
                 if (player.getBuff('earthAligned')) {
                     damage = damage * 2;
                     player.getAndRemoveBuff('earthAligned');
+                }
+
+                // apply combo bonus effects
+                if (isEarthCombo) {
+                    player.updateOrApplyBuff('earthAligned', player, 15000, 15000);
+                } else if (isHeavenCombo) {
+                    target.updateOrApplyBuff('blighted', player, 45000, 45000);
+                } else {
+                    player.updateOrApplyBuff('earthlyWeaveReady', player, 15000, 15000);
                 }
 
                 player.dealDamage(target, damage, 'physical', 500);
@@ -282,21 +298,27 @@ const MeleeJob = {
                 let damage = 30;
                 const isEarthCombo = player.comboAction == 'earthly_strike';
                 const isHeavenCombo = player.comboAction == 'heavenly_strike';
+
                 if (isEarthCombo) {
                     damage = 50;
                     player.setPlayerComboAction(null);
                 } else if (isHeavenCombo) {
-                    player.updateOrApplyBuff('earthAligned', player, 15000, 15000);
                     player.setPlayerComboAction(null);
                 } else {
                     player.getAndRemoveBuff('chakra');
-                    player.updateOrApplyBuff('heavenlyComboReady', player, 15000, 15000);
                     player.setPlayerComboAction('heavenly_strike');
                 }
 
                 if (player.getBuff('heavenAligned')) {
                     damage = damage * 2;
                     player.getAndRemoveBuff('heavenAligned');
+                }
+
+                if (isEarthCombo) {
+                } else if (isHeavenCombo) {
+                    player.updateOrApplyBuff('heavenAligned', player, 15000, 15000);
+                } else {
+                    player.updateOrApplyBuff('heavenlyWeaveReady', player, 15000, 15000);
                 }
 
                 player.dealDamage(target, damage, 'physical', 500);
@@ -315,8 +337,23 @@ const MeleeJob = {
                 return true;
             },
             execute: (player) => {
-                player.updateOrApplyBuff('enlightenment', player, 15000, 15000);
+                player.updateOrApplyBuff('enlightenment', player, 21000, 21000);
                 player.startCooldown('enlightenment', 90000);
+            },
+        },
+        'contrada': {
+            name: 'contrada',
+            display_name: 'Contrada',
+            gcd: false,
+            canTarget: isAny,
+            canExecute: (player) => {
+                const [cooldown, duration] = player.getCooldown('contrada');
+                if (cooldown > 0) return false;
+                return true;
+            },
+            execute: (player) => {
+                player.updateOrApplyBuff('contrada', player, 15000, 15000);
+                player.startCooldown('contrada', 60000);
             },
         },
     },

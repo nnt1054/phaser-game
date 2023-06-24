@@ -23,6 +23,14 @@ const helmets = {
         },
         job: 'MELEE',
     },
+    '4': {
+        id: 4,
+        name: 'ears',
+        sprites: {
+            'headband': 1,
+        },
+        job: 'SPELL',
+    },
 }
 
 export default helmets;

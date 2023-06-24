@@ -368,38 +368,21 @@ const meleeAbilities = {
     'largo_mano_strike': {
         label: 'Largo Mano Strike',
         action: () => { store.dispatch(setQueuedAbility('largo_mano_strike')) },
-        override: () => {
-            const state = store.getState();
-            const cortoManoReady = state.statusInfo.statuses.find(buff => buff.key == 'cortoManoReady');
-            if (cortoManoReady) {
-                return 'corto_mano_dash';
-            }
-        },
         icon: 'largo_mano_strike',
-        gcd: true,
-        cooldown: '3.5s',
+        gcd: false,
+        cooldown: '90s',
         description: `Delivers a Physical Attack with 45 Potency.`,
         extraDescription: [
-            ['Additional Effect:', 'Grants 1 Chakra (Max 4)'],
-            ['Additional Effect:', 'Grants Corto Mano Ready'],
-            ['', '※Changes to Corto Mano Dash when under the effect of Corto Mano Ready'],
+            ['Additional Effect:', 'Grants 2 Chakra (Max 4)'],
         ],
     },
     'corto_mano_dash': {
         label: 'Corto Mano Dash',
-        action: () => { store.dispatch(setQueuedAbility('largo_mano_strike')) },
+        action: () => { store.dispatch(setQueuedAbility('corto_mano_dash')) },
         icon: 'corto_mano_dash',
-        gcd: true,
-        cooldown: '1.5s',
+        gcd: false,
+        cooldown: '12s',
         description: `Dashes to target and Delivers a Physical Attack with 10 Potency.`,
-        extraDescription: [
-            ['', 'Can only be executed when Corto Mano Ready'],
-            ['', '※This action cannot be assigned to a hotbar.'],
-        ],
-        isHighlighted: () => {
-            const state = store.getState();
-            return state.statusInfo.statuses.find(buff => buff.key == 'cortoManoReady');
-        },
     },
     'earthly_strike': {
         label: 'Earthly Strike',
@@ -411,28 +394,27 @@ const meleeAbilities = {
         description: `Delivers a Physical Attack with 20 Potency. Effect changes depending on previous Combo Action.`,
         extraDescription: [
             ['Chakra Cost:', '1'],
-            ['Additional Effect:', 'Grants Earthly Combo Ready'],
+            ['Additional Effect:', 'Grants Earthly Weave Ready'],
 
             ['', ''],
 
             ['Combo Action:', 'Heavenly Strike'],
             ['Combo Potency (Heavenly Strike):', '25'],
             ['Combo Bonus (Heavenly Strike):', 'Applies Blight to target'],
-            ['Blight:', 'Deals Physical Damage over time with 75 potency'],
-            ['Duration:', '45s'],
+
 
             ['', ''],
 
             ['Combo Action:', 'Earthly Strike'],
-            ['Combo Bonus (Earthly Strike):', 'Grants Heaven Aligned'],
-            ['Heaven Aligned:', 'Increase damage dealt by next Heavenly Strike by 100%'],
+            ['Combo Bonus (Earthly Strike):', 'Grants Earth Aligned'],
+            ['Earth Aligned:', 'Increase damage dealt by next Earthly Strike by 100%'],
 
             ['', ''],
 
             ['Combo Additional Effect:', 'Recast Increased to 2.5s'],
             ['Combo Additional Effect:', 'Ignores Chakra Cost'],
             ['Combo Additional Effect:', 'Action Combo ended on usage'],
-            ['Combo Additional Effect:', 'Does not grant Earthly Combo Ready'],
+            ['Combo Additional Effect:', 'Does not grant Earthly Weave Ready'],
         ],
         isHighlighted: () => {
             const state = store.getState();
@@ -445,23 +427,23 @@ const meleeAbilities = {
             return hasChakra || isCombo ? false : true;
         },
     },
-    'earthly_combo': {
-        label: 'Earthly Combo',
-        action: () => { store.dispatch(setQueuedAbility('earthly_combo')) },
-        icon: 'earthly_combo',
+    'earthly_weave': {
+        label: 'Earthly Weave',
+        action: () => { store.dispatch(setQueuedAbility('earthly_weave')) },
+        icon: 'earthly_weave',
         cooldown: '1s',
         description: `Delivers a Physical Attack with 10 Potency.`,
         extraDescription: [
-            ['', 'Can only be executed when Earthly Combo Ready'],
+            ['', 'Can only be executed when Earthly Weave Ready'],
         ],
         isHighlighted: () => {
             const state = store.getState();
-            return state.statusInfo.statuses.find(buff => buff.key == 'earthlyComboReady');
+            return state.statusInfo.statuses.find(buff => buff.key == 'earthlyWeaveReady');
         },
         isDisabled: () => {
             const state = store.getState();
-            const earthlyComboReady = state.statusInfo.statuses.find(buff => buff.key == 'earthlyComboReady');
-            return earthlyComboReady ? false : true;
+            const earthlyWeaveReady = state.statusInfo.statuses.find(buff => buff.key == 'earthlyWeaveReady');
+            return earthlyWeaveReady ? false : true;
         },
     },
     'heavenly_strike': {
@@ -474,7 +456,7 @@ const meleeAbilities = {
         description: `Delivers a Physical Attack with 30 Potency. Effect changes depending on previous Combo Action.`,
         extraDescription: [
             ['Chakra Cost:', '1'],
-            ['Additional Effect:', 'Grants Heavenly Combo Ready'],
+            ['Additional Effect:', 'Grants Heavenly Weave Ready'],
 
             ['', ''],
 
@@ -484,15 +466,16 @@ const meleeAbilities = {
             ['', ''],
 
             ['Combo Action:', 'Heavenly Strike'],
-            ['Combo Bonus (Heavenly Strike):', 'Grants Earth Aligned'],
-            ['Earth Aligned:', 'Increase damage dealt by next Earthly Strike by 100%'],
+            ['Combo Bonus (Heavenly Strike):', 'Grants Heaven Aligned'],
+            ['Heaven Aligned:', 'Increase damage dealt by next Heavenly Strike by 100%'],
+
 
             ['', ''],
 
             ['Combo Additional Effect:', 'Recast Increased to 2.5s'],
             ['Combo Additional Effect:', 'Ignores Chakra Cost'],
             ['Combo Additional Effect:', 'Action Combo ended on usage'],
-            ['Combo Additional Effect:', 'Does not grant Heavenly Combo Ready'],
+            ['Combo Additional Effect:', 'Does not grant Heavenly Weave Ready'],
         ],
         isHighlighted: () => {
             const state = store.getState();
@@ -505,23 +488,23 @@ const meleeAbilities = {
             return hasChakra || isCombo ? false : true;
         },
     },
-    'heavenly_combo': {
-        label: 'Heavenly Combo',
-        action: () => { store.dispatch(setQueuedAbility('heavenly_combo')) },
-        icon: 'heavenly_combo',
+    'heavenly_weave': {
+        label: 'Heavenly Weave',
+        action: () => { store.dispatch(setQueuedAbility('heavenly_weave')) },
+        icon: 'heavenly_weave',
         cooldown: '1s',
         description: `Delivers a Physical Attack with 10 Potency.`,
         extraDescription: [
-            ['', 'Can only be executed when Heavenly Combo Ready'],
+            ['', 'Can only be executed when Heavenly Weave Ready'],
         ],
         isHighlighted: () => {
             const state = store.getState();
-            return state.statusInfo.statuses.find(buff => buff.key == 'heavenlyComboReady');
+            return state.statusInfo.statuses.find(buff => buff.key == 'heavenlyWeaveReady');
         },
         isDisabled: () => {
             const state = store.getState();
-            const heavenlyComboReady = state.statusInfo.statuses.find(buff => buff.key == 'heavenlyComboReady');
-            return heavenlyComboReady ? false : true;
+            const heavenlyWeaveReady = state.statusInfo.statuses.find(buff => buff.key == 'heavenlyWeaveReady');
+            return heavenlyWeaveReady ? false : true;
         },
     },
     'enlightenment': {
@@ -531,14 +514,225 @@ const meleeAbilities = {
         cooldown: '90s',
         description: `Increases damage dealt by 20%`,
         extraDescription: [
-            ['Duration:', '20s'],
+            ['Duration:', '21s'],
+        ],
+    },
+    'contrada': {
+        label: 'Contrada',
+        action: () => { store.dispatch(setQueuedAbility('contrada')) },
+        icon: 'contrada',
+        cooldown: '60s',
+        description: `Reduces damage taken by 20%`,
+        extraDescription: [
+            ['Duration:', '15s'],
         ],
     },
 };
 
 
+const casterAbilities = {
+    'fire': {
+        label: 'Fire',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'fire',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'fire',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: 'Deals 25 Magic Damage to Target.',
+    },
+    'fire_ii': {
+        label: 'Fire II',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'fire_ii',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'fire_ii',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: 'Deals 25 Magic Damage to Target.',
+        isHighlighted: () => {
+            const state = store.getState();
+            return state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
+        },
+        isDisabled: () => {
+            const state = store.getState();
+            const heavenlyWeaveReady = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
+            return heavenlyWeaveReady ? false : true;
+        },
+    },
+    'thunder': {
+        label: 'Thunder',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'thunder',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'thunder',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: 'Deals 25 Magic Damage to Target.',
+        isHighlighted: () => {
+            const state = store.getState();
+            return state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
+        },
+        isDisabled: () => {
+            const state = store.getState();
+            const heavenlyWeaveReady = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
+            return heavenlyWeaveReady ? false : true;
+        },
+    },
+    'ice': {
+        label: 'ice',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'ice',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'ice',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: 'Deals 25 Magic Damage to Target.',
+    },
+    'ice_ii': {
+        label: 'Ice II',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'ice_ii',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'ice_ii',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: 'Deals 25 Magic Damage to Target.',
+        isHighlighted: () => {
+            const state = store.getState();
+            return state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
+        },
+        isDisabled: () => {
+            const state = store.getState();
+            const heavenlyWeaveReady = state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
+            return heavenlyWeaveReady ? false : true;
+        },
+    },
+    'earth': {
+        label: 'earth',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'earth',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'earth',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: 'Deals 25 Magic Damage to Target.',
+    },
+    'earth_ii': {
+        label: 'Earth II',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'earth_ii',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'earth_ii',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: 'Deals 25 Magic Damage to Target.',
+        isHighlighted: () => {
+            const state = store.getState();
+            return state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
+        },
+        isDisabled: () => {
+            const state = store.getState();
+            const hasEarthProc = state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
+            return hasEarthProc ? false : true;
+        },
+    },
+    'air_walk': {
+        label: 'air_walk',
+        action: () => { store.dispatch(setQueuedAbility('air_walk')) },
+        icon: 'air_walk',
+        gcd: false,
+        cooldown: '2.5s',
+        description: `Increases movement speed.`,
+        extraDescription: [
+            ['Duration:', '15s'],
+        ],
+    },
+    'paradox': {
+        label: 'Paradox',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'paradox',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'paradox',
+        gcd: true,
+        castTime: '3.0s',
+        cooldown: '3.0s',
+        description: 'Deals 25 Magic Damage to Target.',
+        isHighlighted: () => {
+            const state = store.getState();
+            const hasFireProc = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
+            const hasIceProc = state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
+            const hasEarthProc = state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
+            return (hasFireProc && hasIceProc && hasEarthProc);
+        },
+        isDisabled: () => {
+            const state = store.getState();
+            const hasFireProc = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
+            const hasIceProc = state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
+            const hasEarthProc = state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
+            return (hasFireProc && hasIceProc && hasEarthProc) ? false : true;
+        },
+    },
+    'triplecast': {
+        label: 'Triplecast',
+        action: () => { store.dispatch(setQueuedAbility('triplecast')) },
+        icon: 'triplecast',
+        gcd: false,
+        cooldown: '120s',
+        description: `Guarantees Next 3 Procs.`,
+    },
+}
+
 export const abilities = {
     ...meleeAbilities,
+    ...casterAbilities,
     'jolt': {
         label: 'jolt',
         action: (target) => {
@@ -816,6 +1010,26 @@ export const equipment = {
             store.dispatch(setSystemActionAndTarget({
                 action: 'equipHelmet',
                 target: 3,
+            }))
+        },
+    },
+    'ears': {
+        itemId: 4,
+        label: 'ears',
+        icon: 'paradox',
+        type: 'item',
+        itemType: 'helmet',
+        description: `ears; equip to swap to spellcaster`,
+        action: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 4,
+            }))
+        },
+        equip: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 4,
             }))
         },
     },

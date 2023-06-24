@@ -24,7 +24,7 @@ import buffs from './buffs';
 import helmets from './equipment/helmets';
 
 const isAny = (player, target) => { return true };
-const isEnemy = (player, target) => { return target && target.isEnemy && target.visible };
+const isEnemy = (player, target) => { return target && target.isEnemy && target.visible && target.health > 0 };
 const isFriendly = (player, target) => { return target && target.hasHealth && !target.isEnemy && target.visible };
 
 const untarget = {
