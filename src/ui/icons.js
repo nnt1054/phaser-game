@@ -47,6 +47,11 @@ import earth_ii_icon from '../assets/icons/riddle_of_earth.png';
 import air_walk_icon from '../assets/icons/aero.png';
 import triplecast_icon from '../assets/icons/triplecast.png';
 import thunder_icon from '../assets/icons/thunder.png';
+import lightning_icon from '../assets/icons/thunder_II.png';
+import swiftcast_icon from '../assets/icons/swiftcast.png';
+import ascendance_icon from '../assets/icons/embolden.png';
+import manafont_icon from '../assets/icons/manafont.png';
+
 
 
 export default {
@@ -96,4 +101,8 @@ export default {
     paradox: paradox_icon,
     triplecast: triplecast_icon,
     thunder: thunder_icon,
+    lightning: lightning_icon,
+    swiftcast: swiftcast_icon,
+    ascendance: ascendance_icon,
+    manafont: manafont_icon,
 }

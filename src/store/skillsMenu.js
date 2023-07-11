@@ -13,10 +13,6 @@ const skillsMenuSlice = createSlice({
     activeIndex: 0,
     activeActionsIndex: 0,
     options: [
-        'fire',
-        'ice',
-        'earth',
-        'air_walk',
         'linear_strike',
         'fanning_strike',
         'redondo',

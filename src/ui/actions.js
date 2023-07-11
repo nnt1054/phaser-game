@@ -562,14 +562,10 @@ const casterAbilities = {
         castTime: '2.0s',
         cooldown: '2.5s',
         description: 'Deals 25 Magic Damage to Target.',
-        isHighlighted: () => {
-            const state = store.getState();
-            return state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
-        },
         isDisabled: () => {
             const state = store.getState();
-            const heavenlyWeaveReady = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
-            return heavenlyWeaveReady ? false : true;
+            const hasFireProc = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
+            return hasFireProc ? false : true;
         },
     },
     'thunder': {
@@ -587,16 +583,29 @@ const casterAbilities = {
         castTime: '2.0s',
         cooldown: '2.5s',
         description: 'Deals 25 Magic Damage to Target.',
-        isHighlighted: () => {
-            const state = store.getState();
-            return state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
+    },
+    'lightning': {
+        label: 'Lightning',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'lightning',
+                    target: target ?? null,
+                })
+            );
         },
+        icon: 'lightning',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: 'Deals 25 Magic Damage to Target.',
         isDisabled: () => {
             const state = store.getState();
-            const heavenlyWeaveReady = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
-            return heavenlyWeaveReady ? false : true;
+            const hasEarthProc = state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
+            return hasEarthProc ? false : true;
         },
     },
+
     'ice': {
         label: 'ice',
         action: (target) => {
@@ -628,14 +637,10 @@ const casterAbilities = {
         castTime: '2.0s',
         cooldown: '2.5s',
         description: 'Deals 25 Magic Damage to Target.',
-        isHighlighted: () => {
-            const state = store.getState();
-            return state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
-        },
         isDisabled: () => {
             const state = store.getState();
-            const heavenlyWeaveReady = state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
-            return heavenlyWeaveReady ? false : true;
+            const hasIceProc = state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
+            return hasIceProc ? false : true;
         },
     },
     'earth': {
@@ -705,20 +710,8 @@ const casterAbilities = {
         castTime: '3.0s',
         cooldown: '3.0s',
         description: 'Deals 25 Magic Damage to Target.',
-        isHighlighted: () => {
-            const state = store.getState();
-            const hasFireProc = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
-            const hasIceProc = state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
-            const hasEarthProc = state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
-            return (hasFireProc && hasIceProc && hasEarthProc);
-        },
-        isDisabled: () => {
-            const state = store.getState();
-            const hasFireProc = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
-            const hasIceProc = state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
-            const hasEarthProc = state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
-            return (hasFireProc && hasIceProc && hasEarthProc) ? false : true;
-        },
+        isHighlighted: () => { return false },
+        isDisabled: () => { return false },
     },
     'triplecast': {
         label: 'Triplecast',
@@ -727,6 +720,46 @@ const casterAbilities = {
         gcd: false,
         cooldown: '120s',
         description: `Guarantees Next 3 Procs.`,
+    },
+    'manafication': {
+        label: 'Manafication',
+        action: () => { store.dispatch(setQueuedAbility('manafication')) },
+        icon: 'manafication',
+        cooldown: '90s',
+        description: `Increases damage dealt by 20%`,
+        extraDescription: [
+            ['Duration:', '21s'],
+        ],
+    },
+    'swiftcast': {
+        label: 'Swiftcast',
+        action: () => { store.dispatch(setQueuedAbility('swiftcast')) },
+        icon: 'swiftcast',
+        cooldown: '90s',
+        description: `Increases damage dealt by 20%`,
+        extraDescription: [
+            ['Duration:', '21s'],
+        ],
+    },
+    'ascendance': {
+        label: 'Ascendance',
+        action: () => { store.dispatch(setQueuedAbility('ascendance')) },
+        icon: 'ascendance',
+        cooldown: '90s',
+        description: `Increases damage dealt by 20%`,
+        extraDescription: [
+            ['Duration:', '21s'],
+        ],
+    },
+    'manafont': {
+        label: 'Manafont',
+        action: () => { store.dispatch(setQueuedAbility('manafont')) },
+        icon: 'manafont',
+        cooldown: '90s',
+        description: `Increases damage dealt by 20%`,
+        extraDescription: [
+            ['Duration:', '21s'],
+        ],
     },
 }
 

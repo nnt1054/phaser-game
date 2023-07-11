@@ -289,7 +289,7 @@ const fireProc = (target, source) => {
         key: 'fireProc',
         target: target,
         source: source,
-        timer: 120000,
+        timer: 15000,
         icon: 'fire_ii',
         apply() {},
         unapply() {},
@@ -302,7 +302,7 @@ const iceProc = (target, source) => {
         key: 'iceProc',
         target: target,
         source: source,
-        timer: 120000,
+        timer: 15000,
         icon: 'ice_ii',
         apply() {},
         unapply() {},
@@ -315,7 +315,7 @@ const earthProc = (target, source) => {
         key: 'earthProc',
         target: target,
         source: source,
-        timer: 120000,
+        timer: 15000,
         icon: 'earth_ii',
         apply() {},
         unapply() {},
@@ -365,6 +365,79 @@ const shocked = (target, source) => {
     }
 }
 
+const manaStack = (target, source) => {
+    return {
+        key: 'manaStack',
+        target: target,
+        source: source,
+        timer: 120000,
+        icon: 'triplecast',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+const swiftcast = (target, source) => {
+    return {
+        key: 'swiftcast',
+        target: target,
+        source: source,
+        timer: 30000,
+        icon: 'swiftcast',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyCastTime(castTime, ability) {
+            if (castTime > 0) {
+                this.target.removeBuff(this);
+                return 0;
+            }
+            return castTime;
+        },
+    }
+}
+
+const ascendance = (target, source) => {
+    return {
+        key: 'ascendance',
+        target: target,
+        source: source,
+        timer: 12000,
+        icon: 'ascendance',
+        apply() {},
+        unapply() {},
+        update(delta) {
+            if (this.target.isMoving()) {
+                this.target.removeBuff(this);
+            };
+        },
+        modifyCastTime(castTime, ability) {
+            return 0;
+        },
+    }
+}
+
+
+const manafont = (target, source) => {
+    return {
+        key: 'manafont',
+        target: target,
+        source: source,
+        timer: 240000,
+        icon: 'manafont',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyMagicalDamage(damage) {
+            if (this.target.getBuffCount('manaStack') >= 5) {
+                return damage * 1.2;
+            }
+            return damage;
+        },
+    }
+}
+
 
 const buffMap = {
 	'regen': regen,
@@ -387,6 +460,10 @@ const buffMap = {
     'earthProc': earthProc,
     'triplecastProc': triplecastProc,
     'shocked': shocked,
+    'manaStack': manaStack,
+    'swiftcast': swiftcast,
+    'ascendance': ascendance,
+    'manafont': manafont,
 }
 
 export default buffMap
