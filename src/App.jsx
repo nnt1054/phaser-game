@@ -78,7 +78,7 @@ const App = () => {
     // tooltip logic
     const activeMenu = useSelector(state => state.menuStates.activeMenu);
     const hoverKey = useSelector(state => state.hotBars.hoverKey);
-    const isDefault = (activeMenu === null);
+    const isDefault = (activeMenu === 'default');
     let abilityKey = 'empty';
     if (isDefault && hoverKey) {
         abilityKey = hoverKey;

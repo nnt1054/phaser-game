@@ -334,6 +334,13 @@ const triplecastProc = (target, source) => {
         apply() {},
         unapply() {},
         update(delta) {},
+        modifyCastTime(castTime, ability) {
+            if (castTime > 0) {
+                this.target.removeBuff(this);
+                return 0;
+            }
+            return castTime;
+        },
     }
 }
 
@@ -371,7 +378,7 @@ const manaStack = (target, source) => {
         target: target,
         source: source,
         timer: 120000,
-        icon: 'triplecast',
+        icon: 'mana_stack',
         apply() {},
         unapply() {},
         update(delta) {},
@@ -439,6 +446,34 @@ const manafont = (target, source) => {
 }
 
 
+const arrowStock = (target, source) => {
+    return {
+        key: 'arrowStock',
+        target: target,
+        source: source,
+        timer: 60000,
+        icon: 'quick_draw',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+
+const wounded = (target, source) => {
+    return {
+        key: 'wounded',
+        target: target,
+        source: source,
+        timer: 60000,
+        icon: 'wounded',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
@@ -464,6 +499,8 @@ const buffMap = {
     'swiftcast': swiftcast,
     'ascendance': ascendance,
     'manafont': manafont,
+    'arrowStock': arrowStock,
+    'wounded': wounded,
 }
 
 export default buffMap

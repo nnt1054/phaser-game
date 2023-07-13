@@ -401,6 +401,7 @@ const meleeAbilities = {
             ['Combo Action:', 'Heavenly Strike'],
             ['Combo Potency (Heavenly Strike):', '25'],
             ['Combo Bonus (Heavenly Strike):', 'Applies Blight to target'],
+            ['Blight:', 'Deals 75 Physical Damage over 45s.']
 
 
             ['', ''],
@@ -517,20 +518,56 @@ const meleeAbilities = {
             ['Duration:', '21s'],
         ],
     },
-    'contrada': {
-        label: 'Contrada',
-        action: () => { store.dispatch(setQueuedAbility('contrada')) },
-        icon: 'contrada',
-        cooldown: '60s',
-        description: `Reduces damage taken by 20%`,
-        extraDescription: [
-            ['Duration:', '15s'],
-        ],
-    },
 };
 
 
 const casterAbilities = {
+    'ice': {
+        label: 'Ice',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'ice',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'ice',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '1.5s',
+        description: 'Deals 15 Magic Damage to Target.',
+        extraDescription: [
+            ['Bonus Effect:', 'Grants 1 Mana'],
+            ['Bonus Effect:', 'Grants Ice Aspected'],
+            ['Additional Effect:', 'Removes Fire Aspected'],
+        ],
+    },
+    'ice_ii': {
+        label: 'Blizzard',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'ice_ii',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'ice_ii',
+        gcd: true,
+        castTime: '2.0s',
+        cooldown: '2.5s',
+        description: 'Deals 30 Magic Damage to Target.',
+        extraDescription: [
+            ['Bonus Effect:', 'Grants 2 Mana'],
+            ['', 'Can only be executed under Ice Aspected'],
+        ],
+        isDisabled: () => {
+            const state = store.getState();
+            const hasIceProc = state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
+            return hasIceProc ? false : true;
+        },
+    },
     'fire': {
         label: 'Fire',
         action: (target) => {
@@ -543,12 +580,17 @@ const casterAbilities = {
         },
         icon: 'fire',
         gcd: true,
-        castTime: '2.0s',
-        cooldown: '2.5s',
-        description: 'Deals 25 Magic Damage to Target.',
+        castTime: '0s',
+        cooldown: '1.5s',
+        description: 'Deals 30 Magic Damage to Target.',
+        extraDescription: [
+            ['Mana Cost:', '1'],
+            ['Bonus Effect:', 'Grants Fire Aspected'],
+            ['Additional Effect:', 'Removes Ice Aspected'],
+        ],
     },
     'fire_ii': {
-        label: 'Fire II',
+        label: 'Scorch',
         action: (target) => {
             store.dispatch(
                 setQueuedAbilityAndTarget({
@@ -561,7 +603,11 @@ const casterAbilities = {
         gcd: true,
         castTime: '2.0s',
         cooldown: '2.5s',
-        description: 'Deals 25 Magic Damage to Target.',
+        description: 'Deals 40 Magic Damage to Target.',
+        extraDescription: [
+            ['Mana Cost:', '2'],
+            ['', 'Can only be executed under Fire Aspected'],
+        ],
         isDisabled: () => {
             const state = store.getState();
             const hasFireProc = state.statusInfo.statuses.find(buff => buff.key == 'fireProc');
@@ -580,120 +626,13 @@ const casterAbilities = {
         },
         icon: 'thunder',
         gcd: true,
-        castTime: '2.0s',
-        cooldown: '2.5s',
-        description: 'Deals 25 Magic Damage to Target.',
-    },
-    'lightning': {
-        label: 'Lightning',
-        action: (target) => {
-            store.dispatch(
-                setQueuedAbilityAndTarget({
-                    ability: 'lightning',
-                    target: target ?? null,
-                })
-            );
-        },
-        icon: 'lightning',
-        gcd: true,
-        castTime: '2.0s',
-        cooldown: '2.5s',
-        description: 'Deals 25 Magic Damage to Target.',
-        isDisabled: () => {
-            const state = store.getState();
-            const hasEarthProc = state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
-            return hasEarthProc ? false : true;
-        },
-    },
-
-    'ice': {
-        label: 'ice',
-        action: (target) => {
-            store.dispatch(
-                setQueuedAbilityAndTarget({
-                    ability: 'ice',
-                    target: target ?? null,
-                })
-            );
-        },
-        icon: 'ice',
-        gcd: true,
-        castTime: '2.0s',
-        cooldown: '2.5s',
-        description: 'Deals 25 Magic Damage to Target.',
-    },
-    'ice_ii': {
-        label: 'Ice II',
-        action: (target) => {
-            store.dispatch(
-                setQueuedAbilityAndTarget({
-                    ability: 'ice_ii',
-                    target: target ?? null,
-                })
-            );
-        },
-        icon: 'ice_ii',
-        gcd: true,
-        castTime: '2.0s',
-        cooldown: '2.5s',
-        description: 'Deals 25 Magic Damage to Target.',
-        isDisabled: () => {
-            const state = store.getState();
-            const hasIceProc = state.statusInfo.statuses.find(buff => buff.key == 'iceProc');
-            return hasIceProc ? false : true;
-        },
-    },
-    'earth': {
-        label: 'earth',
-        action: (target) => {
-            store.dispatch(
-                setQueuedAbilityAndTarget({
-                    ability: 'earth',
-                    target: target ?? null,
-                })
-            );
-        },
-        icon: 'earth',
-        gcd: true,
-        castTime: '2.0s',
-        cooldown: '2.5s',
-        description: 'Deals 25 Magic Damage to Target.',
-    },
-    'earth_ii': {
-        label: 'Earth II',
-        action: (target) => {
-            store.dispatch(
-                setQueuedAbilityAndTarget({
-                    ability: 'earth_ii',
-                    target: target ?? null,
-                })
-            );
-        },
-        icon: 'earth_ii',
-        gcd: true,
-        castTime: '2.0s',
-        cooldown: '2.5s',
-        description: 'Deals 25 Magic Damage to Target.',
-        isHighlighted: () => {
-            const state = store.getState();
-            return state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
-        },
-        isDisabled: () => {
-            const state = store.getState();
-            const hasEarthProc = state.statusInfo.statuses.find(buff => buff.key == 'earthProc');
-            return hasEarthProc ? false : true;
-        },
-    },
-    'air_walk': {
-        label: 'air_walk',
-        action: () => { store.dispatch(setQueuedAbility('air_walk')) },
-        icon: 'air_walk',
-        gcd: false,
-        cooldown: '2.5s',
-        description: `Increases movement speed.`,
+        castTime: '0s',
+        cooldown: '1.5s',
+        description: 'Deals 50 Magic Damage to Target over 30s.',
         extraDescription: [
-            ['Duration:', '15s'],
+            ['Max Duration:', '60s'],
         ],
+
     },
     'paradox': {
         label: 'Paradox',
@@ -707,11 +646,32 @@ const casterAbilities = {
         },
         icon: 'paradox',
         gcd: true,
-        castTime: '3.0s',
+        castTime: '2.5s',
         cooldown: '3.0s',
-        description: 'Deals 25 Magic Damage to Target.',
+        description: 'Deals 60 Magic Damage to Target.',
+        extraDescription: [
+            ['Mana Cost:', '5'],
+        ],
         isHighlighted: () => { return false },
         isDisabled: () => { return false },
+    },
+    'manafication': {
+        label: 'Manafication',
+        action: () => { store.dispatch(setQueuedAbility('manafication')) },
+        icon: 'manafication',
+        cooldown: '90s',
+        description: `Doubles the user's current amount of Mana (Max 10)`,
+    },
+    'ascendance': {
+        label: 'Ascendance',
+        action: () => { store.dispatch(setQueuedAbility('ascendance')) },
+        icon: 'ascendance',
+        cooldown: '90s',
+        description: `Temporarily reduce Mana Cost to 0 and Cast Time to 0s for all spells.`,
+        extraDescription: [
+            ['Duration:', '12s'],
+            ['', 'Effect ends upon moving.'],
+        ],
     },
     'triplecast': {
         label: 'Triplecast',
@@ -719,53 +679,216 @@ const casterAbilities = {
         icon: 'triplecast',
         gcd: false,
         cooldown: '120s',
-        description: `Guarantees Next 3 Procs.`,
-    },
-    'manafication': {
-        label: 'Manafication',
-        action: () => { store.dispatch(setQueuedAbility('manafication')) },
-        icon: 'manafication',
-        cooldown: '90s',
-        description: `Increases damage dealt by 20%`,
-        extraDescription: [
-            ['Duration:', '21s'],
-        ],
-    },
-    'swiftcast': {
-        label: 'Swiftcast',
-        action: () => { store.dispatch(setQueuedAbility('swiftcast')) },
-        icon: 'swiftcast',
-        cooldown: '90s',
-        description: `Increases damage dealt by 20%`,
-        extraDescription: [
-            ['Duration:', '21s'],
-        ],
-    },
-    'ascendance': {
-        label: 'Ascendance',
-        action: () => { store.dispatch(setQueuedAbility('ascendance')) },
-        icon: 'ascendance',
-        cooldown: '90s',
-        description: `Increases damage dealt by 20%`,
-        extraDescription: [
-            ['Duration:', '21s'],
-        ],
+        description: `Reduce Cast Time for next 3 Non-Instant Spells to 0s`,
     },
     'manafont': {
         label: 'Manafont',
         action: () => { store.dispatch(setQueuedAbility('manafont')) },
         icon: 'manafont',
-        cooldown: '90s',
-        description: `Increases damage dealt by 20%`,
+        description: `[PLACEHOLDER FOR PASSIVE] Increase Magical Damage by 20% at 5+ Mana `,
+    },
+}
+
+const hunterAbilities = {
+    'arrow': {
+        label: 'Arrow',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'arrow',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'arrow',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: 'Deals 15 Physical Damage to Target.',
         extraDescription: [
-            ['Duration:', '21s'],
+            ['Bonus:', 'If target has less than 4 Stacks of Wounded; Apply Wounded to Target.'],
+            ['Bonus:', 'If target has 4 Stacks of Wounded: Remove Wounded from Target and Damage is Doubled.'],
         ],
+    },
+    'heavy_arrow': {
+        label: 'Heavy Arrow',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'heavy_arrow',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'heavy_arrow',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: 'Deals 15 Physical Damage to Target.',
+        extraDescription: [
+            ['Combo Action:', 'Arrow'],
+            ['Combo Potency:', '30'],
+            ['', ''],
+            ['Bonus:', 'If target has less than 4 Stacks of Wounded; Apply Wounded to Target.'],
+            ['Bonus:', 'If target has 4 Stacks of Wounded: Remove Wounded from Target and Damage is Doubled.'],
+        ],
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'arrow')
+        },
+    },
+    'straight_arrow': {
+        label: 'Straight Arrow',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'straight_arrow',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'straight_arrow',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '2.5s',
+        description: 'Deals 15 Physical Damage to Target.',
+        extraDescription: [
+            ['Combo Action:', 'Heavy Arrow'],
+            ['Combo Potency:', '20'],
+            ['', ''],
+            ['Bonus:', 'If target has less than 4 Stacks of Wounded; Apply Wounded to Target.'],
+            ['Bonus:', 'If target has 4 Stacks of Wounded: Remove Wounded from Target and Damage is Doubled.'],
+        ],
+        isHighlighted: () => {
+            const state = store.getState();
+            return (state.playerState.comboAction == 'heavy_arrow')
+        },
+    },
+    'blast_arrow': {
+        label: 'Blast Arrow',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'blast_arrow',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'blast_arrow',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '20s',
+        description: 'Deals 50 Physical Damage to Target.',
+        extraDescription: [
+            ['Bonus:', 'If target has less than 4 Stacks of Wounded; Apply Wounded to Target.'],
+            ['Bonus:', 'If target has 4 Stacks of Wounded: Remove Wounded from Target and Damage is Doubled.'],
+        ],
+    },
+    'arcane_arrow': {
+        label: 'Arcane Arrow',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'arcane_arrow',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'arcane_arrow',
+        gcd: true,
+        castTime: '0s',
+        cooldown: '40s',
+        description: 'Deals 60 Magical Damage to Target.',
+        extraDescription: [
+            ['Bonus:', 'If target has less than 4 Stacks of Wounded; Apply Wounded to Target.'],
+            ['Bonus:', 'If target has 4 Stacks of Wounded: Remove Wounded from Target and Damage is Doubled.'],
+        ],
+    },
+    'apex_arrow': {
+        label: 'Apex Arrow',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'apex_arrow',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'apex_arrow',
+        gcd: true,
+        castTime: '3.0s',
+        cooldown: '120s',
+        description: 'Deals 70 Physical Damage to Target.',
+        extraDescription: [
+            ['Bonus:', 'If target has less than 4 Stacks of Wounded; Apply Wounded to Target.'],
+            ['Bonus:', 'If target has 4 Stacks of Wounded: Remove Wounded from Target and Damage is Doubled.'],
+        ],
+    },
+    'repelling_shot': {
+        label: 'Repelling Shot',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'repelling_shot',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'repelling_shot',
+        gcd: false,
+        castTime: '0s',
+        cooldown: '30s',
+        description: 'Jump away from current Target and deal 15 Physical Damage to Target.',
+    },
+    'quick_draw': {
+        label: 'Quick Draw',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'quick_draw',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'quick_draw',
+        gcd: false,
+        castTime: '0s',
+        cooldown: '0.75s',
+        description: 'Deals 15 Physical Damage to Target.',
+        extraDescription: [
+            ['Arrow Stock Cost:', '1'],
+        ],
+        isDisabled: () => {
+            const state = store.getState();
+            const hasArrowStock = state.statusInfo.statuses.find(buff => buff.key == 'arrowStock');
+            return hasArrowStock ? false : true;
+        },
+    },
+    'carve': {
+        label: 'Carve',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'carve',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'carve',
+        gcd: false,
+        castTime: '0s',
+        cooldown: '60s',
+        description: 'Deals 30 Physical Damage to Target.',
+        extraDescription: [
+            ['Bonus:', 'Grants 10 Stacks of Arrow Stock.'],
+        ],  
     },
 }
 
 export const abilities = {
     ...meleeAbilities,
     ...casterAbilities,
+    ...hunterAbilities,
     'jolt': {
         label: 'jolt',
         action: (target) => {
@@ -1063,6 +1186,26 @@ export const equipment = {
             store.dispatch(setSystemActionAndTarget({
                 action: 'equipHelmet',
                 target: 4,
+            }))
+        },
+    },
+    'bow': {
+        itemId: 5,
+        label: 'bow',
+        icon: 'hunter',
+        type: 'item',
+        itemType: 'helmet',
+        description: `ears; equip to swap to hunter`,
+        action: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 5,
+            }))
+        },
+        equip: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 5,
             }))
         },
     },

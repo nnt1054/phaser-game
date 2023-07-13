@@ -51,7 +51,23 @@ import lightning_icon from '../assets/icons/thunder_II.png';
 import swiftcast_icon from '../assets/icons/swiftcast.png';
 import ascendance_icon from '../assets/icons/embolden.png';
 import manafont_icon from '../assets/icons/manafont.png';
+import mana_stack_icon from '../assets/icons/esuna.png';
 
+
+import hunter_icon from '../assets/icons/heavy_shot.png';
+
+import arrow_icon from '../assets/icons/heavy_shot.png';
+import heavy_arrow_icon from '../assets/icons/burst_shot.png';
+import straight_arrow_icon from '../assets/icons/straight_shot.png';
+
+import blast_arrow_icon from '../assets/icons/drill.png';
+import arcane_arrow_icon from '../assets/icons/air_anchor.png';
+import apex_arrow_icon from '../assets/icons/apex_arrow.png';
+
+import repelling_shot_icon from '../assets/icons/repelling_shot.png';
+import quick_draw_icon from '../assets/icons/barrage.png';
+import carve_icon from '../assets/icons/mug.png';
+import wounded_icon from '../assets/icons/bloodbath.png';
 
 
 export default {
@@ -91,18 +107,36 @@ export default {
     blighted: blighted_icon,
     contrada: contrada_icon,
 
-    fire: fire_icon,
+    mana_stack: mana_stack_icon,
     ice: ice_icon,
-    earth: earth_icon,
-    fire_ii: fire_ii_icon,
     ice_ii: ice_ii_icon,
+
+    fire: fire_icon,
+    fire_ii: fire_ii_icon,
+
+    thunder: thunder_icon,
+    lightning: lightning_icon,
+
+    earth: earth_icon,
     earth_ii: earth_ii_icon,
+
     air_walk: air_walk_icon,
     paradox: paradox_icon,
     triplecast: triplecast_icon,
-    thunder: thunder_icon,
-    lightning: lightning_icon,
+
     swiftcast: swiftcast_icon,
     ascendance: ascendance_icon,
     manafont: manafont_icon,
+
+    hunter: hunter_icon,
+    arrow: arrow_icon,
+    heavy_arrow: heavy_arrow_icon,
+    straight_arrow: straight_arrow_icon,
+    arcane_arrow: arcane_arrow_icon,
+    blast_arrow: blast_arrow_icon,
+    apex_arrow: apex_arrow_icon,
+    repelling_shot: repelling_shot_icon,
+    quick_draw: quick_draw_icon,
+    carve: carve_icon,
+    wounded: wounded_icon,
 }

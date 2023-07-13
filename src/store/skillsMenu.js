@@ -24,7 +24,6 @@ const skillsMenuSlice = createSlice({
         'earthly_weave',
         'heavenly_weave',
         'enlightenment',
-        'contrada',
     ],
     actionOptions: [
       'setActiveSkill',

@@ -30,13 +30,8 @@ const CasterJob = {
                 };
 
                 player.updateOrApplyBuff('iceProc', player, 15000, 15000);
-
                 if (player.getBuff('fireProc')) {
                     player.getAndRemoveBuff('fireProc');
-                }
-
-                if (player.getBuff('earthProc')) {
-                    player.getAndRemoveBuff('earthProc');
                 }
             },
         },
@@ -65,7 +60,6 @@ const CasterJob = {
                 };
             },
         },
-
         'fire': {
             name: 'fire',
             display_name: 'fire',
@@ -90,19 +84,14 @@ const CasterJob = {
                 }
 
                 player.updateOrApplyBuff('fireProc', player, 15000, 15000);
-
                 if (player.getBuff('iceProc')) {
                     player.getAndRemoveBuff('iceProc');
-                }
-
-                if (player.getBuff('earthProc')) {
-                    player.getAndRemoveBuff('earthProc');
                 }
             },
         },
         'fire_ii': {
             name: 'fire_ii',
-            display_name: 'Fire II',
+            display_name: 'Scorch',
             gcd: true,
             castTime: 2000,
             cooldown: 2500,
@@ -123,7 +112,6 @@ const CasterJob = {
                 }
             },
         },
-
         'thunder': {
             name: 'thunder',
             display_name: 'Thunder',
@@ -137,36 +125,9 @@ const CasterJob = {
             },
             execute: (player, target) => {
                 const duration = animationHelpers.stone(player, target)
-                player.dealDamage(target, 30, 'magical', duration);
-                player.updateOrApplyBuff('earthProc', player, 15000, 15000);
-
-                if (player.getBuff('iceProc')) {
-                    player.getAndRemoveBuff('iceProc');
-                }
-
-                if (player.getBuff('fireProc')) {
-                    player.getAndRemoveBuff('fireProc');
-                }
-            },
-        },
-        'lightning': {
-            name: 'lightning',
-            display_name: 'Lightning',
-            gcd: true,
-            castTime: 0,
-            cooldown: 2500,
-            canTarget: isEnemy,
-            canExecute: (player, target) => {
-                if (!inRangedRange(player, target)) return false;
-                if (!player.getBuff('earthProc')) return false;
-                return true;
-            },
-            execute: (player, target) => {
-                const duration = animationHelpers.stone(player, target)
                 target.updateOrApplyBuff('shocked', player, 30000, 60000);
             },
         },
-
         'paradox': {
             name: 'paradox',
             display_name: 'Paradox',
@@ -191,7 +152,6 @@ const CasterJob = {
                 }
             },
         },
-
         'manafication': {
             name: 'manafication',
             display_name: 'Manafication',
@@ -213,23 +173,6 @@ const CasterJob = {
                 player.startCooldown('manafication', 60000);
             },
         },
-
-        'swiftcast': {
-            name: 'swiftcast',
-            display_name: 'Swiftcast',
-            gcd: false,
-            canTarget: isAny,
-            canExecute: (player) => {
-                const [cooldown, duration] = player.getCooldown('swiftcast');
-                if (cooldown > 0) return false;
-                return true;
-            },
-            execute: (player) => {
-                player.applyBuff('swiftcast', player);
-                player.startCooldown('swiftcast', 45000);
-            },
-        },
-
         'ascendance': {
             name: 'ascendance',
             display_name: 'Ascendance',
@@ -243,75 +186,6 @@ const CasterJob = {
             execute: (player) => {
                 player.applyBuff('ascendance', player);
                 player.startCooldown('ascendance', 120000);
-            },
-        },
-
-        'manafont': {
-            name: 'manafont',
-            display_name: 'Manafont',
-            gcd: false,
-            canTarget: isAny,
-            canExecute: (player) => {
-                const [cooldown, duration] = player.getCooldown('manafont');
-                if (cooldown > 0) return false;
-                return true;
-            },
-            execute: (player) => {
-                player.updateOrApplyBuff('manafont', player, 240000, 240000);
-                player.startCooldown('manafont', 1000);
-            },
-        },
-
-        'earth': {
-            name: 'earth',
-            display_name: 'earth',
-            gcd: true,
-            castTime: 2200,
-            cooldown: 2500,
-            canTarget: isEnemy,
-            canExecute: inRangedRange,
-            execute: (player, target) => {
-                const duration = animationHelpers.stone(player, target)
-                player.dealDamage(target, 25, 'magical', duration);
-
-                if (player.getBuff('triplecastProc')) {
-                    player.getAndRemoveBuff('triplecastProc');
-                    player.updateOrApplyBuff('earthProc', player, 120000, 120000);
-                } else if (Math.random() < 0.5) {
-                    player.updateOrApplyBuff('earthProc', player, 120000, 120000);
-                }
-            },
-        },
-        'earth_ii': {
-            name: 'earth_ii',
-            display_name: 'Earth II',
-            gcd: true,
-            castTime: 0,
-            cooldown: 2500,
-            canTarget: isEnemy,
-            canExecute: (player, target) => {
-                if (!inRangedRange(player, target)) return false;
-                if (!player.getBuff('earthProc')) return false;
-                return true;
-            },
-            execute: (player, target) => {
-                const duration = animationHelpers.stone(player, target)
-                player.dealDamage(target, 25, 'magical', duration);
-                player.getAndRemoveBuff('earthProc');
-            },
-        },
-        'air_walk': {
-            name: 'air_walk',
-            display_name: 'Air Walk',
-            gcd: false,
-            canTarget: isAny,
-            canExecute: (player) => {
-                const [cooldown, duration] = player.getCooldown('air_walk');
-                if (cooldown > 0) return false;
-                return true;
-            },
-            execute: (player) => {
-                player.startCooldown('air_walk', 90000);
             },
         },
         'triplecast': {
@@ -331,6 +205,36 @@ const CasterJob = {
                 player.startCooldown('triplecast', 120000);
             },
         },
+        'manafont': {
+            name: 'manafont',
+            display_name: 'Manafont',
+            gcd: false,
+            canTarget: isAny,
+            canExecute: (player) => {
+                const [cooldown, duration] = player.getCooldown('manafont');
+                if (cooldown > 0) return false;
+                return true;
+            },
+            execute: (player) => {
+                player.updateOrApplyBuff('manafont', player, 240000, 240000);
+                player.startCooldown('manafont', 1000);
+            },
+        },
+        // 'swiftcast': {
+        //     name: 'swiftcast',
+        //     display_name: 'Swiftcast',
+        //     gcd: false,
+        //     canTarget: isAny,
+        //     canExecute: (player) => {
+        //         const [cooldown, duration] = player.getCooldown('swiftcast');
+        //         if (cooldown > 0) return false;
+        //         return true;
+        //     },
+        //     execute: (player) => {
+        //         player.applyBuff('swiftcast', player);
+        //         player.startCooldown('swiftcast', 45000);
+        //     },
+        // },
     }
 };
 

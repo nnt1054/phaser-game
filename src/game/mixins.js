@@ -1062,6 +1062,7 @@ export const ExperienceMixin = {
             'HEAL': exp,
             'MELEE': exp,
             'SPELL': exp,
+            'HUNTER': exp,
         };
         this.setLevel(this.getExperienceLevel());
         this.updateExpStore();
