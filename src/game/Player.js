@@ -660,22 +660,23 @@ export class Player extends ArcadeContainer {
         if (this.abilityTimer > 0) return;
         if (this.castingTimer > 0) return;
         if (ability.gcd && this.gcdTimer > 0) return;
-        if (!ability.canExecute(this, this.gcdTarget)) return;
 
-        const gcdCooldown = this.calculateGcdCooldown(ability);
-        const castTime = this.calculateCastTime(ability);
+        if (ability.canExecute(this, this.gcdTarget)) {
+            const gcdCooldown = this.calculateGcdCooldown(ability);
+            const castTime = this.calculateCastTime(ability);
 
-        // ability execution
-        if (castTime > 0) {
-            this.startCast(ability, this.gcdTarget);
-            this.directionLockTimer += ability.castTime;
-        } else {
-            this.executeAbility(ability, this.gcdTarget);
-        }
+            // ability execution
+            if (castTime > 0) {
+                this.startCast(ability, this.gcdTarget);
+                this.directionLockTimer += ability.castTime;
+            } else {
+                this.executeAbility(ability, this.gcdTarget);
+            }
 
-        if (ability.gcd) {
-            this.gcdTimer += gcdCooldown;
-            store.dispatch(setGCD(gcdCooldown));
+            if (ability.gcd) {
+                this.gcdTimer += gcdCooldown;
+                store.dispatch(setGCD(gcdCooldown));
+            }
         }
 
         this.gcdQueue = null;
