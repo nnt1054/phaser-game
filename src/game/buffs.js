@@ -289,7 +289,7 @@ const fireProc = (target, source) => {
         key: 'fireProc',
         target: target,
         source: source,
-        timer: 15000,
+        timer: 21000,
         icon: 'fire_ii',
         apply() {},
         unapply() {},
@@ -302,7 +302,7 @@ const iceProc = (target, source) => {
         key: 'iceProc',
         target: target,
         source: source,
-        timer: 15000,
+        timer: 21000,
         icon: 'ice_ii',
         apply() {},
         unapply() {},
@@ -405,25 +405,25 @@ const swiftcast = (target, source) => {
     }
 }
 
-const ascendance = (target, source) => {
-    return {
-        key: 'ascendance',
-        target: target,
-        source: source,
-        timer: 12000,
-        icon: 'ascendance',
-        apply() {},
-        unapply() {},
-        update(delta) {
-            if (this.target.isMoving()) {
-                this.target.removeBuff(this);
-            };
-        },
-        modifyCastTime(castTime, ability) {
-            return 0;
-        },
-    }
-}
+// const ascendance = (target, source) => {
+//     return {
+//         key: 'ascendance',
+//         target: target,
+//         source: source,
+//         timer: 12000,
+//         icon: 'ascendance',
+//         apply() {},
+//         unapply() {},
+//         update(delta) {
+//             if (this.target.isMoving()) {
+//                 this.target.removeBuff(this);
+//             };
+//         },
+//         modifyCastTime(castTime, ability) {
+//             return 0;
+//         },
+//     }
+// }
 
 
 const manafont = (target, source) => {
@@ -497,7 +497,7 @@ const buffMap = {
     'shocked': shocked,
     'manaStack': manaStack,
     'swiftcast': swiftcast,
-    'ascendance': ascendance,
+    // 'ascendance': ascendance,
     'manafont': manafont,
     'arrowStock': arrowStock,
     'wounded': wounded,

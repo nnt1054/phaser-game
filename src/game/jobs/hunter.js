@@ -95,7 +95,7 @@ const HunterJob = {
                 const duration = animationHelpers.stone(player, target)
                 let damage = 50;
                 damage = _woundedHelper(player, target, damage);
-                player.dealDamage(target, 50, 'physical', duration);
+                player.dealDamage(target, damage, 'physical', duration);
                 player.startCooldown('blast_arrow', 20000);
             },
         },

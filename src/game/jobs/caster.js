@@ -69,8 +69,7 @@ const CasterJob = {
             canTarget: isEnemy,
             canExecute: (player, target) => {
                 if (!inRangedRange(player, target)) return false;
-                if (!player.getBuff('ascendance') && player.getBuffCount('manaStack') < 1) {
-                    console.log('what');
+                if (player.getBuffCount('manaStack') < 1) {
                     return false;
                 }
                 return true;
@@ -78,10 +77,7 @@ const CasterJob = {
             execute: (player, target) => {
                 const duration = animationHelpers.stone(player, target)
                 player.dealDamage(target, 30, 'magical', duration);
-
-                if (!player.getBuff('ascendance')) {
-                    player.getAndRemoveBuff('manaStack');
-                }
+                player.getAndRemoveBuff('manaStack');
 
                 player.updateOrApplyBuff('fireProc', player, 15000, 15000);
                 if (player.getBuff('iceProc')) {
@@ -99,17 +95,14 @@ const CasterJob = {
             canExecute: (player, target) => {
                 if (!inRangedRange(player, target)) return false;
                 if (!player.getBuff('fireProc')) return false;
-                if (!player.getBuff('ascendance') && player.getBuffCount('manaStack') < 2) return false;
+                if (player.getBuffCount('manaStack') < 2) return false;
                 return true;
             },
             execute: (player, target) => {
                 const duration = animationHelpers.stone(player, target)
                 player.dealDamage(target, 40, 'magical', duration);
-
-                if (!player.getBuff('ascendance')) {
-                    player.getAndRemoveBuff('manaStack');
-                    player.getAndRemoveBuff('manaStack');
-                }
+                player.getAndRemoveBuff('manaStack');
+                player.getAndRemoveBuff('manaStack');
             },
         },
         'thunder': {
@@ -132,24 +125,22 @@ const CasterJob = {
             name: 'paradox',
             display_name: 'Paradox',
             gcd: true,
-            castTime: 2500,
-            cooldown: 3000,
+            castTime: 3000,
+            cooldown: 2500,
             canTarget: isEnemy,
             canExecute: (player, target) => {
                 if (!inRangedRange(player, target)) return false;
-                if (!player.getBuff('ascendance') && player.getBuffCount('manaStack') < 5) return false;
+                if (player.getBuffCount('manaStack') < 5) return false;
                 return true;
             },
             execute: (player, target) => {
                 const duration = animationHelpers.stone(player, target)
                 player.dealDamage(target, 60, 'magical', duration);
-                if (!player.getBuff('ascendance')) {
-                    player.getAndRemoveBuff('manaStack');
-                    player.getAndRemoveBuff('manaStack');
-                    player.getAndRemoveBuff('manaStack');
-                    player.getAndRemoveBuff('manaStack');
-                    player.getAndRemoveBuff('manaStack');
-                }
+                player.getAndRemoveBuff('manaStack');
+                player.getAndRemoveBuff('manaStack');
+                player.getAndRemoveBuff('manaStack');
+                player.getAndRemoveBuff('manaStack');
+                player.getAndRemoveBuff('manaStack');
             },
         },
         'manafication': {
@@ -171,21 +162,6 @@ const CasterJob = {
                     };
                 })
                 player.startCooldown('manafication', 60000);
-            },
-        },
-        'ascendance': {
-            name: 'ascendance',
-            display_name: 'Ascendance',
-            gcd: false,
-            canTarget: isAny,
-            canExecute: (player) => {
-                const [cooldown, duration] = player.getCooldown('ascendance');
-                if (cooldown > 0) return false;
-                return true;
-            },
-            execute: (player) => {
-                player.applyBuff('ascendance', player);
-                player.startCooldown('ascendance', 120000);
             },
         },
         'triplecast': {
@@ -217,7 +193,7 @@ const CasterJob = {
             },
             execute: (player) => {
                 player.updateOrApplyBuff('manafont', player, 240000, 240000);
-                player.startCooldown('manafont', 1000);
+                player.startCooldown('manafont', 60000);
             },
         },
         // 'swiftcast': {
@@ -233,6 +209,21 @@ const CasterJob = {
         //     execute: (player) => {
         //         player.applyBuff('swiftcast', player);
         //         player.startCooldown('swiftcast', 45000);
+        //     },
+        // },
+        // 'ascendance': {
+        //     name: 'ascendance',
+        //     display_name: 'Ascendance',
+        //     gcd: false,
+        //     canTarget: isAny,
+        //     canExecute: (player) => {
+        //         const [cooldown, duration] = player.getCooldown('ascendance');
+        //         if (cooldown > 0) return false;
+        //         return true;
+        //     },
+        //     execute: (player) => {
+        //         player.applyBuff('ascendance', player);
+        //         player.startCooldown('ascendance', 120000);
         //     },
         // },
     }

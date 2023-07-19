@@ -401,8 +401,7 @@ const meleeAbilities = {
             ['Combo Action:', 'Heavenly Strike'],
             ['Combo Potency (Heavenly Strike):', '25'],
             ['Combo Bonus (Heavenly Strike):', 'Applies Blight to target'],
-            ['Blight:', 'Deals 75 Physical Damage over 45s.']
-
+            ['Blight:', 'Deals 75 Physical Damage over 45s.'],
 
             ['', ''],
 
@@ -614,26 +613,6 @@ const casterAbilities = {
             return hasFireProc ? false : true;
         },
     },
-    'thunder': {
-        label: 'Thunder',
-        action: (target) => {
-            store.dispatch(
-                setQueuedAbilityAndTarget({
-                    ability: 'thunder',
-                    target: target ?? null,
-                })
-            );
-        },
-        icon: 'thunder',
-        gcd: true,
-        castTime: '0s',
-        cooldown: '1.5s',
-        description: 'Deals 50 Magic Damage to Target over 30s.',
-        extraDescription: [
-            ['Max Duration:', '60s'],
-        ],
-
-    },
     'paradox': {
         label: 'Paradox',
         action: (target) => {
@@ -646,8 +625,8 @@ const casterAbilities = {
         },
         icon: 'paradox',
         gcd: true,
-        castTime: '2.5s',
-        cooldown: '3.0s',
+        castTime: '3.0s',
+        cooldown: '2.5s',
         description: 'Deals 60 Magic Damage to Target.',
         extraDescription: [
             ['Mana Cost:', '5'],
@@ -662,17 +641,6 @@ const casterAbilities = {
         cooldown: '90s',
         description: `Doubles the user's current amount of Mana (Max 10)`,
     },
-    'ascendance': {
-        label: 'Ascendance',
-        action: () => { store.dispatch(setQueuedAbility('ascendance')) },
-        icon: 'ascendance',
-        cooldown: '90s',
-        description: `Temporarily reduce Mana Cost to 0 and Cast Time to 0s for all spells.`,
-        extraDescription: [
-            ['Duration:', '12s'],
-            ['', 'Effect ends upon moving.'],
-        ],
-    },
     'triplecast': {
         label: 'Triplecast',
         action: () => { store.dispatch(setQueuedAbility('triplecast')) },
@@ -685,8 +653,43 @@ const casterAbilities = {
         label: 'Manafont',
         action: () => { store.dispatch(setQueuedAbility('manafont')) },
         icon: 'manafont',
-        description: `[PLACEHOLDER FOR PASSIVE] Increase Magical Damage by 20% at 5+ Mana `,
+        cooldown: '60s',
+        description: `Increase Magical Damage by 20% at 5+ Mana `,
+        extraDescription: [
+            ['Duration:', '12s'],
+        ],
     },
+    // 'ascendance': {
+    //     label: 'Ascendance',
+    //     action: () => { store.dispatch(setQueuedAbility('ascendance')) },
+    //     icon: 'ascendance',
+    //     cooldown: '90s',
+    //     description: `Temporarily reduce Mana Cost to 0 and Cast Time to 0s for all spells.`,
+    //     extraDescription: [
+    //         ['Duration:', '12s'],
+    //         ['', 'Effect ends upon moving.'],
+    //     ],
+    // },
+    // 'thunder': {
+    //     label: 'Thunder',
+    //     action: (target) => {
+    //         store.dispatch(
+    //             setQueuedAbilityAndTarget({
+    //                 ability: 'thunder',
+    //                 target: target ?? null,
+    //             })
+    //         );
+    //     },
+    //     icon: 'thunder',
+    //     gcd: true,
+    //     castTime: '0s',
+    //     cooldown: '1.5s',
+    //     description: 'Deals 50 Magic Damage to Target over 30s.',
+    //     extraDescription: [
+    //         ['Max Duration:', '60s'],
+    //     ],
+
+    // },
 }
 
 const hunterAbilities = {
@@ -1135,7 +1138,7 @@ export const equipment = {
         icon: 'verholy',
         type: 'item',
         itemType: 'helmet',
-        description: `this is a helmet thing`,
+        description: `equip to swap to white mage`,
         action: () => {
             store.dispatch(setSystemActionAndTarget({
                 action: 'equipHelmet',
