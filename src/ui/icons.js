@@ -70,6 +70,12 @@ import carve_icon from '../assets/icons/mug.png';
 import wounded_icon from '../assets/icons/bloodbath.png';
 
 
+import rampart_icon from '../assets/icons/rampart.png';
+import reprisal_icon from '../assets/icons/reprisal.png';
+
+import knight_icon from '../assets/icons/iron_will.png';
+
+
 export default {
     acceleration: acceleration_icon,
     jolt: jolt_icon,
@@ -139,4 +145,8 @@ export default {
     quick_draw: quick_draw_icon,
     carve: carve_icon,
     wounded: wounded_icon,
+
+    knight: knight_icon,
+    reprisal: reprisal_icon,
+    rampart: rampart_icon,
 }

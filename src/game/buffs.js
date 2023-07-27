@@ -474,6 +474,77 @@ const wounded = (target, source) => {
 }
 
 
+const precisionBlock = (target, source) => {
+    return {
+        key: 'precisionBlock',
+        target: target,
+        source: source,
+        timer: 15000,
+        icon: 'knight',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyDamageReceived(damage) {
+            if (damage > 0) {
+                target.removeBuff(this);
+                target.applyBuff('precisionCounter', target);
+                return damage * 0.8;
+            } else {
+                return damage;
+            }
+        },
+    }
+}
+
+
+const precisionCounter = (target, source) => {
+    return {
+        key: 'precisionCounter',
+        target: target,
+        source: source,
+        timer: 15000,
+        icon: 'knight',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+    }
+}
+
+
+const rampart = (target, source) => {
+    return {
+        key: 'rampart',
+        target: target,
+        source: source,
+        timer: 15000,
+        icon: 'rampart',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyDamageReceived(damage) {
+            return damage * 0.8;
+        },
+    }
+}
+
+
+const reprisal = (target, source) => {
+    return {
+        key: 'rampart',
+        target: target,
+        source: source,
+        timer: 15000,
+        icon: 'rampart',
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyDamage(damage) {
+            return damage * 0.8;
+        },
+    }
+}
+
+
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
@@ -501,6 +572,11 @@ const buffMap = {
     'manafont': manafont,
     'arrowStock': arrowStock,
     'wounded': wounded,
+    'precisionBlock': precisionBlock,
+    'precisionCounter': precisionCounter,
+
+    'rampart': rampart,
+    'reprisal': reprisal,
 }
 
 export default buffMap

@@ -888,10 +888,93 @@ const hunterAbilities = {
     },
 }
 
+
+const tankRoleAbilities = {
+    'rampart': {
+        label: 'Rampart',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'rampart',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'rampart',
+        gcd: false,
+        cooldown: '90s',
+        description: 'Mitigate damage received by 20% for 15s.',
+    },
+    'reprisal': {
+        label: 'Reprisal',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'reprisal',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'reprisal',
+        gcd: false,
+        cooldown: '60s',
+        description: 'Reduce damage dealt by target by 20% for 15s.',
+    },
+}
+
+
+const knightAbilities = {
+    'precision_block': {
+        label: 'Precision Block',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'precision_block',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'knight',
+        gcd: false,
+        castTime: '0s',
+        cooldown: '0s',
+        description: 'Mitigate next damage received by 20%.',
+        override: () => {
+            const state = store.getState();
+            const hasPrecisionCounter = state.statusInfo.statuses.find(buff => buff.key == 'precisionCounter');
+            if (hasPrecisionCounter) {
+                return 'precision_counter';
+            }
+        } 
+    },
+    'precision_counter': {
+        label: 'Precision Counter',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'precision_block',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'melee4',
+        gcd: false,
+        castTime: '0s',
+        cooldown: '0s',
+        description: 'Deals 30 Physical Damage to Target.',
+        isHighlighted: () => {
+            const state = store.getState();
+            return state.statusInfo.statuses.find(buff => buff.key == 'precisionCounter');
+        },
+    },
+}
+
 export const abilities = {
     ...meleeAbilities,
     ...casterAbilities,
     ...hunterAbilities,
+    ...knightAbilities,
+    ...tankRoleAbilities,
     'jolt': {
         label: 'jolt',
         action: (target) => {
@@ -1209,6 +1292,26 @@ export const equipment = {
             store.dispatch(setSystemActionAndTarget({
                 action: 'equipHelmet',
                 target: 5,
+            }))
+        },
+    },
+    'knights helm': {
+        itemId: 6,
+        label: 'Knights Helm',
+        icon: 'knight',
+        type: 'item',
+        itemType: 'helmet',
+        description: `a knight's helmet; equip to swap to knight`,
+        action: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 6,
+            }))
+        },
+        equip: () => {
+            store.dispatch(setSystemActionAndTarget({
+                action: 'equipHelmet',
+                target: 6,
             }))
         },
     },

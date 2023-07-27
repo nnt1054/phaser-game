@@ -108,7 +108,7 @@ const abilities = {
                 playerBounds
             );
             if (inRange) {
-                caster.dealDamage(player, 0.2, 'physical');
+                caster.dealDamage(player, 10, 'physical');
             }
 
             caster.telegraphRectTween = null;
@@ -146,7 +146,7 @@ const abilities = {
             return false;
         },
         execute: (caster, target) => {
-            caster.dealDamage(target, 0.01, 'physical', 500);
+            caster.dealDamage(target, 1, 'physical', 500);
             caster.startCooldown('autoAttack', 1000);
         }
     }

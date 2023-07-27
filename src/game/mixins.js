@@ -1063,6 +1063,7 @@ export const ExperienceMixin = {
             'MELEE': exp,
             'SPELL': exp,
             'HUNTER': exp,
+            'KNIGHT': exp,
         };
         this.setLevel(this.getExperienceLevel());
         this.updateExpStore();

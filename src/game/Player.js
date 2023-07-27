@@ -279,6 +279,7 @@ export class Player extends ArcadeContainer {
         this.addItem('foxears', 1);
         this.addItem('ears', 1);
         this.addItem('bow', 1);
+        this.addItem('knights helm', 1);
 
 
         const ears = helmets[1];
