@@ -153,13 +153,28 @@ const KnightJob = {
                 }
             },
         },
+        'simple_domain': {
+            name: 'simple_domain',
+            display_name: 'Simple Domain',
+            gcd: false,
+            canTarget: isEnemy,
+            canExecute: (player, target) => {
+                const [cooldown, duration] = player.getCooldown('simple_domain');
+                if (cooldown > 0) return false;
+                return true;
+            },
+            execute: (player, target) => {
+                player.applyBuff('simpleDomain', player);
+                player.applyBuff('simpleDomainProtected', player);
+                player.startCooldown('simple_domain', 60000);
+            },
+        },
         'rampart': {
             name: 'rampart',
             display_name: 'Rampart',
             gcd: false,
             canTarget: isAny,
             canExecute: (player, target) => {
-                // block
                 const [cooldown, duration] = player.getCooldown('rampart');
                 if (cooldown > 0) return false;
                 return true;
@@ -175,7 +190,6 @@ const KnightJob = {
             gcd: false,
             canTarget: isEnemy,
             canExecute: (player, target) => {
-                // block
                 const [cooldown, duration] = player.getCooldown('reprisal');
                 if (cooldown > 0) return false;
                 return true;

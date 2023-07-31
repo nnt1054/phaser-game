@@ -192,7 +192,7 @@ const hotBarsSlice = createSlice({
                 { name: 'empty' },
                 { name: 'empty' },
                 { name: 'empty' },
-                { name: 'empty' },
+                { name: 'simple_domain' },
             ],
         },
     },

@@ -809,4 +809,9 @@ export class Player extends ArcadeContainer {
         };
         return Math.max(0, gcdCooldown);
     }
+
+    isPartyMember(target) {
+        // todo later
+        return true;
+    }
 }

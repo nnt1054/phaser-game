@@ -967,6 +967,22 @@ const knightAbilities = {
             return state.statusInfo.statuses.find(buff => buff.key == 'precisionCounter');
         },
     },
+    'simple_domain': {
+        label: 'Simple Domain',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'simple_domain',
+                    target: target ?? null,
+                })
+            );
+        },
+        icon: 'melee4',
+        gcd: false,
+        castTime: '0s',
+        cooldown: '0s',
+        description: 'Deals 30 Physical Damage to Target.',
+    },
 }
 
 export const abilities = {

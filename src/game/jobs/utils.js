@@ -8,6 +8,7 @@ import {
 export const isAny = (player, target) => { return true };
 export const isEnemy = (player, target) => { return target && target.isEnemy && target.visible && target.hasHealth };
 export const isFriendly = (player, target) => { return target && !target.isEnemy && target.visible && target.hasHealth};
+export const isParty = (player, target) => { return target && !target.isEnemy && target.visible && targets.hasHealth && player.isPartyMember(target)}
 
 
 export const inMeleeRange = (player, target) => {

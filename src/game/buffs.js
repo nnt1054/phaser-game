@@ -545,6 +545,82 @@ const reprisal = (target, source) => {
 }
 
 
+const simpleDomain = (target, source) => {
+    return {
+        key: 'simpleDomain',
+        target: target,
+        source: source,
+        timer: 8000,
+        icon: 'ascendance', // change later
+        apply() {},
+        unapply() {},
+        update(delta) {
+            if (this.target.isMoving()) {
+                this.target.removeBuff(this);
+            };
+        },
+    }
+}
+
+
+const simpleDomainProtected = (target, source) => {
+     return {
+        key: 'simpleDomainProtected',
+        target: target,
+        source: source,
+        timer: 8000,
+        icon: 'ascendance', // change later
+        apply() {},
+        unapply() {},
+        update(delta) {},
+        modifyDamageReceived(damage) {
+            if (damage > 0) {
+                if (this.source.getBuff('simpleDomain') && this.source.getBuffCount('superCounterStack') < 4) {
+                    this.source.applyBuff('superCounterStack', this.source)
+                }
+            }
+            return damage * 0.8;
+        },
+    }   
+}
+
+
+const superCounterStack = (target, source) => {
+    return {
+        key: 'superCounterStack',
+        target: target,
+        source: source,
+        timer: 15000,
+        icon: 'rampart',
+        apply() {},
+        unapply() {},
+        update(delta) {
+            if (this.target.isMoving()) {
+                this.target.removeBuff(this);
+            };
+        },
+    }
+}
+
+
+const superCounterReady = (target, source) => {
+    return {
+        key: 'superCounterReady',
+        target: target,
+        source: source,
+        timer: 15000,
+        icon: 'rampart',
+        apply() {},
+        unapply() {},
+        update(delta) {
+            if (this.target.isMoving()) {
+                this.target.removeBuff(this);
+            };
+        },
+    }
+}
+
+
 const buffMap = {
 	'regen': regen,
 	'miasma': dot,
@@ -577,6 +653,10 @@ const buffMap = {
 
     'rampart': rampart,
     'reprisal': reprisal,
+
+    'simpleDomain': simpleDomain,
+    'simpleDomainProtected': simpleDomainProtected,
+    'superCounterStack': superCounterStack,
 }
 
 export default buffMap
