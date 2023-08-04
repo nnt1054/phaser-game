@@ -248,7 +248,7 @@ const TempJob = {
                     256, 128, 0xff0000, 0.5,
                 );
                 rect.setOrigin(0.5, 1);
-                for (const enemy of player.scene.enemies) {
+                for (const enemy of player.scene.enemyGroup.children.entries) {
                     if (
                         Phaser.Geom.Rectangle.Overlaps(rect.getBounds(), enemy.hitboxRect.getBounds())
                         && enemy.visible

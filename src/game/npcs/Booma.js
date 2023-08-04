@@ -179,13 +179,16 @@ export class Booma extends ArcadeContainer {
         this.setLevel(1);
         this.setCurrentHealth(this.maxHealth);
 
-        scene.add.existing(this);
-        scene.physics.add.existing(this);
-
         this.isEnemy = true;
         this.displayName = displayName;
 
+        scene.add.existing(this);
+        scene.physics.add.existing(this);
         this.setSize(32, 48);
+        this.setCollideWorldBounds(true);
+        this.setMaxVelocity(800);
+        this.setGravityY(1600);
+
         let width = 32;
         let height = 48;
         this.ref_x = width / 2;

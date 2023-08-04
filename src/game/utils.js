@@ -140,24 +140,6 @@ export class ArcadeContainer extends Phaser.GameObjects.Container {
         this.platformColliders;
     }
 
-    addPlatforms(platforms) {
-        this.platformColliders = this.physics.add.collider(this, platforms);
-    }
-
-    addCollision(objects) {
-        objects.forEach(object => {
-            this.physics.add.collider(this, object);
-        })
-    }
-
-    disablePlatformColliders(duration) {
-        this.platformColliders.active = false;
-        this.time.addEvent({
-            delay: duration,
-            callback: () => { this.platformColliders.active = true },
-            callbackScope: this, 
-        }) 
-    }
 }
 
 export class StaticSprite extends Phaser.Physics.Arcade.Sprite {

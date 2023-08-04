@@ -75,6 +75,8 @@ import reprisal_icon from '../assets/icons/reprisal.png';
 
 import knight_icon from '../assets/icons/iron_will.png';
 
+import simple_domain_icon from '../assets/icons/holy_sheltron.png';
+
 
 export default {
     acceleration: acceleration_icon,
@@ -149,4 +151,6 @@ export default {
     knight: knight_icon,
     reprisal: reprisal_icon,
     rampart: rampart_icon,
+
+    simple_domain: simple_domain_icon,
 }

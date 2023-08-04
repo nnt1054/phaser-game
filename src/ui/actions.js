@@ -977,11 +977,38 @@ const knightAbilities = {
                 })
             );
         },
+        icon: 'simple_domain',
+        gcd: false,
+        castTime: '0s',
+        cooldown: '0s',
+        description: 'Deals 30 Physical Damage to Target.',
+        override: () => {
+            const state = store.getState();
+            const hasPrecisionCounter = state.statusInfo.statuses.find(buff => buff.key == 'superCounterReady');
+            if (hasPrecisionCounter) {
+                return 'super_counter';
+            }
+        } 
+    },
+    'super_counter': {
+        label: 'Super Counter',
+        action: (target) => {
+            store.dispatch(
+                setQueuedAbilityAndTarget({
+                    ability: 'simple_domain',
+                    target: target ?? null,
+                })
+            );
+        },
         icon: 'melee4',
         gcd: false,
         castTime: '0s',
         cooldown: '0s',
         description: 'Deals 30 Physical Damage to Target.',
+        isHighlighted: () => {
+            const state = store.getState();
+            return state.statusInfo.statuses.find(buff => buff.key == 'superCounterReady');
+        },
     },
 }
 

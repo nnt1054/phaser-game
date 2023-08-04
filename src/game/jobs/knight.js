@@ -159,14 +159,47 @@ const KnightJob = {
             gcd: false,
             canTarget: isEnemy,
             canExecute: (player, target) => {
+                // counter
+                if (player.getBuff('superCounterReady') && inMeleeRange(player, target)) return true;
+
+                // block
                 const [cooldown, duration] = player.getCooldown('simple_domain');
                 if (cooldown > 0) return false;
                 return true;
             },
             execute: (player, target) => {
-                player.applyBuff('simpleDomain', player);
-                player.applyBuff('simpleDomainProtected', player);
-                player.startCooldown('simple_domain', 60000);
+                if (player.getBuff('superCounterReady')) {
+                    let damage = 50;
+                    Array(player.getBuffCount('superCounterStack')).fill().map(() => {
+                        damage += 15;
+                        player.getAndRemoveBuff('superCounterStack');
+                    })
+                    player.dealDamage(target, damage, 'physical', 500);
+                    player.getAndRemoveBuff('superCounterReady');
+                    animationHelpers.melee(player, target); 
+                } else {
+                    player.applyBuff('simpleDomain', player);
+
+                    // todo: enable
+                    // let targetBounds = player.hitboxRect.getBounds();
+                    // let rect = player.scene.add.rectangle(
+                    //     targetBounds.centerX, targetBounds.y + targetBounds.height,
+                    //     256, 128, 0xff0000, 0.5,
+                    // );
+                    // rect.setOrigin(0.5, 1);
+                    // for (const ally of player.scene.allies) {
+                    //     if (
+                    //         Phaser.Geom.Rectangle.Overlaps(rect.getBounds(), ally.hitboxRect.getBounds())
+                    //         && ally.visible
+                    //     ) {
+                    //         ally.applyBuff('simpleDomainProtected', player);
+                    //     }
+                    // };
+                    // rect.destroy();
+
+                    player.applyBuff('simpleDomainProtected', player);
+                    player.startCooldown('simple_domain', 60000);
+                }
             },
         },
         'rampart': {
@@ -188,14 +221,28 @@ const KnightJob = {
             name: 'reprisal',
             display_name: 'Reprisal',
             gcd: false,
-            canTarget: isEnemy,
+            canTarget: isAny,
             canExecute: (player, target) => {
                 const [cooldown, duration] = player.getCooldown('reprisal');
                 if (cooldown > 0) return false;
                 return true;
             },
             execute: (player, target) => {
-                target.applyBuff('reprisal', player);
+                let targetBounds = player.hitboxRect.getBounds();
+                let rect = player.scene.add.rectangle(
+                    targetBounds.centerX, targetBounds.y + targetBounds.height,
+                    256, 128, 0xff0000, 0.5,
+                );
+                rect.setOrigin(0.5, 1);
+                for (const enemy of player.scene.enemyGroup.children.entries) {
+                    if (
+                        Phaser.Geom.Rectangle.Overlaps(rect.getBounds(), enemy.hitboxRect.getBounds())
+                        && enemy.visible
+                    ) {
+                        enemy.applyBuff('reprisal', player);
+                    }
+                };
+                rect.destroy();
                 player.startCooldown('reprisal', 60000);
             },
         },

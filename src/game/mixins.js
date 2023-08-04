@@ -370,7 +370,7 @@ export const TargetMixin = {
 
         const camera = this.scene.cameras.main;
         const targets = [];
-        for (const target of this.availableTargets) {
+        for (const target of this.scene.npcGroup.children.entries) {
             if (
                 Phaser.Geom.Rectangle.Overlaps(camera.worldView, target.getBounds())
                 && target.visible

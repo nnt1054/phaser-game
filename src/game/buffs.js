@@ -431,7 +431,7 @@ const manafont = (target, source) => {
         key: 'manafont',
         target: target,
         source: source,
-        timer: 240000,
+        timer: 12000,
         icon: 'manafont',
         apply() {},
         unapply() {},
@@ -552,11 +552,17 @@ const simpleDomain = (target, source) => {
         source: source,
         timer: 8000,
         icon: 'ascendance', // change later
-        apply() {},
+        apply() {
+            this.superCounterReadyApplied = false;
+        },
         unapply() {},
         update(delta) {
             if (this.target.isMoving()) {
                 this.target.removeBuff(this);
+            };
+            if (this.timer < 5000 && !this.superCounterReadyApplied) {
+                this.source.applyBuff('superCounterReady', this.source)
+                this.superCounterReadyApplied = true;
             };
         },
     }
@@ -609,7 +615,7 @@ const superCounterReady = (target, source) => {
         target: target,
         source: source,
         timer: 15000,
-        icon: 'rampart',
+        icon: 'melee4',
         apply() {},
         unapply() {},
         update(delta) {
@@ -657,6 +663,7 @@ const buffMap = {
     'simpleDomain': simpleDomain,
     'simpleDomainProtected': simpleDomainProtected,
     'superCounterStack': superCounterStack,
+    'superCounterReady': superCounterReady,
 }
 
 export default buffMap

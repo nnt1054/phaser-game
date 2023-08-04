@@ -67,20 +67,23 @@ class defaultScene extends Phaser.Scene {
         this.map = createTiledMap(this, 'jumpquest_map');
         this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels + (32 * 6));
 
-        const layer2 = this.map.createLayer("platforms");
-        layer2.setVisible(false);
-        setLayerCollisionTopOnly(layer2.layer, [8, 9, 10, 16, 20, 24, 25, 31, 26]);
-
-        const layer1 = this.map.createLayer("ground");
-        layer1.setVisible(false);
-        layer1.setCollision([2, 12]);
-
         const background = this.add.image(0, this.map.heightInPixels, 'kugane_bg');
         background.displayHeight = this.map.heightInPixels;
         background.setOrigin(0, 1);
 
         const map_bg = this.add.image(0, this.map.heightInPixels, 'jumpquest_bg');
         map_bg.setOrigin(0, 1);
+
+        const layer1 = this.map.createLayer("ground");
+        layer1.setVisible(false);
+        layer1.setCollision([2, 12]);
+
+        const layer2 = this.map.createLayer("platforms");
+        layer2.setVisible(false);
+        setLayerCollisionTopOnly(layer2.layer, [8, 9, 10, 16, 20, 24, 25, 31, 26]);
+
+        this.ladder = new Ladder(this, 32 * 5, 32 * 52, 12, 256);
+        this.ladder2 = new Ladder(this, 32 * 3, 32 * 52, 12, 256);
 
         const inputUnderlay = this.add.rectangle(
             0, 0,
@@ -92,49 +95,36 @@ class defaultScene extends Phaser.Scene {
             this.player.untargetObject();
         })
 
-        // Player
-        // this.player = new Player(this, 32 * 18, 32 * 1.5);
-        this.player = new Player(this, 32 * 3, 32 * 58);
-        this.player.setDepth(100);
+        this.staticGroup = this.add.group([layer1])
+        this.platformGroup = this.add.group([layer2]);
+        this.climbableGroup = this.add.group([this.ladder, this.ladder2]);
 
-        // NPC
+        this.player = new Player(this, 32 * 3, 32 * 58, true);
+        // this.player2 = new Player(this, 32 * 6, 32 * 58, false);
+
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
         this.lamb = new Lamb(this, 32 * 20, 32 * 1.5, 'Auspicious Friend');
-
         this.booma1 = new Booma(this, 32 * 12, 32 * 58, 'Hostile Enemy A');
         this.booma2 = new Booma(this, 32 * 14.5, 32 * 58, 'Hostile Enemy B');
         this.booma3 = new Booma(this, 32 * 17, 32 * 58, 'Hostile Enemy C');
 
-        this.ladder = new Ladder(this, 32 * 5, 32 * 52, 12, 256);
+        this.playerGroup = this.add.group([this.player], { runChildUpdate: true });
+        this.physics.add.collider(this.playerGroup, this.staticGroup);
 
-        // this.wall = new ArcadeRectangle(this, 32 * 12, 32 * 56, 32, 256, 0xff0000, 0.5, true);
-        // this.player.addWalls([this.wall]);
+        this.enemyGroup = this.add.group(
+            [this.booma1, this.booma2, this.booma3],
+            { runChildUpdate: true }
+        );
+        this.physics.add.collider(this.enemyGroup, this.staticGroup);
+        this.physics.add.collider(this.enemyGroup, this.platformGroup);
 
-        this.npcs = [
+        this.npcGroup = this.add.group([
             this.sign,
             this.lamb,
             this.booma1,
             this.booma2,
             this.booma3,
-        ];
-
-        this.enemies = [
-            this.booma1,
-            this.booma2,
-            this.booma3,
-        ];
-
-        this.player.availableTargets = this.npcs;
-        this.player.setCollideWorldBounds(true);
-        this.player.addPlatforms([layer2]);
-        this.player.addCollision([layer1]);
-        this.player.addLadders([this.ladder]);
-
-        for (const enemy of this.enemies) {
-            enemy.setCollideWorldBounds(true);
-            enemy.addCollision([layer1]);
-            enemy.addPlatforms([layer2]);
-        }
+        ]);
 
         this.cameras.main.startFollow(this.player, false, 1, 1);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
@@ -160,16 +150,9 @@ class defaultScene extends Phaser.Scene {
             }
             this.mouse = null;
         }, this);
-
-        // this.input.enableDebug(this.ladder);
     }
 
-    update (time, delta) {
-        this.player.update(time, delta);
-        for (const enemy of this.enemies) {
-            if (enemy.update) enemy.update(time, delta);
-        }
-    }
+    update (time, delta) {}
 
     autoZoomCamera() {
         let zoomY = this.game.canvas.height / this.map.heightInPixels;
@@ -177,8 +160,10 @@ class defaultScene extends Phaser.Scene {
         this.zoom = Math.max(this.zoom, zoomX, zoomY, 1);
         this.zoom = Math.min(this.zoom, 6)
         this.cameras.main.setZoom(this.zoom);
-        this.player.autoZoom(this.zoom);
-        for (const npc of this.npcs) {
+        for (const player of this.playerGroup.children.entries) {
+            player.autoZoom(this.zoom);
+        }
+        for (const npc of this.npcGroup.children.entries) {
             npc.autoZoom(this.zoom);
         }
     }

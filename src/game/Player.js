@@ -122,20 +122,24 @@ export class Player extends ArcadeContainer {
         JobMixin,
     ]
 
-    constructor(scene, x, y, children) {
-        super(scene, x, y, children);
+    constructor(scene, x, y, isClientPlayer) {
+        super(scene, x, y);
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
         })
 
+        this.isPlayer = true;
+        this.isClientPlayer = isClientPlayer;
+
+        // physics setup
         scene.add.existing(this);
         scene.physics.add.existing(this);
-
-        this.isPlayer = true;
-
         this.setSize(20, 48);
+        this.setDepth(100);
+        this.setCollideWorldBounds(true);
         this.setMaxVelocity(800);
         this.setGravityY(1600);
+
         this.ref_x = this.body.width / 2;
         this.ref_y = this.body.height;
 
@@ -320,6 +324,9 @@ export class Player extends ArcadeContainer {
 
         this.comboAction = null;
         this.comboActionTimer = 0;
+
+        this.addPlatforms();
+        this.addLadders();
     }
 
     handleClick() {
@@ -440,16 +447,22 @@ export class Player extends ArcadeContainer {
         return Boolean(this.body.velocity.y || this.body.velocity.x);
     }
 
-    addLadders(ladders) {
-        this.physics.add.overlap(this.ladderHitbox, ladders, (hitbox, ladder) => {
-            this.overlappingLadders.push(ladder);
-        });
+    addPlatforms(platforms) {
+        this.platformColliders = this.physics.add.collider(this, this.scene.platformGroup);
     }
 
-    addWalls(walls) {
-        this.walls = walls;
-        this.physics.add.collider(this, walls, () => {
-            if (this.isDashing) this.stopDash();
+    disablePlatformColliders(duration) {
+        this.platformColliders.active = false;
+        this.time.addEvent({
+            delay: duration,
+            callback: () => { this.platformColliders.active = true },
+            callbackScope: this, 
+        }) 
+    }
+
+    addLadders() {
+        this.physics.add.overlap(this.ladderHitbox, this.scene.climbableGroup, (hitbox, ladder) => {
+            this.overlappingLadders.push(ladder);
         });
     }
 
