@@ -61,7 +61,7 @@ export const HealthMixin = {
 
     setMaxHealth(value) {
         this.maxHealth = value;
-        this.updateStore();
+        this.updateHealthStore();
     },
 
     setCurrentHealth: function(value, generateText) {
@@ -69,7 +69,7 @@ export const HealthMixin = {
         let health = Math.max(value, 0);
         health = Math.min(health, this.maxHealth);
         this.health = health;
-        this.updateStore();
+        this.updateHealthStore();
 
         if (generateText) {
             if (diff > 0) {
@@ -86,7 +86,7 @@ export const HealthMixin = {
         this.scene.time.delayedCall(delay, () => {
             this.generateHealNumbers(value)
         })
-        this.updateStore();
+        this.updateHealthStore();
     },
 
     reduceHealth: function(value, delay) {
@@ -95,7 +95,7 @@ export const HealthMixin = {
 
         this.scene.time.delayedCall(delay, () => {
             this.generateDamageNumbers(value)
-            this.updateStore();
+            this.updateHealthStore();
             if (this.health <= 0) {
                 if (this.handleDeath) {
                     this.handleDeath();
@@ -104,8 +104,19 @@ export const HealthMixin = {
         })
     },
 
-    updateStore: function() {
-        if (this.isPlayer) {
+    updateHealthStore: function() {
+        if (this.healthBar) {
+            const percentHealth = this.health / this.maxHealth;
+            this.healthBar.width = this.healthBarWidth * percentHealth;
+
+            if (percentHealth >= 1) {
+                this.healthBar.setVisible(false);
+            } else {
+                this.healthBar.setVisible(true);
+            }
+        }
+
+        if (this.isClientPlayer) {
             store.dispatch(
                 setPlayerHealth({
                     currentHealth: this.health,
@@ -209,129 +220,24 @@ export const TargetMixin = {
 
     // clickRect: null,
 
-    target: function() {
-        this.isTargeted = true;
-        if (this.currentTarget) {
-            this.currentTarget.isCotargeted = true;
-        }
-        this.name.text = `> ${ this.displayName } <`;
-        this.name.style.setFontSize('18px');
-        if (this.isPlayer) {
-            this.name.style.setFill('lightblue');
-        } else if (this.isEnemy) {
-            this.name.style.setFill('pink');
-        } else {
-            this.name.style.setFill('yellow');
-        }
-    },
-
-    untarget: function() {
-        this.isTargeted = false;
-        if (this.currentTarget) {
-            this.currentTarget.isCotargeted = false;
-        }
-        this.name.text = this.displayName;
-        this.name.style.setFontSize('16px');
-        this.name.style.setFill('white');
-    },
-
     targetObject: function(gameObject) {
         if (gameObject.isTargetable) {
+            const previousTarget = this.currentTarget
+            this.currentTarget = gameObject;
+
             if (this.isPlayer) {
-                if (this.currentTarget) this.currentTarget.untarget();
-                this.currentTarget = gameObject;
-                gameObject.target();
-
-                const backgroundColor = gameObject.isEnemy ? 'pink' : 'lightblue';
-                if ('health' in gameObject) {
-                    store.dispatch(
-                        setTarget({
-                            targetName: gameObject.displayName,
-                            currentHealth: gameObject.health,
-                            maxHealth: gameObject.maxHealth,
-                            backgroundColor: backgroundColor,
-                        })
-                    )
-                } else {
-                    store.dispatch(
-                        setTarget({
-                            targetName: gameObject.displayName,
-                            currentHealth: null,
-                            maxHealth: null,
-                        })
-                    )
-                }
-
-                if (gameObject.hasBuffs) {
-                    gameObject.updateStatusInfoStore();
-                }
-
-                const cotarget = gameObject.currentTarget;
-                if (cotarget) {
-                    const cotargetBackgroundColor = cotarget.isEnemy ? 'pink' : 'lightblue';
-                    if ('health' in cotarget) {
-                        store.dispatch(
-                            setCotarget({
-                                targetName: cotarget.displayName,
-                                currentHealth: cotarget.health,
-                                maxHealth: cotarget.maxHealth,
-                                backgroundColor: cotargetBackgroundColor,
-                            })
-                        )
-                    } else {
-                        store.dispatch(
-                            setCotarget({
-                                targetName: cotarget.displayName,
-                                currentHealth: null,
-                                maxHealth: null,
-                            })
-                        )
+                if (this.isClientPlayer) {
+                    if (previousTarget) {
+                        previousTarget.untarget();
                     }
+                    gameObject.target();
+                    this.updateTargetStore();
                 }
-                
-                if (this.hasEnemyList) {
-                    this.updateEnemyListStore();
-                }
-
-                if (gameObject.hasCasting && gameObject.casting) {
-                    store.dispatch(setTargetCast({
-                        label: gameObject.casting.name,
-                        progress: gameObject.castingTimer,
-                        duration: gameObject.casting.castTime,
-                    }));
-                } else {
-                    store.dispatch(setTargetCast({
-                        label: '',
-                        progress: 0,
-                        duration: 0,
-                    }));
-                }
-
             } else {
-                this.currentTarget = gameObject;
-                // if this is currently targetted by player; gameObject is now cotargeted
                 if (this.isTargeted) {
                     const cotarget = gameObject;
                     cotarget.isCotargeted = true;
-                    const cotargetBackgroundColor = cotarget.isEnemy ? 'pink' : 'lightblue';
-                    if ('health' in cotarget) {
-                        store.dispatch(
-                            setCotarget({
-                                targetName: cotarget.displayName,
-                                currentHealth: cotarget.health,
-                                maxHealth: cotarget.maxHealth,
-                                backgroundColor: cotargetBackgroundColor,
-                            })
-                        )
-                    } else {
-                        store.dispatch(
-                            setCotarget({
-                                targetName: cotarget.displayName,
-                                currentHealth: null,
-                                maxHealth: null,
-                            })
-                        )
-                    }
+                    this.updateTargetStore();
                 }
             }
         }
@@ -339,31 +245,20 @@ export const TargetMixin = {
 
     untargetObject: function(gameObject) {
         if (this.currentTarget) {
-            if (this.isPlayer) {
-                this.currentTarget.untarget();
-                store.dispatch(
-                    removeTarget()
-                );
-            } else if (this.isTargeted) {
-                this.currentTarget.isCotargeted = false;
-                store.dispatch(
-                    removeCotarget()
-                );
-            }
-
+            const previousTarget = this.currentTarget;
             this.currentTarget = null;
-            if (this.isPlayer && this.hasEnemyList) {
-                this.updateEnemyListStore();
+
+            if (this.isClientPlayer) {
+                previousTarget.untarget();
+                this.updateTargetStore();
             }
 
-            store.dispatch(setTargetCast({
-                label: '',
-                progress: 0,
-                duration: 0,
-            }));
+            if (this.isTargeted) {
+                previousTarget.isCotargeted = false;
+                this.updateTargetStore();
+            }
         }
     },
-
 
     cycleTargets: function(isReverse=false) {
         if (!this.isPlayer) return;
@@ -477,6 +372,95 @@ export const TargetMixin = {
         }
     },
 
+    updateTargetStore: function() {
+        const clientPlayer = this.scene.clientPlayer;
+        const currentTarget = clientPlayer.currentTarget;
+        const currentCotarget = currentTarget ? currentTarget.currentTarget : null;
+
+        if (this.isClientPlayer) {
+            if (currentTarget) {
+                store.dispatch(
+                    setTarget({
+                        targetName: currentTarget.displayName,
+                        currentHealth: currentTarget.health,
+                        maxHealth: currentTarget.maxHealth,
+                        backgroundColor: currentTarget.isEnemy ? 'pink' : 'lightblue',
+                    })
+                )
+
+                if (currentTarget.hasBuffs) {
+                    currentTarget.updateStatusInfoStore();
+                }
+
+                if (currentCotarget) {
+                    store.dispatch(setCotarget({
+                        targetName: currentCotarget.displayName,
+                        currentHealth: currentCotarget.health,
+                        maxHealth: currentCotarget.maxHealth,
+                        backgroundColor: currentCotarget.isEnemy ? 'pink' : 'lightblue',
+                    }));
+                }
+
+                if (currentTarget.hasCasting && currentTarget.casting) {
+                    store.dispatch(setTargetCast({
+                        label: currentTarget.casting.name,
+                        progress: currentTarget.castingTimer,
+                        duration: currentTarget.casting.castTime,
+                    }));
+                } else {
+                    store.dispatch(setTargetCast({
+                        label: '',
+                        progress: 0,
+                        duration: 0,
+                    }));
+                }
+            } else {
+                store.dispatch(
+                    removeTarget()
+                );
+                store.dispatch(setTargetCast({
+                    label: '',
+                    progress: 0,
+                    duration: 0,
+                }));
+            }
+        } else if (this.isTargeted) {
+            if (currentCotarget) {
+                store.dispatch(setCotarget({
+                    targetName: currentCotarget.displayName,
+                    currentHealth: currentCotarget.health,
+                    maxHealth: currentCotarget.maxHealth,
+                    backgroundColor: currentCotarget.isEnemy ? 'pink' : 'lightblue',
+                }));
+            }
+        }
+    },
+
+    target: function() {
+        this.isTargeted = true;
+        if (this.currentTarget) {
+            this.currentTarget.isCotargeted = true;
+        }
+        this.name.text = `> ${ this.displayName } <`;
+        this.name.style.setFontSize('18px');
+        if (this.isPlayer) {
+            this.name.style.setFill('lightblue');
+        } else if (this.isEnemy) {
+            this.name.style.setFill('pink');
+        } else {
+            this.name.style.setFill('yellow');
+        }
+    },
+
+    untarget: function() {
+        this.isTargeted = false;
+        if (this.currentTarget) {
+            this.currentTarget.isCotargeted = false;
+        }
+        this.name.text = this.displayName;
+        this.name.style.setFontSize('16px');
+        this.name.style.setFill('white');
+    },
 }
 
 
@@ -605,7 +589,7 @@ export const BuffMixin = {
             }
         })
 
-        if (this.isPlayer) {
+        if (this.isClientPlayer) {
             store.dispatch(updateStatuses([]));
             store.dispatch(updateStatuses(buffs));
         }
@@ -737,16 +721,20 @@ export const EquipmentMixin = {
     },
 
     updateEquipmentStore: function() {
-        store.dispatch(updateEquipment({
-            weapon: this.equipped.weapon?.name,
-            helmet: this.equipped.helmet?.name,
-            armor: this.equipped.armor?.name,
-            pants: this.equipped.pants?.name,
-        }))
+        if (this.isClientPlayer) {
+            store.dispatch(updateEquipment({
+                weapon: this.equipped.weapon?.name,
+                helmet: this.equipped.helmet?.name,
+                armor: this.equipped.armor?.name,
+                pants: this.equipped.pants?.name,
+            }))
+        }
     },
 
     updateCharacterPreview: function() {
-        store.dispatch(updatePreview(this.character.indexes));
+        if (this.isClientPlayer) {
+            store.dispatch(updatePreview(this.character.indexes));
+        }
     },
 
 }
@@ -890,19 +878,21 @@ export const CastingMixin = {
 
         if (ability.startCast) ability.startCast(this, target);
 
-        if (this.isPlayer) {
-            store.dispatch(setCast({
-                key: ability.name,
-                duration: ability.castTime,
-            }));
-        }
+        if (this.isClientPlayer) {
+            if (this.isPlayer) {
+                store.dispatch(setCast({
+                    key: ability.name,
+                    duration: ability.castTime,
+                }));
+            }
 
-        if (this.isTargeted) {
-            store.dispatch(setTargetCast({
-                label: ability.name,
-                progress: ability.castTime,
-                duration: ability.castTime,
-            }));
+            if (this.isTargeted) {
+                store.dispatch(setTargetCast({
+                    label: ability.name,
+                    progress: ability.castTime,
+                    duration: ability.castTime,
+                }));
+            }
         }
     },
 
@@ -922,7 +912,7 @@ export const CastingMixin = {
             this.gcdTimer = 0;
         }
 
-        if (this.isPlayer) {
+        if (this.isClientPlayer) {
             store.dispatch(setGCD(0));
             store.dispatch(setCast({
                 key: '',
@@ -942,7 +932,7 @@ export const CastingMixin = {
             this.casting = null;
             this.castTarget = null;
 
-            if (this.isPlayer) {
+            if (this.isClientPlayer) {
                 store.dispatch(setCast({
                     key: '',
                     duration: 0,
@@ -994,7 +984,7 @@ export const CooldownMixin = {
 
     startCooldown: function(key, duration) {
         this.cooldowns.set(key, [duration, duration]);
-        if (this.isPlayer) {
+        if (this.isClientPlayer) {
             this.updateCooldownsStore();
         }
     },
@@ -1017,7 +1007,7 @@ export const CooldownMixin = {
     },
 
     updateCooldownsStore() {
-        if (this.isPlayer) {
+        if (this.isClientPlayer) {
             store.dispatch(
                 setCooldowns(
                     Object.fromEntries(this.cooldowns)
@@ -1039,7 +1029,7 @@ export const LevelMixin = {
     },
 
     updateLevelStore() {
-        if (this.isPlayer) {
+        if (this.isClientPlayer) {
             store.dispatch(updateLevel(this.currentLevel));
         }
     }
@@ -1096,7 +1086,7 @@ export const ExperienceMixin = {
     },
 
     updateExpStore() {
-        if (this.isPlayer) {
+        if (this.isClientPlayer) {
             const maxExp = this.getNextLevelRequiredExperience(this.currentLevel);
             const baseExp = this.getNextLevelRequiredExperience(this.currentLevel - 1);
             const expProgress = (this.currentExperience - baseExp) / (maxExp - baseExp);

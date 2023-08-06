@@ -67,43 +67,6 @@ const TARGET_CONSTANTS = {
     CURRENT_TARGET: 'CURRENT_TARGET',
 }
 
-const compositeConfig = {
-    'hair_back': 'hair',
-    'legs': 'legs',
-    'pants': 'pants',
-    'arm_back': 'arm_back',
-    'armor_body_back_sleeve': 'armor_body_back_sleeve',
-    'torso': 'torso',
-    'armor_body': 'armor_body',
-    'arm_front': 'arm_front',
-    'armor_body_front_sleeve': 'armor_body_front_sleeve',
-    'armor_body_collar': 'armor_body_collar',
-    'head': 'head',
-    'ears': 'ears',
-    'face': 'face',
-    'headband': 'headband',
-    'hair_front': 'hair',
-};
-
-const compositeConfigIndexes = {
-    'hair_back': 1,
-    'legs': 1,
-    'pants': 1,
-    'arm_back': 1,
-    'armor_body_back_sleeve': 1,
-    'torso': 1,
-    'armor_body': 1,
-    'arm_front': 1,
-    'armor_body_front_sleeve': 1,
-    'armor_body_collar': 1,
-    'head': 1,
-    'ears': 1,
-    'face': 0,
-    'headband': 1,
-    'hair_front': 1,
-};
-
-
 export class Player extends ArcadeContainer {
 
     mixins = [
@@ -123,6 +86,42 @@ export class Player extends ArcadeContainer {
     ]
 
     constructor(scene, x, y, isClientPlayer) {
+        const compositeConfig = {
+            'hair_back': 'hair',
+            'legs': 'legs',
+            'pants': 'pants',
+            'arm_back': 'arm_back',
+            'armor_body_back_sleeve': 'armor_body_back_sleeve',
+            'torso': 'torso',
+            'armor_body': 'armor_body',
+            'arm_front': 'arm_front',
+            'armor_body_front_sleeve': 'armor_body_front_sleeve',
+            'armor_body_collar': 'armor_body_collar',
+            'head': 'head',
+            'ears': 'ears',
+            'face': 'face',
+            'headband': 'headband',
+            'hair_front': 'hair',
+        };
+
+        const compositeConfigIndexes = {
+            'hair_back': 1,
+            'legs': 1,
+            'pants': 1,
+            'arm_back': 1,
+            'armor_body_back_sleeve': 1,
+            'torso': 1,
+            'armor_body': 1,
+            'arm_front': 1,
+            'armor_body_front_sleeve': 1,
+            'armor_body_collar': 1,
+            'head': 1,
+            'ears': 1,
+            'face': 0,
+            'headband': 1,
+            'hair_front': 1,
+        };
+
         super(scene, x, y);
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
@@ -199,6 +198,11 @@ export class Player extends ArcadeContainer {
         this.chatBubble.setOrigin(0.5, 1);
         this.chatBubble.setPosition(this.ref_x + 0, -8);
 
+        this.healthBarWidth = 32;
+        this.healthBar = scene.add.rectangle(0, 0, 32, 4, 0x00ff00);
+        this.healthBar.setOrigin(0.5, 1);
+        this.healthBar.setPosition(this.ref_x, 0);
+
         this.add([
             this.chatBubble,
             this.name,
@@ -207,6 +211,7 @@ export class Player extends ArcadeContainer {
             this.hitboxRect,
             this.ladderHitbox,
             this.rangeChecker,
+            this.healthBar,
         ]);
 
         // Input
@@ -225,37 +230,41 @@ export class Player extends ArcadeContainer {
             left: 0,
             right: 0,
         }
-        const getPlayerState = state => state.playerState;
-        this.observer = observeStore(store, getPlayerState, (playerState) => {
-            if (playerState.queuedAbility) {
-                this.queueAbility(
-                    playerState.queuedAbility,
-                    playerState.queuedTarget,
-                );
-                store.dispatch(clearQueuedAbility());
-            }
+        this.observer = null;
 
-            if (playerState.systemAction) {
-                this.queueSystemAction(
-                    playerState.systemAction,
-                    playerState.systemActionTarget,
-                );
-                store.dispatch(clearSystemAction());
-            }
+        if (this.isClientPlayer) {
+            const getPlayerState = state => state.playerState;
+            this.observer = observeStore(store, getPlayerState, (playerState) => {
+                if (playerState.queuedAbility) {
+                    this.queueAbility(
+                        playerState.queuedAbility,
+                        playerState.queuedTarget,
+                    );
+                    store.dispatch(clearQueuedAbility());
+                }
 
-            if (playerState.refreshCooldown) {
-                store.dispatch(setRefreshCooldown(false));
-                this.updateCooldownsStore();
-            }
+                if (playerState.systemAction) {
+                    this.queueSystemAction(
+                        playerState.systemAction,
+                        playerState.systemActionTarget,
+                    );
+                    store.dispatch(clearSystemAction());
+                }
 
-            this.reduxCursors = {
-                up: playerState.up,
-                down: playerState.down,
-                left: playerState.left,
-                right: playerState.right,
-                jump: playerState.jump,
-            }
-        });
+                if (playerState.refreshCooldown) {
+                    store.dispatch(setRefreshCooldown(false));
+                    this.updateCooldownsStore();
+                }
+
+                this.reduxCursors = {
+                    up: playerState.up,
+                    down: playerState.down,
+                    left: playerState.left,
+                    right: playerState.right,
+                    jump: playerState.jump,
+                }
+            });   
+        }
 
         // Movement
         this.coyoteTime = 0;
@@ -268,14 +277,16 @@ export class Player extends ArcadeContainer {
         this.dialogueTarget = null;
         this.dialogueComplete = true;
         this.dialogueOption = null;
-        const getDialogueComplete = state => state.dialogueBox;
-        this.dialogueObserver = observeStore(store, getDialogueComplete, (dialogueState) => {
-            if (dialogueState.complete) {
-                this.dialogueComplete = dialogueState.complete;
-                this.dialogueOption = dialogueState.currentOption;
-            }
-        });
 
+        if (this.isClientPlayer) {
+            const getDialogueComplete = state => state.dialogueBox;
+            this.dialogueObserver = observeStore(store, getDialogueComplete, (dialogueState) => {
+                if (dialogueState.complete) {
+                    this.dialogueComplete = dialogueState.complete;
+                    this.dialogueOption = dialogueState.currentOption;
+                }
+            });
+        }
 
         this.addItem('horns', 1);
         this.addItem('potion', 3);
@@ -285,14 +296,16 @@ export class Player extends ArcadeContainer {
         this.addItem('bow', 1);
         this.addItem('knights helm', 1);
 
-
         const ears = helmets[1];
         this.equipHelmet(ears);
 
         this.setExperience(0);
         this.setCurrentHealth(50);
-        this.updateCharacterPreview();
         this.initializeCooldowns();
+
+        if (this.isClientPlayer) {
+            this.updateCharacterPreview();
+        }
 
         // TODO: initial job should be set based on equipment
         this.setJob('TMP');
@@ -330,7 +343,8 @@ export class Player extends ArcadeContainer {
     }
 
     handleClick() {
-        this.targetObject(this);
+        const clientPlayer = this.scene.clientPlayer;
+        clientPlayer.targetObject(this);
     }
 
     isTargetInRange(targetRect, x, y, width, height, originX, originY) {

@@ -100,7 +100,8 @@ class defaultScene extends Phaser.Scene {
         this.climbableGroup = this.add.group([this.ladder, this.ladder2]);
 
         this.player = new Player(this, 32 * 3, 32 * 58, true);
-        // this.player2 = new Player(this, 32 * 6, 32 * 58, false);
+        this.player2 = new Player(this, 32 * 9, 32 * 58, false);
+        this.clientPlayer = this.player;
 
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
         this.lamb = new Lamb(this, 32 * 20, 32 * 1.5, 'Auspicious Friend');
@@ -108,7 +109,7 @@ class defaultScene extends Phaser.Scene {
         this.booma2 = new Booma(this, 32 * 14.5, 32 * 58, 'Hostile Enemy B');
         this.booma3 = new Booma(this, 32 * 17, 32 * 58, 'Hostile Enemy C');
 
-        this.playerGroup = this.add.group([this.player], { runChildUpdate: true });
+        this.playerGroup = this.add.group([this.player, this.player2], { runChildUpdate: true });
         this.physics.add.collider(this.playerGroup, this.staticGroup);
 
         this.enemyGroup = this.add.group(

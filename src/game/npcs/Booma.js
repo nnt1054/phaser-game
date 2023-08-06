@@ -102,15 +102,14 @@ const abilities = {
         execute: (caster, target) => {
             let player = caster.scene.player;
             const bounds = caster.telegraphRect.getBounds();
-            const playerBounds = player.hitboxRect.getBounds();
-            const inRange = Phaser.Geom.Rectangle.Overlaps(
-                bounds,
-                playerBounds
-            );
-            if (inRange) {
-                caster.dealDamage(player, 10, 'physical');
-            }
-
+            for (const player of caster.scene.playerGroup.children.entries) {
+                const playerBounds = player.hitboxRect.getBounds();
+                if (
+                    Phaser.Geom.Rectangle.Overlaps(bounds, playerBounds)
+                ) {
+                    caster.dealDamage(player, 10, 'physical');
+                }
+            };
             caster.telegraphRectTween = null;
             caster.telegraphRect.width = 0;
             caster.telegraphRect.updateDisplayOrigin();
@@ -268,8 +267,8 @@ export class Booma extends ArcadeContainer {
     }
 
     handleClick() {
-        const player = this.scene.player;
-        this.scene.player.targetObject(this);
+        const clientPlayer = this.scene.clientPlayer;
+        clientPlayer.targetObject(this);
     }
 
     autoZoom(zoom) {
