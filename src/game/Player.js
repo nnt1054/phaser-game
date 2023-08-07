@@ -67,6 +67,24 @@ const TARGET_CONSTANTS = {
     CURRENT_TARGET: 'CURRENT_TARGET',
 }
 
+const compositeConfig = {
+    'hair_back': 'hair',
+    'legs': 'legs',
+    'pants': 'pants',
+    'arm_back': 'arm_back',
+    'armor_body_back_sleeve': 'armor_body_back_sleeve',
+    'torso': 'torso',
+    'armor_body': 'armor_body',
+    'arm_front': 'arm_front',
+    'armor_body_front_sleeve': 'armor_body_front_sleeve',
+    'armor_body_collar': 'armor_body_collar',
+    'head': 'head',
+    'ears': 'ears',
+    'face': 'face',
+    'headband': 'headband',
+    'hair_front': 'hair',
+};
+
 export class Player extends ArcadeContainer {
 
     mixins = [
@@ -85,25 +103,7 @@ export class Player extends ArcadeContainer {
         JobMixin,
     ]
 
-    constructor(scene, x, y, isClientPlayer) {
-        const compositeConfig = {
-            'hair_back': 'hair',
-            'legs': 'legs',
-            'pants': 'pants',
-            'arm_back': 'arm_back',
-            'armor_body_back_sleeve': 'armor_body_back_sleeve',
-            'torso': 'torso',
-            'armor_body': 'armor_body',
-            'arm_front': 'arm_front',
-            'armor_body_front_sleeve': 'armor_body_front_sleeve',
-            'armor_body_collar': 'armor_body_collar',
-            'head': 'head',
-            'ears': 'ears',
-            'face': 'face',
-            'headband': 'headband',
-            'hair_front': 'hair',
-        };
-
+    constructor(scene, x, y, config, isClientPlayer) {
         const compositeConfigIndexes = {
             'hair_back': 1,
             'legs': 1,
@@ -176,7 +176,7 @@ export class Player extends ArcadeContainer {
             this.ref_x,
             this.ref_y + 1.5,
             compositeConfig,
-            compositeConfigIndexes
+            config.spriteConfig,
         );
 
         this.clickRect = scene.add.rectangle(0, 0, 32, 64,);
@@ -288,39 +288,15 @@ export class Player extends ArcadeContainer {
             });
         }
 
-        this.addItem('horns', 1);
-        this.addItem('potion', 3);
-        this.addItem('halo', 1);
-        this.addItem('foxears', 1);
-        this.addItem('ears', 1);
-        this.addItem('bow', 1);
-        this.addItem('knights helm', 1);
-
-        const ears = helmets[1];
-        this.equipHelmet(ears);
-
-        this.setExperience(0);
-        this.setCurrentHealth(50);
         this.initializeCooldowns();
+        this.setExperience(0);
 
-        if (this.isClientPlayer) {
-            this.updateCharacterPreview();
+        const { inventory, equipment } = config;
+        for (let item in inventory) {
+            this.addItem(item, inventory[item])
         }
-
-        // TODO: initial job should be set based on equipment
-        this.setJob('TMP');
-
-        // Animation Editor
-        this.paused = false;
-        this.currentFrame = 0;
-        const getFrameIndex = state => state.aniEditor;
-        this.animationObserver = observeStore(store, getFrameIndex, (animState) => {
-            if (animState.frameIndex != null && animState.frameIndex != this.currentFrame) {
-                this.currentFrame = animState.frameIndex;
-                this.queueAbility(`frame${animState.frameIndex}`);
-            }
-            this.character.setActiveCompositeStates(animState.compositeStates);
-        })
+        this.equipHelmet(equipment.helmet);
+        this.setJob(this.equipped.helmet.job);
 
         this.isClimbing = false;
         this.climbingDisabled = false;
@@ -340,6 +316,21 @@ export class Player extends ArcadeContainer {
 
         this.addPlatforms();
         this.addLadders();
+
+        this.setCurrentHealth(50);
+
+
+        // Animation Editor
+        this.paused = false;
+        this.currentFrame = 0;
+        const getFrameIndex = state => state.aniEditor;
+        this.animationObserver = observeStore(store, getFrameIndex, (animState) => {
+            if (animState.frameIndex != null && animState.frameIndex != this.currentFrame) {
+                this.currentFrame = animState.frameIndex;
+                this.queueAbility(`frame${animState.frameIndex}`);
+            }
+            this.character.setActiveCompositeStates(animState.compositeStates);
+        })
     }
 
     handleClick() {

@@ -750,10 +750,12 @@ export const InventoryMixin = {
         const newItemCount = itemCount + amount;
         this.inventory.set(key, newItemCount);
 
-        store.dispatch(addItemCount({
-            name: key,
-            value: newItemCount - itemCount,
-        }))
+        if (this.isClientPlayer) {
+            store.dispatch(addItemCount({
+                name: key,
+                value: newItemCount - itemCount,
+            }))
+        }
     },
 
     removeItem: function(key, amount) {
@@ -762,10 +764,12 @@ export const InventoryMixin = {
         const newItemCount = Math.max(0, itemCount - amount);
         this.inventory.set(key, newItemCount);
 
-        store.dispatch(subractItemCount({
-            name: key,
-            value: itemCount - newItemCount,
-        }))
+        if (this.isClientPlayer) {
+            store.dispatch(subractItemCount({
+                name: key,
+                value: itemCount - newItemCount,
+            }))
+        }
     },
 
     hasItem: function(key, amount) {
@@ -777,6 +781,7 @@ export const InventoryMixin = {
             return false;
         }
     },
+
 }
 
 
@@ -879,20 +884,18 @@ export const CastingMixin = {
         if (ability.startCast) ability.startCast(this, target);
 
         if (this.isClientPlayer) {
-            if (this.isPlayer) {
-                store.dispatch(setCast({
-                    key: ability.name,
-                    duration: ability.castTime,
-                }));
-            }
+            store.dispatch(setCast({
+                key: ability.name,
+                duration: ability.castTime,
+            }));
+        }
 
-            if (this.isTargeted) {
-                store.dispatch(setTargetCast({
-                    label: ability.name,
-                    progress: ability.castTime,
-                    duration: ability.castTime,
-                }));
-            }
+        if (this.isTargeted) {
+            store.dispatch(setTargetCast({
+                label: ability.name,
+                progress: ability.castTime,
+                duration: ability.castTime,
+            }));
         }
     },
 

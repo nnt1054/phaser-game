@@ -41,6 +41,9 @@ import {
     clearInputQueues,
 } from '../store/playerState';
 
+import helmets from '../game/equipment/helmets';
+import armors from '../game/equipment/armors';
+
 import store from '../store/store';
 
 // animations loaders
@@ -99,8 +102,9 @@ class defaultScene extends Phaser.Scene {
         this.platformGroup = this.add.group([layer2]);
         this.climbableGroup = this.add.group([this.ladder, this.ladder2]);
 
-        this.player = new Player(this, 32 * 3, 32 * 58, true);
-        this.player2 = new Player(this, 32 * 9, 32 * 58, false);
+        this.playerGroup = this.add.group([], { runChildUpdate: true });
+        this.player = this.addPlayer(1, true);
+        // this.player2 = new Player(this, 32 * 9, 32 * 58, false);
         this.clientPlayer = this.player;
 
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
@@ -109,7 +113,6 @@ class defaultScene extends Phaser.Scene {
         this.booma2 = new Booma(this, 32 * 14.5, 32 * 58, 'Hostile Enemy B');
         this.booma3 = new Booma(this, 32 * 17, 32 * 58, 'Hostile Enemy C');
 
-        this.playerGroup = this.add.group([this.player, this.player2], { runChildUpdate: true });
         this.physics.add.collider(this.playerGroup, this.staticGroup);
 
         this.enemyGroup = this.add.group(
@@ -167,6 +170,83 @@ class defaultScene extends Phaser.Scene {
         for (const npc of this.npcGroup.children.entries) {
             npc.autoZoom(this.zoom);
         }
+    }
+
+    addPlayer(id, isClientPlayer) {
+        const spriteConfig = {
+            'hair_back': 1,
+            'legs': 1,
+            'arm_back': 1,
+            'torso': 1,
+            'arm_front': 1,
+            'head': 1,
+            'ears': 1,
+            'face': 0,
+            'hair_front': 1,
+
+            'pants': 1,
+            'armor_body_back_sleeve': 1,
+            'armor_body': 1,
+            'armor_body_front_sleeve': 1,
+            'armor_body_collar': 1,
+            'headband': 1,
+
+
+            // 'hair_back': 1,
+            // 'legs': 1,
+            // 'pants': 1,
+            // 'arm_back': 1,
+            // 'armor_body_back_sleeve': 1,
+            // 'torso': 1,
+            // 'armor_body': 1,
+            // 'arm_front': 1,
+            // 'armor_body_front_sleeve': 1,
+            // 'armor_body_collar': 1,
+            // 'head': 1,
+            // 'ears': 1,
+            // 'face': 0,
+            // 'headband': 1,
+            // 'hair_front': 1,
+
+            // 'hair_back': 2,
+            // 'legs': 1,
+            // 'arm_back': 1,
+            // 'armor_body_back_sleeve': 3,
+            // 'torso': 1,
+            // 'armor_body': 3,
+            // 'arm_front': 1,
+            // 'armor_body_front_sleeve': 3,
+            // 'armor_body_collar': 3,
+            // 'head': 1,
+            // 'ears': 1,
+            // 'face': 0,
+            // 'headband': 2,
+            // 'hair_front': 2,
+        };
+
+        const ears = helmets[3];
+        const equipment = {
+            weapon: null,
+            helmet: ears,
+            armor: null,
+            pants: null,
+        }
+
+        const inventory = {
+            'potion': 3,
+            'knights helm': 1,
+        }
+
+        const config = {
+            spriteConfig: spriteConfig,
+            equipment: equipment,
+            inventory: inventory,
+        }
+
+        const player = new Player(this, 32 * 9, 32 * 58, config, isClientPlayer);
+
+        this.playerGroup.add(player);
+        return player;
     }
 }
 
