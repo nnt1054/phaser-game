@@ -19,6 +19,7 @@ import {
 const compositeConfig = {
     'hair_back': 'hair',
     'legs': 'legs',
+    'pants': 'pants',
     'arm_back': 'arm_back',
     'armor_body_back_sleeve': 'armor_body_back_sleeve',
     'torso': 'torso',
@@ -36,6 +37,7 @@ const compositeConfig = {
 const compositeConfigIndexes = {
     'hair_back': 2,
     'legs': 1,
+    'pants': 1,
     'arm_back': 1,
     'armor_body_back_sleeve': 3,
     'torso': 1,

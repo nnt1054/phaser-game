@@ -104,6 +104,7 @@ class defaultScene extends Phaser.Scene {
 
         this.playerGroup = this.add.group([], { runChildUpdate: true });
         this.player = this.addPlayer(1, true);
+        this.addPlayer(2, false);
         // this.player2 = new Player(this, 32 * 9, 32 * 58, false);
         this.clientPlayer = this.player;
 
@@ -191,40 +192,25 @@ class defaultScene extends Phaser.Scene {
             'armor_body_collar': 1,
             'headband': 1,
 
-
-            // 'hair_back': 1,
-            // 'legs': 1,
-            // 'pants': 1,
-            // 'arm_back': 1,
-            // 'armor_body_back_sleeve': 1,
-            // 'torso': 1,
-            // 'armor_body': 1,
-            // 'arm_front': 1,
-            // 'armor_body_front_sleeve': 1,
-            // 'armor_body_collar': 1,
-            // 'head': 1,
-            // 'ears': 1,
-            // 'face': 0,
-            // 'headband': 1,
-            // 'hair_front': 1,
-
             // 'hair_back': 2,
             // 'legs': 1,
             // 'arm_back': 1,
-            // 'armor_body_back_sleeve': 3,
             // 'torso': 1,
-            // 'armor_body': 3,
             // 'arm_front': 1,
-            // 'armor_body_front_sleeve': 3,
-            // 'armor_body_collar': 3,
             // 'head': 1,
             // 'ears': 1,
             // 'face': 0,
-            // 'headband': 2,
             // 'hair_front': 2,
+
+            // 'pants': 1,
+            // 'armor_body_back_sleeve': 3,
+            // 'armor_body': 3,
+            // 'armor_body_front_sleeve': 3,
+            // 'armor_body_collar': 3,
+            // 'headband': 2,
         };
 
-        const ears = helmets[3];
+        const ears = helmets[1];
         const equipment = {
             weapon: null,
             helmet: ears,
@@ -234,6 +220,10 @@ class defaultScene extends Phaser.Scene {
 
         const inventory = {
             'potion': 3,
+            'halo': 1,
+            'horns': 1,
+            'ears': 1,
+            'bow': 1,
             'knights helm': 1,
         }
 
