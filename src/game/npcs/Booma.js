@@ -100,7 +100,6 @@ const abilities = {
             caster.startCooldown('attack', 0)
         },
         execute: (caster, target) => {
-            let player = caster.scene.player;
             const bounds = caster.telegraphRect.getBounds();
             for (const player of caster.scene.playerGroup.children.entries) {
                 const playerBounds = player.hitboxRect.getBounds();
@@ -173,7 +172,11 @@ export class Booma extends ArcadeContainer {
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
         })
+
+        this.initializeAggroMixin();
+        this.initializeBuffMixin();
         this.initializeCooldowns();
+
 
         this.setLevel(1);
         this.setCurrentHealth(this.maxHealth);

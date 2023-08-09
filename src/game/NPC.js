@@ -13,21 +13,6 @@ import {
     setDialogue,
 } from '../store/dialogueBox';
 
-function observeStore(store, select, onChange) {
-  let currentState;
-
-  function handleChange() {
-    let nextState = select(store.getState());
-    if (nextState !== currentState) {
-      currentState = nextState;
-      onChange(currentState);
-    }
-  }
-
-  let unsubscribe = store.subscribe(handleChange);
-  handleChange();
-  return unsubscribe;
-}
 
 export class NPC extends Phaser.GameObjects.Container {
 

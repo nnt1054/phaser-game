@@ -39,6 +39,8 @@ import {
 import {
     clearQueuedAbility,
     clearInputQueues,
+    clearSystemAction,
+    setRefreshCooldown,
 } from '../store/playerState';
 
 import helmets from '../game/equipment/helmets';
@@ -48,6 +50,23 @@ import store from '../store/store';
 
 // animations loaders
 import { animationPreload, animationCreate } from '../animations';
+
+
+function observeStore(store, select, onChange) {
+  let currentState;
+
+  function handleChange() {
+    let nextState = select(store.getState());
+    if (nextState !== currentState) {
+      currentState = nextState;
+      onChange(currentState);
+    }
+  }
+
+  let unsubscribe = store.subscribe(handleChange);
+  handleChange();
+  return unsubscribe;
+}
 
 
 class defaultScene extends Phaser.Scene {
@@ -104,8 +123,8 @@ class defaultScene extends Phaser.Scene {
 
         this.playerGroup = this.add.group([], { runChildUpdate: true });
         this.player = this.addPlayer(1, true);
-        this.addPlayer(2, false);
-        // this.player2 = new Player(this, 32 * 9, 32 * 58, false);
+        this.player2 = this.addPlayer(2, false);
+        this.player.setDepth(101);
         this.clientPlayer = this.player;
 
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
@@ -155,6 +174,83 @@ class defaultScene extends Phaser.Scene {
             }
             this.mouse = null;
         }, this);
+
+
+        this.time.delayedCall(1500, () => {
+            this.player2.setInput({
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0,
+                jump: false,
+                systemAction: 'cycleTarget',
+            })
+        })
+        this.time.delayedCall(2500, () => {
+            this.player2.setInput({
+                up: 0,
+                down: 0,
+                left: 1,
+                right: 0,
+                jump: false,
+            })
+        })
+        this.time.delayedCall(3500, () => {
+            this.player2.setInput({
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0,
+                jump: false,
+                queuedAbility: 'jolt',
+            })
+       })
+
+        // client input
+        const getPlayerState = state => state.playerState;
+        this.observer = observeStore(store, getPlayerState, (playerState) => {
+            const input = {
+                up: playerState.up,
+                down: playerState.down,
+                left: playerState.left,
+                right: playerState.right,
+                jump: playerState.jump,
+                queuedAbility: playerState.queuedAbility,
+                queuedTarget: playerState.queuedTarget,
+                systemAction: playerState.systemAction,
+                systemActionTarget: playerState.systemActionTarget,
+            };
+
+            if (input.queuedAbility) {
+                store.dispatch(clearQueuedAbility());
+            }
+
+            if (input.systemAction) {
+                store.dispatch(clearSystemAction());
+            }
+
+            if (playerState.refreshCooldown) {
+                store.dispatch(setRefreshCooldown(false));
+                this.clientPlayer.updateCooldownsStore();
+            }
+
+            this.clientPlayer.setInput(input);
+        });
+
+        const getDialogueComplete = state => state.dialogueBox;
+        this.dialogueObserver = observeStore(store, getDialogueComplete, (dialogueState) => {
+            const input = {
+                dialogueComplete: dialogueState.complete,
+                dialogueOption: dialogueState.currentOption,
+            }
+
+            this.clientPlayer.setDialogueInput(input);
+        });
+
+        const getFrameIndex = state => state.aniEditor;
+        this.animationObserver = observeStore(store, getFrameIndex, (animState) => {
+            this.clientPlayer.setAnimState(animState);
+        })
     }
 
     update (time, delta) {}
@@ -191,23 +287,6 @@ class defaultScene extends Phaser.Scene {
             'armor_body_front_sleeve': 1,
             'armor_body_collar': 1,
             'headband': 1,
-
-            // 'hair_back': 2,
-            // 'legs': 1,
-            // 'arm_back': 1,
-            // 'torso': 1,
-            // 'arm_front': 1,
-            // 'head': 1,
-            // 'ears': 1,
-            // 'face': 0,
-            // 'hair_front': 2,
-
-            // 'pants': 1,
-            // 'armor_body_back_sleeve': 3,
-            // 'armor_body': 3,
-            // 'armor_body_front_sleeve': 3,
-            // 'armor_body_collar': 3,
-            // 'headband': 2,
         };
 
         const ears = helmets[1];
@@ -228,6 +307,7 @@ class defaultScene extends Phaser.Scene {
         }
 
         const config = {
+            displayName: isClientPlayer ? 'Player 1' : 'Player 2',
             spriteConfig: spriteConfig,
             equipment: equipment,
             inventory: inventory,

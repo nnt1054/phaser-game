@@ -17,7 +17,7 @@ const playerStateSlice = createSlice({
     down: 0,
     left: 0,
     right: 0,
-    jump: 0,
+    jump: false,
 
     gcd: 0,
     castKey: '',
@@ -60,7 +60,6 @@ const playerStateSlice = createSlice({
     },
     clearInputQueues: (state) => {
         state.queuedAbility = null;
-        // state.jump = false;
     },
     setCursorState: (state, action) => {
         let cursor = action.payload.cursor

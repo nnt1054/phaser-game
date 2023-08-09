@@ -11,11 +11,7 @@ import {
 
 import store from '../store/store';
 import {
-    clearInputQueues,
-    clearQueuedAbility,
     setGCD,
-    clearSystemAction,
-    setRefreshCooldown,
     setComboAction,
 } from '../store/playerState';
 import {
@@ -47,22 +43,6 @@ import {
 import helmets from './equipment/helmets';
 import armors from './equipment/armors';
 
-function observeStore(store, select, onChange) {
-  let currentState;
-
-  function handleChange() {
-    let nextState = select(store.getState());
-    if (nextState !== currentState) {
-      currentState = nextState;
-      onChange(currentState);
-    }
-  }
-
-  let unsubscribe = store.subscribe(handleChange);
-  handleChange();
-  return unsubscribe;
-}
-
 const TARGET_CONSTANTS = {
     CURRENT_TARGET: 'CURRENT_TARGET',
 }
@@ -84,6 +64,7 @@ const compositeConfig = {
     'headband': 'headband',
     'hair_front': 'hair',
 };
+
 
 export class Player extends ArcadeContainer {
 
@@ -126,6 +107,8 @@ export class Player extends ArcadeContainer {
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
         })
+        this.initializeEnemyListMixin();
+        this.initializeBuffMixin();
 
         this.isPlayer = true;
         this.isClientPlayer = isClientPlayer;
@@ -142,7 +125,7 @@ export class Player extends ArcadeContainer {
         this.ref_x = this.body.width / 2;
         this.ref_y = this.body.height;
 
-        this.displayName = 'Player 1';
+        this.displayName = config.displayName;
 
         this.ladderHitbox = new ArcadeRectangle(scene, 0, 0, 20, 36);
         this.ladderHitbox.setOrigin(0.5, 1);
@@ -203,6 +186,10 @@ export class Player extends ArcadeContainer {
         this.healthBar.setOrigin(0.5, 1);
         this.healthBar.setPosition(this.ref_x, 0);
 
+        this.healthBarUnderlay = scene.add.rectangle(0, 0, 33, 5, 0x000000);
+        this.healthBarUnderlay.setOrigin(0.5, 1);
+        this.healthBarUnderlay.setPosition(this.ref_x, 0.5);
+
         this.add([
             this.chatBubble,
             this.name,
@@ -211,6 +198,7 @@ export class Player extends ArcadeContainer {
             this.hitboxRect,
             this.ladderHitbox,
             this.rangeChecker,
+            this.healthBarUnderlay,
             this.healthBar,
         ]);
 
@@ -229,42 +217,9 @@ export class Player extends ArcadeContainer {
             down: 0,
             left: 0,
             right: 0,
+            jump: 0,
         }
         this.observer = null;
-
-        if (this.isClientPlayer) {
-            const getPlayerState = state => state.playerState;
-            this.observer = observeStore(store, getPlayerState, (playerState) => {
-                if (playerState.queuedAbility) {
-                    this.queueAbility(
-                        playerState.queuedAbility,
-                        playerState.queuedTarget,
-                    );
-                    store.dispatch(clearQueuedAbility());
-                }
-
-                if (playerState.systemAction) {
-                    this.queueSystemAction(
-                        playerState.systemAction,
-                        playerState.systemActionTarget,
-                    );
-                    store.dispatch(clearSystemAction());
-                }
-
-                if (playerState.refreshCooldown) {
-                    store.dispatch(setRefreshCooldown(false));
-                    this.updateCooldownsStore();
-                }
-
-                this.reduxCursors = {
-                    up: playerState.up,
-                    down: playerState.down,
-                    left: playerState.left,
-                    right: playerState.right,
-                    jump: playerState.jump,
-                }
-            });   
-        }
 
         // Movement
         this.coyoteTime = 0;
@@ -277,16 +232,6 @@ export class Player extends ArcadeContainer {
         this.dialogueTarget = null;
         this.dialogueComplete = true;
         this.dialogueOption = null;
-
-        if (this.isClientPlayer) {
-            const getDialogueComplete = state => state.dialogueBox;
-            this.dialogueObserver = observeStore(store, getDialogueComplete, (dialogueState) => {
-                if (dialogueState.complete) {
-                    this.dialogueComplete = dialogueState.complete;
-                    this.dialogueOption = dialogueState.currentOption;
-                }
-            });
-        }
 
         this.initializeCooldowns();
         this.setExperience(0);
@@ -319,18 +264,46 @@ export class Player extends ArcadeContainer {
 
         this.setCurrentHealth(50);
 
-
         // Animation Editor
         this.paused = false;
         this.currentFrame = 0;
-        const getFrameIndex = state => state.aniEditor;
-        this.animationObserver = observeStore(store, getFrameIndex, (animState) => {
-            if (animState.frameIndex != null && animState.frameIndex != this.currentFrame) {
-                this.currentFrame = animState.frameIndex;
-                this.queueAbility(`frame${animState.frameIndex}`);
-            }
-            this.character.setActiveCompositeStates(animState.compositeStates);
-        })
+    }
+
+    setInput(input) {
+        this.reduxCursors = {
+            up: input.up,
+            down: input.down,
+            left: input.left,
+            right: input.right,
+            jump: input.jump,
+        }
+
+        if (input.queuedAbility) {
+            this.queueAbility(
+                input.queuedAbility,
+                input.queuedTarget,
+            );
+        }
+
+        if (input.systemAction) {
+            this.queueSystemAction(
+                input.systemAction,
+                input.systemActionTarget,
+            );
+        }
+    }
+
+    setDialogueInput(input) {
+        this.dialogueComplete = input.dialogueComplete;
+        this.dialogueOption = input.dialogueOption;
+    }
+
+    setAnimState(animState) {
+        if (animState.frameIndex != null && animState.frameIndex != this.currentFrame) {
+            this.currentFrame = animState.frameIndex;
+            this.queueAbility(`frame${animState.frameIndex}`);
+        }
+        this.character.setActiveCompositeStates(animState.compositeStates);
     }
 
     handleClick() {
@@ -359,7 +332,7 @@ export class Player extends ArcadeContainer {
 
         // test fall damage
         if (this.body.onFloor() && this.previousVelocityY >= 800) {
-                this.setCurrentHealth(1);
+            this.setCurrentHealth(1);
         }
 
         this.comboActionTimer = Math.max(0, this.comboActionTimer - delta);
@@ -377,6 +350,8 @@ export class Player extends ArcadeContainer {
         this.updateAnimationState(delta);
 
         this.clearLadders();
+
+        this.enemyList = [];
     }
 
     queueSystemAction(actionName, target) {
@@ -399,10 +374,13 @@ export class Player extends ArcadeContainer {
         };
 
         if (!ability) {
-            store.dispatch(setAlert('Invalid Action.'));
+            if (this.isClientPlayer) {
+                store.dispatch(setAlert('Invalid Action.'));
+            }
             return;
         }
 
+        // todo: do we still need this?
         // override
         if (ability.override) {
             const abilityNameOverride = ability.override(this);
@@ -413,7 +391,9 @@ export class Player extends ArcadeContainer {
         };
 
         if (!ability) {
-            store.dispatch(setAlert('Invalid Action.'));
+            if (this.isClientPlayer) {
+                store.dispatch(setAlert('Invalid Action.'));
+            }
             return;
         }
 
@@ -432,11 +412,15 @@ export class Player extends ArcadeContainer {
             const isReverse = !this.facingRight;
             this.cycleTargets(isReverse);
             if (this.currentTarget == null) {
-                store.dispatch(setAlert('Invalid Target.'));
+                if (this.isClientPlayer) {
+                    store.dispatch(setAlert('Invalid Target.'));
+                }
             }
             return;
         } else {
-            store.dispatch(setAlert('Invalid Target.'));
+            if (this.isClientPlayer) {
+                store.dispatch(setAlert('Invalid Target.'));
+            }
             return;
         }
 
@@ -670,7 +654,9 @@ export class Player extends ArcadeContainer {
         this.gcdTimer = Math.max(0, this.gcdTimer - delta);
         this.abilityTimer = Math.max(0, this.abilityTimer - delta);
         if (previousGcdTimer && this.gcdTimer == 0) {
-            store.dispatch(setGCD(0));
+            if (this.isClientPlayer) {
+                store.dispatch(setGCD(0));
+            }
         }
 
         // check if can execute
@@ -694,7 +680,9 @@ export class Player extends ArcadeContainer {
 
             if (ability.gcd) {
                 this.gcdTimer += gcdCooldown;
-                store.dispatch(setGCD(gcdCooldown));
+                if (this.isClientPlayer) {
+                    store.dispatch(setGCD(gcdCooldown));
+                }
             }
         }
 
@@ -705,7 +693,9 @@ export class Player extends ArcadeContainer {
     setPlayerComboAction(actionName) {
         this.comboAction = actionName;
         this.comboActionTimer = 15000;
-        store.dispatch(setComboAction(this.comboAction));
+        if (this.isClientPlayer) {
+            store.dispatch(setComboAction(this.comboAction));
+        }
     }
 
     updateSystemAction(delta) {

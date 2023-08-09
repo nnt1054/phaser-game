@@ -111,8 +111,10 @@ export const HealthMixin = {
 
             if (percentHealth >= 1) {
                 this.healthBar.setVisible(false);
+                this.healthBarUnderlay.setVisible(false);
             } else {
                 this.healthBar.setVisible(true);
+                this.healthBarUnderlay.setVisible(true);
             }
         }
 
@@ -225,20 +227,18 @@ export const TargetMixin = {
             const previousTarget = this.currentTarget
             this.currentTarget = gameObject;
 
-            if (this.isPlayer) {
-                if (this.isClientPlayer) {
-                    if (previousTarget) {
-                        previousTarget.untarget();
-                    }
-                    gameObject.target();
-                    this.updateTargetStore();
+            if (this.isClientPlayer) {
+                if (previousTarget) {
+                    previousTarget.untarget();
                 }
-            } else {
-                if (this.isTargeted) {
-                    const cotarget = gameObject;
-                    cotarget.isCotargeted = true;
-                    this.updateTargetStore();
-                }
+                gameObject.target();
+                this.updateTargetStore();
+            }
+
+            if (this.isTargeted) {
+                const cotarget = gameObject;
+                cotarget.isCotargeted = true;
+                this.updateTargetStore();
             }
         }
     },
@@ -548,16 +548,20 @@ export const AggroMixin = {
     highestAggro: null,
     aggroMap: new Map(),
 
+    initializeAggroMixin() {
+        this.aggroMap = new Map();
+    },
+
     addAggro: function(gameObject, amount) {
         if (amount == null) amount = 1;
         const currentAggro = this.aggroMap.get(gameObject) || 0;
         const newAggro = currentAggro + amount;
         this.aggroMap.set(gameObject, newAggro);
 
-        if (this.highestAggro == null) {
+        if (!this.highestAggro) {
             this.highestAggro = gameObject;
         } else {
-            const currentHighestAggro = this.aggroMap.get(gameObject) || 0;
+            const currentHighestAggro = this.aggroMap.get(this.highestAggro) || 0;
             if (newAggro > currentHighestAggro) {
                 this.highestAggro = gameObject;
             }
@@ -579,6 +583,11 @@ export const BuffMixin = {
     hasBuffs: true,
     _buffs: [],
     _buffsApplied: [],
+
+    initializeBuffMixin() {
+        this._buffs = [];
+        this._buffsApplied = [];
+    },
 
     updateStatusInfoStore() {
         const buffs = this._buffs.map(buff => {
@@ -791,6 +800,11 @@ export const EnemyListMixin = {
     enemyList: [],
     enemyAggroMap: new Map(),
 
+    initializeEnemyListMixin() {
+        this.enemyList = [];
+        this.enemyAggroMap = new Map();
+    },
+
     addToEnemyList: function(enemy, aggro) {
         if (!this.enemyList.includes(enemy)) {
             this.enemyList.push(enemy);
@@ -811,9 +825,11 @@ export const EnemyListMixin = {
                 isTarget: Object.is(enemy, this.currentTarget),
             }
         })
-        store.dispatch(updateEnemyList(newState));
+        if (this.isClientPlayer) {
+            store.dispatch(updateEnemyList(newState));            
+        }
     },
-
+ 
     targetEnemyFromEnemyList: function(index) {
         const enemy = this.enemyList[index]
         if (!enemy) return;
@@ -823,6 +839,7 @@ export const EnemyListMixin = {
     },
 
     cycleTargetFromEnemyList: function(isReverse=false) {
+        console.log(this.enemyList);
         if (this.enemyList.length === 0) return;
 
         let index;
