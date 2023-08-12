@@ -971,6 +971,11 @@ export const CastingMixin = {
 
     updateCast(delta) {
         this.castingTimer = Math.max(0, this.castingTimer - delta);
+
+        if (this.isMoving() && this.casting && this.castingTimer > 750) {
+            this.cancelCast();
+        }
+
         if (this.casting && this.castingTimer === 0) {
             this.executeAbility(this.casting, this.castTarget);
             this.casting = null;
@@ -1493,11 +1498,6 @@ export const MovementController = {
         } else {
             this.ladderHitbox.setY(this.ref_y);
         }
-
-        const moving = (this.body.velocity.y || this.body.velocity.x)
-        if (moving && this.casting && this.castingTimer > 750) {
-            this.cancelCast();
-        }
     },
 
     executeDownJump() {
@@ -1581,9 +1581,6 @@ export const MovementController = {
         this.climbing = ladder;
         this.setVelocityX(0);
         this.setGravityY(0);
-        if (this.casting) {
-            this.cancelCast();
-        }
         this.disablePlatformColliders(250);
     },
 
@@ -1766,6 +1763,20 @@ export const ActionController = {
 }
 
 export const AnimationController = {
+
+    setCharacterDirection(facingRight) {  
+        this.facingRight = facingRight;
+        this.updateStatusInfoStore();
+    },
+
+    updateCharacterDirection() {
+        if (this.facingRight) {
+            this.character.scaleX = Math.abs(this.character.scaleX);
+        } else {
+            this.character.scaleX = -Math.abs(this.character.scaleX);
+        }
+    },
+
     updateAnimationState(delta) {
         let anim = 'idle';
 
@@ -1792,12 +1803,7 @@ export const AnimationController = {
             anim = 'crouch';
         }
 
-        if (this.facingRight) {
-            this.character.scaleX = Math.abs(this.character.scaleX);
-        } else {
-            this.character.scaleX = -Math.abs(this.character.scaleX);
-        }
-
+        this.updateCharacterDirection();
         this.currentAnim = anim;
 
         if (!this.paused) {

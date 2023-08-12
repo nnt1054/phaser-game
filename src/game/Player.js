@@ -232,6 +232,13 @@ export class Player extends ArcadeContainer {
             y: this.y,
             currentAnim: null,
         }
+
+        // this.state = {
+        //     partyId: null,
+        //     targetId: null,
+        //     character: null,
+        //     equipment: null,
+        // }
     }
 
     setInput(input) {
@@ -284,13 +291,17 @@ export class Player extends ArcadeContainer {
     }
 
     updateState() {
+        this.state.displayName = this.displayName;
         this.state.x = this.x;
         this.state.y = this.y;
+        this.state.facingRight = this.facingRight;
         this.state.currentAnim = this.currentAnim;
     }
 
     updateFromState() {
+        this.displayName = this.state.displayName;
         this.setPosition(this.state.x, this.state.y);
+        this.setCharacterDirection(this.state.facingRight);
         this.character.play(this.state.currentAnim, true);
     }
 

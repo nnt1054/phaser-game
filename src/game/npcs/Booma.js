@@ -16,6 +16,7 @@ import {
     BaseStatsMixin,
     LevelMixin,
     BASE_STATS,
+    MovementController,
 } from '../mixins';
 
 import store from '../../store/store';
@@ -163,6 +164,7 @@ export class Booma extends ArcadeContainer {
         CombatMixin,
         BaseStatsMixin,
         LevelMixin,
+        MovementController,
     ]
 
     constructor(scene, x, y, displayName='Non-Player') {

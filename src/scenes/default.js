@@ -242,26 +242,9 @@ class defaultScene extends Phaser.Scene {
 
     getServerState() {
         this.state = {
-            players: {
-                player_id: {
-                    id: 1,
-                    displayName: '',
-                    x: 0,
-                    y: 0,
-                    facingRight: true,
-                    currentAnim: null,
-                    partyId: null,
-                    targetId: null,
-                    character: null,
-                    equipment: null,
-                },
-            },
-            enemies: {
-
-            },
-            npcs: {
-
-            },
+            players: {},
+            enemies: {},
+            npcs: {},
         };
     }
 
