@@ -52,6 +52,11 @@ import {
 import buffs from './buffs';
 import jobMap from './jobs';
 
+import {
+    systemActionMap,
+    itemActionMap,
+} from './actions';
+
 export const HealthMixin = {
 
     hasHealth: true,
@@ -471,6 +476,10 @@ export const DialogueMixin = {
     currentMessage: null,
     interactionRect: null,
 
+    dialogueTarget: null,
+    dialogueComplete: true,
+    dialogueOption: null,
+
     isPlayerInRange: function(player) {
         return Phaser.Geom.Rectangle.Overlaps(
             player.hitboxRect.getBounds(),
@@ -539,6 +548,21 @@ export const DialogueMixin = {
         store.dispatch(closeMenu());
     },
 
+    // Following is used for Player (everything else used for NPC)
+    updateDialogue(delta) {
+        if (this.dialogueTarget) {
+            if (!this.dialogueTarget.isPlayerInRange(this)) {
+                this.dialogueTarget.endDialogue(this);
+            } else if (this.dialogueComplete) {
+                this.dialogueTarget.completeDialogue(this, this.dialogueOption);
+            }
+        }
+    },
+
+    setDialogueInput(input) {
+        this.dialogueComplete = input.dialogueComplete;
+        this.dialogueOption = input.dialogueOption;
+    }
 }
 
 
@@ -986,7 +1010,17 @@ export const CastingMixin = {
                 this.setPlayerComboAction(ability.name);
             }
         }
-    }
+    },
+
+    calculateCastTime(ability) {
+        let castTime = ability.castTime || 0;
+        for (const buff of this._buffs) {
+            if (buff.modifyCastTime) {
+                castTime = buff.modifyCastTime(castTime, buff);
+            }
+        };
+        return Math.max(0, castTime);
+    },
 };
 
 
@@ -1064,16 +1098,15 @@ export const ExperienceMixin = {
 
     jobExperienceMap: {},
 
-    setExperience(exp) {
-        // todo: update for multiple jobs
-        this.currentExperience = exp;
+    initializeExperienceMixin() {
+        this.currentExperience = 0;
         this.jobExperienceMap = {
-            'TMP': exp,
-            'HEAL': exp,
-            'MELEE': exp,
-            'SPELL': exp,
-            'HUNTER': exp,
-            'KNIGHT': exp,
+            'TMP': 0,
+            'HEAL': 0,
+            'MELEE': 0,
+            'SPELL': 0,
+            'HUNTER': 0,
+            'KNIGHT': 0,
         };
         this.setLevel(this.getExperienceLevel());
         this.updateExpStore();
@@ -1309,3 +1342,501 @@ export const JobMixin = {
         store.dispatch(updateJob(this.currentJob.name));
     }
 };
+
+export const MovementController = {
+    isDashing: false,
+    isClimbing: false,
+
+    climbing: null,
+    climbingDisabled: false,
+
+    dashTween: null,
+
+    coyoteTime: 0,
+    jumpUsed: true,
+    facingRight: true,
+    currentAnim: null,
+
+    directionLockTimer: 0,
+
+    initializeMovementController() {
+        this.overlappingLadders = [];
+        this.previousOverlappingLadders = [];
+        this.walls = [];
+        this.addPlatforms();
+        this.addLadders();
+    },
+
+    addPlatforms(platforms) {
+        this.platformColliders = this.physics.add.collider(this, this.scene.platformGroup);
+    },
+
+    disablePlatformColliders(duration) {
+        this.platformColliders.active = false;
+        this.time.addEvent({
+            delay: duration,
+            callback: () => { this.platformColliders.active = true },
+            callbackScope: this, 
+        }) 
+    },
+
+    addLadders() {
+        this.physics.add.overlap(this.ladderHitbox, this.scene.climbableGroup, (hitbox, ladder) => {
+            this.overlappingLadders.push(ladder);
+        });
+    },
+
+    clearLadders() {
+        this.previousOverlappingLadders = this.overlappingLadders;
+        this.overlappingLadders = [];
+    },
+
+    updateMovement(delta) {
+
+        // ladder/climbing movement
+        if (this.isClimbing) {
+            const ladder = this.climbing;
+            const inRange = this.overlappingLadders.find(x => x == ladder);
+            if (!inRange) {
+                this.stopClimbing(ladder);
+            } else {
+                this.x = this.climbing.body.center.x - (this.body.width / 2);
+            }
+        } else {
+            if (this.reduxCursors.up) {
+                const ladder = this.overlappingLadders.find(x => !!x);
+                if (ladder) {
+                    if (!this.climbingDisabled) {
+                        this.startClimbing(ladder);
+                    }
+                }
+            } else if (this.reduxCursors.down) {
+                const ladder = this.overlappingLadders.find(x => !!x);
+                if (ladder) {
+                    if (!this.climbingDisabled) {
+                        this.startClimbing(ladder);
+                    }
+                }
+            }
+        }
+
+        if (this.isClimbing) {
+            if (this.reduxCursors.up) {
+                this.setVelocityY(-150)
+            } else if (this.reduxCursors.down) {
+                this.setVelocityY(150)
+                if (this.body.onFloor()) {
+                    this.stopClimbing();
+                }
+            } else {
+                this.setVelocityY(0)
+            }
+
+            if (this.reduxCursors.jump) {
+                this.executeJump();
+            }
+            return;
+        }
+
+        this.directionLockTimer = Math.max(0, this.directionLockTimer - delta);
+
+        if (this.body.blocked.left || this.body.blocked.right) {
+            this.stopDash();
+        }
+
+        if (this.reduxCursors.left) {
+            if (this.reduxCursors.down) {
+                this.setVelocityX(-75);
+            } else {
+                this.setVelocityX(-150);
+            }
+            if (this.directionLockTimer <= 0) {
+                this.facingRight = false;
+            }
+        } else if (this.reduxCursors.right) {
+            if (this.reduxCursors.down) {
+                this.setVelocityX(75);
+            } else {
+                this.setVelocityX(150);
+            }
+            if (this.directionLockTimer <= 0) {
+                this.facingRight = true;
+            }
+        } else {
+            this.setVelocityX(0);
+        }
+
+        if (this.body.onFloor()) {
+            this.coyoteTime = 0;
+            this.jumpUsed = false;
+            if (this.reduxCursors.down && this.reduxCursors.jump) {
+                this.executeDownJump();
+            } else if (this.reduxCursors.jump) {
+                this.executeJump();
+            }
+        } else {
+            if (this.reduxCursors.jump && this.coyoteTime < 240 && !this.jumpUsed) {
+                this.executeJump();
+            }
+            this.coyoteTime += delta;
+        }
+        this.previousVelocityY = this.body.velocity.y;
+
+        if (this.body.velocity.y > 0) {
+            this.setGravityY(800);
+        } else {
+            this.setGravityY(1600);
+        }
+
+        if (this.reduxCursors.down) {
+            this.ladderHitbox.setY(this.ref_y + 4);
+        } else {
+            this.ladderHitbox.setY(this.ref_y);
+        }
+
+        const moving = (this.body.velocity.y || this.body.velocity.x)
+        if (moving && this.casting && this.castingTimer > 750) {
+            this.cancelCast();
+        }
+    },
+
+    executeDownJump() {
+        this.jumpUsed = true;
+        this.disablePlatformColliders(250);
+    },
+
+    executeJump() {
+        this.jumpUsed = true;
+
+        if (this.isClimbing) {
+            this.stopClimbing();
+            this.climbingDisabled = true;
+            this.time.addEvent({
+                delay: 480,
+                callback: () => {this.climbingDisabled = false},
+                callbackScope: this, 
+            })
+            this.setVelocityY(-360);
+        } else {
+            this.setVelocityY(-480);
+        }
+    },
+
+    faceTarget(gameObject) {
+        if (gameObject) {
+            const playerX = this.clickRect.getBounds().centerX;
+            const targetX = gameObject.clickRect.getBounds().centerX;
+            if (playerX < targetX) {
+                this.facingRight = true;
+            } else if (targetX < playerX) {
+                this.facingRight = false;
+            }
+        }
+    },
+
+    dash(targetPosition, duration) {
+        let position = targetPosition;
+        let dashingRight = position > this.body.x;
+        let distance = position - this.body.x;
+
+        let rectX = dashingRight ? this.body.x + this.body.width : this.body.x;
+        let rect = this.scene.add.rectangle(
+            rectX, this.body.y,
+            distance, this.body.height, 0xff0000, 0.5,
+        );
+        rect.setOrigin(0, 0);
+        for (const wall of this.walls) {
+            if (
+                Phaser.Geom.Rectangle.Overlaps(rect.getBounds(), wall.getBounds())
+            ) {
+                if (dashingRight) {
+                    position = Math.min(position, wall.getBounds().left - this.body.width)
+                } else {
+                    position = Math.max(position, wall.getBounds().right)
+                }
+            }
+        };
+        rect.destroy();
+        let newDistance = position - this.body.x;
+        let newDuration = Math.abs((newDistance / distance) * duration);
+
+        this.isDashing = true;
+        this.dashTween = this.scene.tweens.add({
+            targets: [ this ],
+            x: position,
+            duration: newDuration,
+            ease: 'Sine.easeIn',
+        });
+        return this.dashTween;
+    },
+
+    stopDash() {
+        this.isDashing = false;
+        if (this.dashTween) this.dashTween.stop();
+        this.dashTween = null;
+    },
+
+    startClimbing(ladder) {
+        this.isClimbing = true;
+        this.climbing = ladder;
+        this.setVelocityX(0);
+        this.setGravityY(0);
+        if (this.casting) {
+            this.cancelCast();
+        }
+        this.disablePlatformColliders(250);
+    },
+
+    stopClimbing() {
+        this.isClimbing = false;
+        this.climbing = null;
+        this.setGravityY(1600)
+    },
+
+    isMoving() {
+        return Boolean(this.body.velocity.y || this.body.velocity.x);
+    }
+}
+
+export const ActionController = {
+
+        // Input
+    gcdQueue: null,
+    gcdTarget: null,
+    gcdTimer: 0,
+    abilityTimer: 0,
+    systemAction: null,
+    systemActionTarget: null,
+
+    comboAction: null,
+    comboActionTimer: 0,
+
+    queueSystemAction(actionName, target) {
+        if (!actionName) return;
+        const action = systemActionMap[actionName];
+        if (!action) return;
+        if (this.systemAction) return;
+        this.systemAction = action;
+        this.systemActionTarget = target;
+    },
+
+    updateSystemAction(delta) {
+        if (this.systemAction) {
+            this.systemAction.execute(this, this.systemActionTarget);
+            this.systemAction = null;
+            this.systemActionTarget = null;
+        }
+    },
+
+    queueAbility(abilityName, target) {
+        if (!abilityName) return;
+
+        let ability;
+        if (abilityName in this.currentJob.abilities) {
+            ability = this.currentJob.abilities[abilityName];
+        } else if (abilityName in itemActionMap) {
+            ability = itemActionMap[abilityName];
+        };
+
+        if (!ability) {
+            if (this.isClientPlayer) {
+                store.dispatch(setAlert('Invalid Action.'));
+            }
+            return;
+        }
+
+        // todo: do we still need this?
+        // override
+        if (ability.override) {
+            const abilityNameOverride = ability.override(this);
+            if (abilityNameOverride) {
+                abilityName = abilityNameOverride;
+                ability = this.currentJob.abilities[abilityName];
+            }
+        };
+
+        if (!ability) {
+            if (this.isClientPlayer) {
+                store.dispatch(setAlert('Invalid Action.'));
+            }
+            return;
+        }
+
+        if (this.gcdQueue) return;
+        if (ability.gcd && this.gcdTimer > 500) return;
+        if (this.casting && this.castingTimer > 500) return;
+
+        let targetObject;
+        if (this.currentTarget && ability.canTarget(this, this.currentTarget)) {
+            targetObject = this.currentTarget;
+        } else if (ability.canTarget(this, this)) {
+            targetObject = this;
+        } else if (ability.canTarget(this, null)) {
+            targetObject = null;
+        } else if (this.currentTarget == null) {
+            const isReverse = !this.facingRight;
+            this.cycleTargets(isReverse);
+            if (this.currentTarget == null) {
+                if (this.isClientPlayer) {
+                    store.dispatch(setAlert('Invalid Target.'));
+                }
+            }
+            return;
+        } else {
+            if (this.isClientPlayer) {
+                store.dispatch(setAlert('Invalid Target.'));
+            }
+            return;
+        }
+
+        if (ability.canExecute(this, targetObject)) {
+            this.gcdQueue = ability;
+            this.gcdTarget = targetObject;
+        } else {
+            return;
+        }
+    },
+
+    updateAbilityState(delta) {
+        this.comboActionTimer = Math.max(0, this.comboActionTimer - delta);
+        if (this.comboAction && this.comboActionTimer <= 0) {
+            this.setPlayerComboAction('');
+        }
+
+        const previousGcdTimer = this.gcdTimer;
+        this.gcdTimer = Math.max(0, this.gcdTimer - delta);
+        this.abilityTimer = Math.max(0, this.abilityTimer - delta);
+        if (previousGcdTimer && this.gcdTimer == 0) {
+            if (this.isClientPlayer) {
+                store.dispatch(setGCD(0));
+            }
+        }
+
+        // check if can execute
+        const ability = this.gcdQueue;
+        if (!ability) return;
+        if (this.abilityTimer > 0) return;
+        if (this.castingTimer > 0) return;
+        if (ability.gcd && this.gcdTimer > 0) return;
+
+        if (ability.canExecute(this, this.gcdTarget)) {
+            const gcdCooldown = this.calculateGcdCooldown(ability);
+            const castTime = this.calculateCastTime(ability);
+
+            // ability execution
+            if (castTime > 0) {
+                this.startCast(ability, this.gcdTarget);
+                this.directionLockTimer += ability.castTime;
+            } else {
+                this.executeAbility(ability, this.gcdTarget);
+            }
+
+            if (ability.gcd) {
+                this.gcdTimer += gcdCooldown;
+                if (this.isClientPlayer) {
+                    store.dispatch(setGCD(gcdCooldown));
+                }
+            }
+        }
+
+        this.gcdQueue = null;
+        this.gcdTarget = null;
+    },
+
+    calculateGcdCooldown(ability) {
+        let gcdCooldown = ability.cooldown || 0;
+        if (ability.overrideCooldown) {
+            gcdCooldown = ability.overrideCooldown(this);
+        }
+        for (const buff of this._buffs) {
+            if (buff.modifyGcdCooldown) {
+                gcdCooldown = buff.modifyGcdCooldown(gcdCooldown, buff);
+            }
+        };
+        return Math.max(0, gcdCooldown);
+    },
+
+    setPlayerComboAction(actionName) {
+        this.comboAction = actionName;
+        this.comboActionTimer = 15000;
+        if (this.isClientPlayer) {
+            store.dispatch(setComboAction(this.comboAction));
+        }
+    },
+}
+
+export const AnimationController = {
+    updateAnimationState(delta) {
+        let anim = 'idle';
+
+        if (this.casting) anim = 'crouch';
+
+        const speedX = Math.abs(this.body.velocity.x);
+        if (speedX > 100) {
+            anim = 'run';
+        } else if (speedX > 0) {
+            anim = 'walk';
+        }
+        if (!this.body.onFloor() || this.reduxCursors.jump) {
+            if (this.body.velocity.x && this.body.velocity.y > 90) {
+                anim = 'jump';
+            } else if (this.body.velocity.x == 0) {
+                anim = 'jumpIdle';
+            }
+        }
+        if (this.body.onFloor() && this.reduxCursors.down && this.body.velocity.x == 0) {
+            anim = 'crouch';
+        }
+
+        if (this.isClimbing) {
+            anim = 'crouch';
+        }
+
+        if (this.facingRight) {
+            this.character.scaleX = Math.abs(this.character.scaleX);
+        } else {
+            this.character.scaleX = -Math.abs(this.character.scaleX);
+        }
+
+        this.currentAnim = anim;
+
+        if (!this.paused) {
+            this.character.play(this.currentAnim, true);
+        }
+    },
+}
+
+export const AnimationEditorMixin = {
+    paused: false,
+    currentFrame: 0,
+
+    setAnimState(animState) {
+        if (animState.frameIndex != null && animState.frameIndex != this.currentFrame) {
+            this.currentFrame = animState.frameIndex;
+            this.queueAbility(`frame${animState.frameIndex}`);
+        }
+        this.character.setActiveCompositeStates(animState.compositeStates);
+    }
+}
+
+export const MessagingMixin = {
+    clearMessage() {
+        this.currentMessage = '';
+        this.chatBubble.setText('');
+        this.chatBubble.setClassName('chat-bubble-hidden');
+        this.messageTimer = null;
+    },
+
+    displayMessage(text) {
+        this.chatBubble.setText(`${ this.displayName }: ${ text }`);
+        this.chatBubble.setClassName('chat-bubble');
+        if (this.messageTimer) {
+            this.messageTimer.remove()
+        }
+        this.messageTimer = this.time.addEvent({
+            delay: 3000,
+            callback: () => { this.clearMessage(); },
+            callbackScope: this, 
+        })
+    }
+}

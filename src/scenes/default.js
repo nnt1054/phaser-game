@@ -175,37 +175,6 @@ class defaultScene extends Phaser.Scene {
             this.mouse = null;
         }, this);
 
-
-        this.time.delayedCall(1500, () => {
-            this.player2.setInput({
-                up: 0,
-                down: 0,
-                left: 0,
-                right: 0,
-                jump: false,
-                systemAction: 'cycleTarget',
-            })
-        })
-        this.time.delayedCall(2500, () => {
-            this.player2.setInput({
-                up: 0,
-                down: 0,
-                left: 1,
-                right: 0,
-                jump: false,
-            })
-        })
-        this.time.delayedCall(3500, () => {
-            this.player2.setInput({
-                up: 0,
-                down: 0,
-                left: 0,
-                right: 0,
-                jump: false,
-                queuedAbility: 'jolt',
-            })
-       })
-
         // client input
         const getPlayerState = state => state.playerState;
         this.observer = observeStore(store, getPlayerState, (playerState) => {
@@ -251,6 +220,8 @@ class defaultScene extends Phaser.Scene {
         this.animationObserver = observeStore(store, getFrameIndex, (animState) => {
             this.clientPlayer.setAnimState(animState);
         })
+
+        // this._testClientInput();
     }
 
     update (time, delta) {}
@@ -267,6 +238,31 @@ class defaultScene extends Phaser.Scene {
         for (const npc of this.npcGroup.children.entries) {
             npc.autoZoom(this.zoom);
         }
+    }
+
+    getServerState() {
+        this.state = {
+            players: {
+                player_id: {
+                    id: 1,
+                    displayName: '',
+                    x: 0,
+                    y: 0,
+                    facingRight: true,
+                    currentAnim: null,
+                    partyId: null,
+                    targetId: null,
+                    character: null,
+                    equipment: null,
+                },
+            },
+            enemies: {
+
+            },
+            npcs: {
+
+            },
+        };
     }
 
     addPlayer(id, isClientPlayer) {
@@ -313,10 +309,73 @@ class defaultScene extends Phaser.Scene {
             inventory: inventory,
         }
 
-        const player = new Player(this, 32 * 9, 32 * 58, config, isClientPlayer);
+        const player = new Player(id, this, 32 * 9, 32 * 58, config, isClientPlayer);
 
         this.playerGroup.add(player);
         return player;
+    }
+
+
+    _testClientInput() {
+        this.time.delayedCall(1500, () => {
+            this.player2.setInput({
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0,
+                jump: false,
+                systemAction: 'cycleTarget',
+            })
+        })
+        this.time.delayedCall(2500, () => {
+            this.player2.setInput({
+                up: 0,
+                down: 0,
+                left: 1,
+                right: 0,
+                jump: false,
+            })
+        })
+        this.time.delayedCall(3500, () => {
+            this.player2.setInput({
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0,
+                jump: false,
+                queuedAbility: 'jolt',
+            })
+        })
+        this.time.delayedCall(6500, () => {
+            this.player2.setInput({
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0,
+                jump: false,
+                queuedAbility: 'jolt',
+            })
+        })
+        this.time.delayedCall(9500, () => {
+            this.player2.setInput({
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0,
+                jump: false,
+                queuedAbility: 'jolt',
+            })
+        })
+        this.time.delayedCall(12500, () => {
+            this.player2.setInput({
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0,
+                jump: false,
+                queuedAbility: 'jolt',
+            })
+        })
     }
 }
 

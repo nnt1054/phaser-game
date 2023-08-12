@@ -4,11 +4,6 @@ import {
     CompositeSprite,
 } from './utils'
 
-import {
-    systemActionMap,
-    itemActionMap,
-} from './actions';
-
 import store from '../store/store';
 import {
     setGCD,
@@ -35,6 +30,12 @@ import {
     BaseStatsMixin,
     LevelMixin,
     JobMixin,
+    MovementController,
+    ActionController,
+    AnimationEditorMixin,
+    DialogueMixin,
+    MessagingMixin,
+    AnimationController,
 } from './mixins';
 import {
     setAlert,
@@ -82,9 +83,15 @@ export class Player extends ArcadeContainer {
         BaseStatsMixin,
         LevelMixin,
         JobMixin,
+        MovementController,
+        ActionController,
+        AnimationEditorMixin,
+        DialogueMixin,
+        MessagingMixin,
+        AnimationController,
     ]
 
-    constructor(scene, x, y, config, isClientPlayer) {
+    constructor(id, scene, x, y, config, isClientPlayer) {
         const compositeConfigIndexes = {
             'hair_back': 1,
             'legs': 1,
@@ -107,9 +114,8 @@ export class Player extends ArcadeContainer {
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
         })
-        this.initializeEnemyListMixin();
-        this.initializeBuffMixin();
 
+        this.id = id;
         this.isPlayer = true;
         this.isClientPlayer = isClientPlayer;
 
@@ -133,8 +139,6 @@ export class Player extends ArcadeContainer {
 
         this.hitboxRect = new ArcadeRectangle(scene, this.ref_x, this.ref_y, 24, 42);
         this.hitboxRect.setOrigin(0.5, 1);
-
-        this.rangeChecker = scene.add.rectangle();
 
         this.name = scene.add.text(
             this.ref_x,
@@ -197,20 +201,15 @@ export class Player extends ArcadeContainer {
             this.clickRect,
             this.hitboxRect,
             this.ladderHitbox,
-            this.rangeChecker,
             this.healthBarUnderlay,
             this.healthBar,
         ]);
 
-        // Input
-        this.gcdQueue = null;
-        this.gcdTarget = null;
-        this.gcdTimer = 0;
-        this.abilityTimer = 0;
-        this.systemAction = null;
-        this.systemActionTarget = null;
-
-        this.directionLockTimer = 0;
+        this.initializeEnemyListMixin();
+        this.initializeBuffMixin();
+        this.initializeMovementController();
+        this.initializeCooldowns();
+        this.initializeExperienceMixin();
 
         this.reduxCursors = {
             up: 0,
@@ -219,22 +218,6 @@ export class Player extends ArcadeContainer {
             right: 0,
             jump: 0,
         }
-        this.observer = null;
-
-        // Movement
-        this.coyoteTime = 0;
-        this.jumpUsed = true;
-        this.facingRight = true;
-        this.current_anim = null;
-        this.previousVelocityY = 0;
-
-        // Dialogue
-        this.dialogueTarget = null;
-        this.dialogueComplete = true;
-        this.dialogueOption = null;
-
-        this.initializeCooldowns();
-        this.setExperience(0);
 
         const { inventory, equipment } = config;
         for (let item in inventory) {
@@ -243,30 +226,12 @@ export class Player extends ArcadeContainer {
         this.equipHelmet(equipment.helmet);
         this.setJob(this.equipped.helmet.job);
 
-        this.isClimbing = false;
-        this.climbingDisabled = false;
-        this.climbing = null;
-
-        this.overlappingLadders = [];
-        this.previousOverlappingLadders = [];
-
-        this.isDashing = false;
-        this.dashTween = null;
-
-        // remove me after raycast testing
-        this.walls = []
-
-        this.comboAction = null;
-        this.comboActionTimer = 0;
-
-        this.addPlatforms();
-        this.addLadders();
-
-        this.setCurrentHealth(50);
-
-        // Animation Editor
-        this.paused = false;
-        this.currentFrame = 0;
+        this.state = {
+            id: this.id,
+            x: this.x,
+            y: this.y,
+            currentAnim: null,
+        }
     }
 
     setInput(input) {
@@ -293,53 +258,12 @@ export class Player extends ArcadeContainer {
         }
     }
 
-    setDialogueInput(input) {
-        this.dialogueComplete = input.dialogueComplete;
-        this.dialogueOption = input.dialogueOption;
-    }
-
-    setAnimState(animState) {
-        if (animState.frameIndex != null && animState.frameIndex != this.currentFrame) {
-            this.currentFrame = animState.frameIndex;
-            this.queueAbility(`frame${animState.frameIndex}`);
-        }
-        this.character.setActiveCompositeStates(animState.compositeStates);
-    }
-
     handleClick() {
         const clientPlayer = this.scene.clientPlayer;
         clientPlayer.targetObject(this);
     }
 
-    isTargetInRange(targetRect, x, y, width, height, originX, originY) {
-        this.rangeChecker.setPosition(x, y);
-        this.rangeChecker.setSize(width, height);
-        this.rangeChecker.setOrigin(originX, originY);
-
-        const inRange = Phaser.Geom.Rectangle.Overlaps(
-            this.rangeChecker.getBounds(),
-            targetRect.getBounds(),
-        )
-
-        this.rangeChecker.setPosition(0, 0);
-        this.rangeChecker.setSize(0, 0);
-        this.rangeChecker.setOrigin(0, 0);
-
-        return inRange;
-    }
-
     update(time, delta) {
-
-        // test fall damage
-        if (this.body.onFloor() && this.previousVelocityY >= 800) {
-            this.setCurrentHealth(1);
-        }
-
-        this.comboActionTimer = Math.max(0, this.comboActionTimer - delta);
-        if (this.comboAction && this.comboActionTimer <= 0) {
-            this.setPlayerComboAction('');
-        }
-
         this.updateDialogue(delta);
         this.updateMovement(delta);
         this.updateCooldowns(delta);
@@ -348,478 +272,30 @@ export class Player extends ArcadeContainer {
         this.updateAbilityState(delta);
         this.updateSystemAction(delta);
         this.updateAnimationState(delta);
-
         this.clearLadders();
 
-        this.enemyList = [];
+        this.updateState();
+        this.updateFromState();
     }
 
-    queueSystemAction(actionName, target) {
-        if (!actionName) return;
-        const action = systemActionMap[actionName];
-        if (!action) return;
-        if (this.systemAction) return;
-        this.systemAction = action;
-        this.systemActionTarget = target;
+    setState(state) {
+        this.state = state;
+        this.updateFromState();
     }
 
-    queueAbility(abilityName, target) {
-        if (!abilityName) return;
-
-        let ability;
-        if (abilityName in this.currentJob.abilities) {
-            ability = this.currentJob.abilities[abilityName];
-        } else if (abilityName in itemActionMap) {
-            ability = itemActionMap[abilityName];
-        };
-
-        if (!ability) {
-            if (this.isClientPlayer) {
-                store.dispatch(setAlert('Invalid Action.'));
-            }
-            return;
-        }
-
-        // todo: do we still need this?
-        // override
-        if (ability.override) {
-            const abilityNameOverride = ability.override(this);
-            if (abilityNameOverride) {
-                abilityName = abilityNameOverride;
-                ability = this.currentJob.abilities[abilityName];
-            }
-        };
-
-        if (!ability) {
-            if (this.isClientPlayer) {
-                store.dispatch(setAlert('Invalid Action.'));
-            }
-            return;
-        }
-
-        if (this.gcdQueue) return;
-        if (ability.gcd && this.gcdTimer > 500) return;
-        if (this.casting && this.castingTimer > 500) return;
-
-        let targetObject;
-        if (this.currentTarget && ability.canTarget(this, this.currentTarget)) {
-            targetObject = this.currentTarget;
-        } else if (ability.canTarget(this, this)) {
-            targetObject = this;
-        } else if (ability.canTarget(this, null)) {
-            targetObject = null;
-        } else if (this.currentTarget == null) {
-            const isReverse = !this.facingRight;
-            this.cycleTargets(isReverse);
-            if (this.currentTarget == null) {
-                if (this.isClientPlayer) {
-                    store.dispatch(setAlert('Invalid Target.'));
-                }
-            }
-            return;
-        } else {
-            if (this.isClientPlayer) {
-                store.dispatch(setAlert('Invalid Target.'));
-            }
-            return;
-        }
-
-        if (ability.canExecute(this, targetObject)) {
-            this.gcdQueue = ability;
-            this.gcdTarget = targetObject;
-        } else {
-            return;
-        }
+    updateState() {
+        this.state.x = this.x;
+        this.state.y = this.y;
+        this.state.currentAnim = this.currentAnim;
     }
 
-    isMoving() {
-        return Boolean(this.body.velocity.y || this.body.velocity.x);
-    }
-
-    addPlatforms(platforms) {
-        this.platformColliders = this.physics.add.collider(this, this.scene.platformGroup);
-    }
-
-    disablePlatformColliders(duration) {
-        this.platformColliders.active = false;
-        this.time.addEvent({
-            delay: duration,
-            callback: () => { this.platformColliders.active = true },
-            callbackScope: this, 
-        }) 
-    }
-
-    addLadders() {
-        this.physics.add.overlap(this.ladderHitbox, this.scene.climbableGroup, (hitbox, ladder) => {
-            this.overlappingLadders.push(ladder);
-        });
-    }
-
-    clearLadders() {
-        this.previousOverlappingLadders = this.overlappingLadders;
-        this.overlappingLadders = [];
-    }
-
-    startClimbing(ladder) {
-        this.isClimbing = true;
-        this.climbing = ladder;
-        this.setVelocityX(0);
-        this.setGravityY(0);
-        if (this.casting) {
-            this.cancelCast();
-        }
-        this.disablePlatformColliders(250);
-    }
-
-    stopClimbing() {
-        this.isClimbing = false;
-        this.climbing = null;
-        this.setGravityY(1600)
-    }
-
-    updateMovement(delta) {
-
-        // ladder/climbing movement
-        if (this.isClimbing) {
-            const ladder = this.climbing;
-            const inRange = this.overlappingLadders.find(x => x == ladder);
-            if (!inRange) {
-                this.stopClimbing(ladder);
-            } else {
-                this.x = this.climbing.body.center.x - (this.body.width / 2);
-            }
-        } else {
-            if (this.reduxCursors.up) {
-                const ladder = this.overlappingLadders.find(x => !!x);
-                if (ladder) {
-                    if (!this.climbingDisabled) {
-                        this.startClimbing(ladder);
-                    }
-                }
-            } else if (this.reduxCursors.down) {
-                const ladder = this.overlappingLadders.find(x => !!x);
-                if (ladder) {
-                    if (!this.climbingDisabled) {
-                        this.startClimbing(ladder);
-                    }
-                }
-            }
-        }
-
-
-        if (this.isClimbing) {
-            if (this.reduxCursors.up) {
-                this.setVelocityY(-150)
-            } else if (this.reduxCursors.down) {
-                this.setVelocityY(150)
-                if (this.body.onFloor()) {
-                    this.stopClimbing();
-                }
-            } else {
-                this.setVelocityY(0)
-            }
-
-            if (this.reduxCursors.jump) {
-                this.executeJump();
-            }
-            return;
-        }
-
-
-        this.directionLockTimer = Math.max(0, this.directionLockTimer - delta);
-
-        if (this.body.blocked.left || this.body.blocked.right) {
-            this.stopDash();
-        }
-
-        if (this.reduxCursors.left) {
-            if (this.reduxCursors.down) {
-                this.setVelocityX(-75);
-            } else {
-                this.setVelocityX(-150);
-            }
-            if (this.directionLockTimer <= 0) {
-                this.facingRight = false;
-            }
-        } else if (this.reduxCursors.right) {
-            if (this.reduxCursors.down) {
-                this.setVelocityX(75);
-            } else {
-                this.setVelocityX(150);
-            }
-            if (this.directionLockTimer <= 0) {
-                this.facingRight = true;
-            }
-        } else {
-            this.setVelocityX(0);
-        }
-
-        if (this.body.onFloor()) {
-            this.coyoteTime = 0;
-            this.jumpUsed = false;
-            if (this.reduxCursors.down && this.reduxCursors.jump) {
-                this.executeDownJump();
-            } else if (this.reduxCursors.jump) {
-                this.executeJump();
-            }
-        } else {
-            if (this.reduxCursors.jump && this.coyoteTime < 240 && !this.jumpUsed) {
-                this.executeJump();
-            }
-            this.coyoteTime += delta;
-        }
-        this.previousVelocityY = this.body.velocity.y;
-
-        if (this.body.velocity.y > 0) {
-            this.setGravityY(800);
-        } else {
-            this.setGravityY(1600);
-        }
-
-        if (this.reduxCursors.down) {
-            this.ladderHitbox.setY(this.ref_y + 4);
-        } else {
-            this.ladderHitbox.setY(this.ref_y);
-        }
-
-        const moving = (this.body.velocity.y || this.body.velocity.x)
-        if (moving && this.casting && this.castingTimer > 750) {
-            this.cancelCast();
-        }
-    }
-
-    executeDownJump() {
-        this.jumpUsed = true;
-        this.disablePlatformColliders(250);
-    }
-
-    executeJump() {
-        this.jumpUsed = true;
-
-        if (this.isClimbing) {
-            this.stopClimbing();
-            this.climbingDisabled = true;
-            this.time.addEvent({
-                delay: 480,
-                callback: () => {this.climbingDisabled = false},
-                callbackScope: this, 
-            })
-            this.setVelocityY(-360);
-        } else {
-            this.setVelocityY(-480);
-        }
-    }
-
-    updateAnimationState(delta) {
-        let anim = this.current_anim ?? 'idle';
-        if (this.casting) anim = 'crouch';
-
-        const speedX = Math.abs(this.body.velocity.x);
-        if (speedX > 100) {
-            anim = 'run';
-        } else if (speedX > 0) {
-            anim = 'walk';
-        }
-        if (!this.body.onFloor() || this.reduxCursors.jump) {
-            if (this.body.velocity.x && this.body.velocity.y > 90) {
-                anim = 'jump';
-            } else if (this.body.velocity.x == 0) {
-                anim = 'jumpIdle';
-            }
-        }
-        if (this.body.onFloor() && this.reduxCursors.down && this.body.velocity.x == 0) {
-            anim = 'crouch';
-            this.current_anim = null;
-        }
-
-        if (this.isClimbing) {
-            anim = 'crouch';
-        }
-
-        if (this.facingRight) {
-            this.character.scaleX = Math.abs(this.character.scaleX);
-        } else {
-            this.character.scaleX = -Math.abs(this.character.scaleX);
-        }
-
-        if (anim !== this.current_anim) this.current_anim = null;
-
-        if (!this.paused) {
-            this.character.play(anim, true);
-        }
-    }
-
-    updateAbilityState(delta) {
-        const previousGcdTimer = this.gcdTimer;
-        this.gcdTimer = Math.max(0, this.gcdTimer - delta);
-        this.abilityTimer = Math.max(0, this.abilityTimer - delta);
-        if (previousGcdTimer && this.gcdTimer == 0) {
-            if (this.isClientPlayer) {
-                store.dispatch(setGCD(0));
-            }
-        }
-
-        // check if can execute
-        const ability = this.gcdQueue;
-        if (!ability) return;
-        if (this.abilityTimer > 0) return;
-        if (this.castingTimer > 0) return;
-        if (ability.gcd && this.gcdTimer > 0) return;
-
-        if (ability.canExecute(this, this.gcdTarget)) {
-            const gcdCooldown = this.calculateGcdCooldown(ability);
-            const castTime = this.calculateCastTime(ability);
-
-            // ability execution
-            if (castTime > 0) {
-                this.startCast(ability, this.gcdTarget);
-                this.directionLockTimer += ability.castTime;
-            } else {
-                this.executeAbility(ability, this.gcdTarget);
-            }
-
-            if (ability.gcd) {
-                this.gcdTimer += gcdCooldown;
-                if (this.isClientPlayer) {
-                    store.dispatch(setGCD(gcdCooldown));
-                }
-            }
-        }
-
-        this.gcdQueue = null;
-        this.gcdTarget = null;
-    }
-
-    setPlayerComboAction(actionName) {
-        this.comboAction = actionName;
-        this.comboActionTimer = 15000;
-        if (this.isClientPlayer) {
-            store.dispatch(setComboAction(this.comboAction));
-        }
-    }
-
-    updateSystemAction(delta) {
-        if (this.systemAction) {
-            this.systemAction.execute(this, this.systemActionTarget);
-            this.systemAction = null;
-            this.systemActionTarget = null;
-        }
+    updateFromState() {
+        this.setPosition(this.state.x, this.state.y);
+        this.character.play(this.state.currentAnim, true);
     }
 
     autoZoom(zoom) {
         this.name.setScale(1 / zoom);
         this.chatBubble.setScale(1 / zoom);
-    }
-
-    updateDialogue(delta) {
-        if (this.dialogueTarget) {
-            if (!this.dialogueTarget.isPlayerInRange(this)) {
-                this.dialogueTarget.endDialogue(this);
-            } else if (this.dialogueComplete) {
-                this.dialogueTarget.completeDialogue(this, this.dialogueOption);
-            }
-        }
-    }
-
-    clearMessage() {
-        this.currentMessage = '';
-        this.chatBubble.setText('');
-        this.chatBubble.setClassName('chat-bubble-hidden');
-        this.messageTimer = null;
-    }
-
-    displayMessage(text) {
-        this.chatBubble.setText(`${ this.displayName }: ${ text }`);
-        this.chatBubble.setClassName('chat-bubble');
-        if (this.messageTimer) {
-            this.messageTimer.remove()
-        }
-        this.messageTimer = this.time.addEvent({
-            delay: 3000,
-            callback: () => { this.clearMessage(); },
-            callbackScope: this, 
-        })
-    }
-
-    faceTarget(gameObject) {
-        if (gameObject) {
-            const playerX = this.clickRect.getBounds().centerX;
-            const targetX = gameObject.clickRect.getBounds().centerX;
-            if (playerX < targetX) {
-                this.facingRight = true;
-            } else if (targetX < playerX) {
-                this.facingRight = false;
-            }
-        }
-    }
-
-    dash(targetPosition, duration) {
-        let position = targetPosition;
-        let dashingRight = position > this.body.x;
-        let distance = position - this.body.x;
-
-        let rectX = dashingRight ? this.body.x + this.body.width : this.body.x;
-        let rect = this.scene.add.rectangle(
-            rectX, this.body.y,
-            distance, this.body.height, 0xff0000, 0.5,
-        );
-        rect.setOrigin(0, 0);
-        for (const wall of this.walls) {
-            if (
-                Phaser.Geom.Rectangle.Overlaps(rect.getBounds(), wall.getBounds())
-            ) {
-                if (dashingRight) {
-                    position = Math.min(position, wall.getBounds().left - this.body.width)
-                } else {
-                    position = Math.max(position, wall.getBounds().right)
-                }
-            }
-        };
-        rect.destroy();
-        let newDistance = position - this.body.x;
-        let newDuration = Math.abs((newDistance / distance) * duration);
-
-        this.isDashing = true;
-        this.dashTween = this.scene.tweens.add({
-            targets: [ this ],
-            x: position,
-            duration: newDuration,
-            ease: 'Sine.easeIn',
-        });
-        return this.dashTween;
-    }
-
-    stopDash() {
-        this.isDashing = false;
-        if (this.dashTween) this.dashTween.stop();
-        this.dashTween = null;
-    }
-
-    calculateCastTime(ability) {
-        let castTime = ability.castTime || 0;
-        for (const buff of this._buffs) {
-            if (buff.modifyCastTime) {
-                castTime = buff.modifyCastTime(castTime, buff);
-            }
-        };
-        return Math.max(0, castTime);
-    }
-
-    calculateGcdCooldown(ability) {
-        let gcdCooldown = ability.cooldown || 0;
-        if (ability.overrideCooldown) {
-            gcdCooldown = ability.overrideCooldown(this);
-        }
-        for (const buff of this._buffs) {
-            if (buff.modifyGcdCooldown) {
-                gcdCooldown = buff.modifyGcdCooldown(gcdCooldown, buff);
-            }
-        };
-        return Math.max(0, gcdCooldown);
-    }
-
-    isPartyMember(target) {
-        // todo later
-        return true;
     }
 }

@@ -8,29 +8,44 @@ import {
 export const isAny = (player, target) => { return true };
 export const isEnemy = (player, target) => { return target && target.isEnemy && target.visible && target.hasHealth };
 export const isFriendly = (player, target) => { return target && !target.isEnemy && target.visible && target.hasHealth};
-export const isParty = (player, target) => { return target && !target.isEnemy && target.visible && targets.hasHealth && player.isPartyMember(target)}
-
 
 export const inMeleeRange = (player, target) => {
     if (!target) return false;
     if (!target.hasHealth) return false;
     if (target.health <= 0) return false;
-    const inRange = player.isTargetInRange(
-        target.hitboxRect,
-        player.ref_x, player.ref_y, 128, 86, 0.5, 0.5,
+
+    let rect = player.scene.add.rectangle(
+        player.x, player.y + player.body.height + 32,
+        128, 64 + 32, 0xff0000, 0.2,
+    );
+    rect.setOrigin(0.5, 1);
+    const inRange = Phaser.Geom.Rectangle.Overlaps(
+        rect.getBounds(),
+        target.hitboxRect.getBounds()
     )
+    rect.destroy();
+
     if (!inRange) {
         store.dispatch(setAlert('Target is out of range.'));
         return false;
     }
     return true;
 };
+
 export const inRangedRange = (player, target) => {
     if (target.health <= 0) return false;
-    const inRange = player.isTargetInRange(
-        target.hitboxRect,
-        player.ref_x, player.ref_y,  1028, 128 + 4, 0.5, 0.5,
+
+    let rect = player.scene.add.rectangle(
+        player.x, player.y + player.body.height + 32,
+        1028, 128 + 32, 0xff0000, 0.2,
+    );
+    rect.setOrigin(0.5, 1);
+    const inRange = Phaser.Geom.Rectangle.Overlaps(
+        rect.getBounds(),
+        target.hitboxRect.getBounds()
     )
+    rect.destroy();
+
     if (!inRange) {
         store.dispatch(setAlert('Target is out of range.'));
         return false;
