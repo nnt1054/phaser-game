@@ -22,6 +22,8 @@ import {
     updateTargetStatuses,
     setTargetCast,
     cancelTargetCast,
+    setTargetHealth,
+    setCotargetHealth,
 } from '../store/targetInfo';
 import {
     setDialogue,
@@ -63,6 +65,12 @@ export const HealthMixin = {
     health: 100,
     maxHealth: 100,
     // hitboxRect: null,
+
+    setHealth(health, maxHealth) {
+        this.currentHealth = health;
+        this.maxHealth = maxHealth;
+        this.updateHealthStore();
+    },
 
     setMaxHealth(value) {
         this.maxHealth = value;
@@ -134,13 +142,20 @@ export const HealthMixin = {
 
         if (this.isTargeted) {
             store.dispatch(
-                setTargetCurrentHealth(this.health)
+                setTargetHealth({
+                    currentHealth: this.health,
+                    maxHealth: this.maxHealth,
+                })
             )
         }
 
         if (this.isCotargeted) {
+            setCotargetHealth
             store.dispatch(
-                setCotargetCurrentHealth(this.health)
+                setCotargetHealth({
+                    currentHealth: this.health,
+                    maxHealth: this.maxHealth,
+                })
             )
         }
     },
@@ -226,6 +241,14 @@ export const TargetMixin = {
     isCotargeted: false,
 
     // clickRect: null,
+
+    targetObjectFromId: function(id) {
+        if (this.currentTarget && this.currentTarget.id === id) return;
+        const gameObject = this.scene.getObjectFromId(id);
+        if (gameObject) {
+            this.targetObject(gameObject);
+        }
+    },
 
     targetObject: function(gameObject) {
         if (gameObject.isTargetable) {

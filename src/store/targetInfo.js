@@ -25,18 +25,18 @@ const targetInfoSlice = createSlice({
   initialState: {
     display: false,
     targetName: 'Lamb Seel',
-    currentHealth: 50,
-    maxHealth: 100,
-    percentHealth: 0.5,
+    currentHealth: 0,
+    maxHealth: 0,
+    percentHealth: 0,
     increasing: false,
     color: 'lightblue',
     statuses: [],
 
     cotargetDisplay: true,
     cotargetName: 'HELLO',
-    cotargetCurrentHealth: 50,
-    cotargetMaxHealth: 150,
-    cotargetPercentHealth: 0.33,
+    cotargetCurrentHealth: 0,
+    cotargetMaxHealth: 0,
+    cotargetPercentHealth: 0,
     cotargetIncreasing: false,
     cotargetColor: 'lightblue',
 
@@ -120,6 +120,11 @@ const targetInfoSlice = createSlice({
         state.cotargetCurrentHealth = action.payload;
         _calculateCotargetHealthState(state);
     },
+    setCotargetHealth: (state, action) => {
+        state.cotargetCurrentHealth = action.payload.currentHealth;
+        state.cotargetMaxHealth = action.payload.maxHealth;
+        _calculateCotargetHealthState(state);
+    },
     updateTargetStatuses: (state, action) => {
         state.statuses = action.payload;
     },
@@ -148,6 +153,7 @@ export const {
     updateTargetStatuses,
     setTargetCast,
     cancelTargetCast,
+    setCotargetHealth
 } = targetInfoSlice.actions;
 
 export default targetInfoSlice;

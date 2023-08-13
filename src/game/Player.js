@@ -267,7 +267,7 @@ export class Player extends ArcadeContainer {
 
     handleClick() {
         const clientPlayer = this.scene.clientPlayer;
-        clientPlayer.targetObject(this);
+        clientPlayer.targetObjectFromId(this.id);
     }
 
     update(time, delta) {
@@ -296,6 +296,8 @@ export class Player extends ArcadeContainer {
         this.state.y = this.y;
         this.state.facingRight = this.facingRight;
         this.state.currentAnim = this.currentAnim;
+        this.state.health = this.health;
+        this.state.maxHealth = this.maxHealth;
     }
 
     updateFromState() {
@@ -303,6 +305,7 @@ export class Player extends ArcadeContainer {
         this.setPosition(this.state.x, this.state.y);
         this.setCharacterDirection(this.state.facingRight);
         this.character.play(this.state.currentAnim, true);
+        this.setHealth(this.state.health, this.state.maxHealth);
     }
 
     autoZoom(zoom) {

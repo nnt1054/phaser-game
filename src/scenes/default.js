@@ -220,8 +220,6 @@ class defaultScene extends Phaser.Scene {
         this.animationObserver = observeStore(store, getFrameIndex, (animState) => {
             this.clientPlayer.setAnimState(animState);
         })
-
-        // this._testClientInput();
     }
 
     update (time, delta) {}
@@ -246,6 +244,10 @@ class defaultScene extends Phaser.Scene {
             enemies: {},
             npcs: {},
         };
+    }
+
+    getObjectFromId(id) {
+        return this.playerGroup.children.entries.find(gameObject => gameObject.id == id);
     }
 
     addPlayer(id, isClientPlayer) {
