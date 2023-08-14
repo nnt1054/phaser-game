@@ -19,24 +19,25 @@ import {
 import {
     HealthMixin,
     TargetMixin,
+    DialogueMixin,
     BuffMixin,
     EquipmentMixin,
     InventoryMixin,
     EnemyListMixin,
     CastingMixin,
     CooldownMixin,
-    CombatMixin,
+    LevelMixin,
     ExperienceMixin,
     BaseStatsMixin,
-    LevelMixin,
+    CombatMixin,
     JobMixin,
+    MessagingMixin,
+    AnimationEditorMixin,
     MovementController,
     ActionController,
-    AnimationEditorMixin,
-    DialogueMixin,
-    MessagingMixin,
     AnimationController,
 } from './mixins';
+
 import {
     setAlert,
 } from '../store/alert';
@@ -174,8 +175,6 @@ export class Player extends ArcadeContainer {
             this.handleClick();
         });
 
-        this.currentMessage = ''
-        this.messageTimer;
         this.chatBubble = scene.add.dom(0, 0,
             'div',
             '',

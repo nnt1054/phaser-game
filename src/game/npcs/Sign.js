@@ -3,7 +3,6 @@ import {
 } from '../utils';
 
 import {
-    HealthMixin,
     TargetMixin,
     DialogueMixin,
 } from '../mixins';

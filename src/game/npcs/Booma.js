@@ -7,17 +7,18 @@ import {
 import {
     HealthMixin,
     TargetMixin,
-    AggroMixin,
     BuffMixin,
+    AggroMixin,
     CastingMixin,
     CooldownMixin,
-    CombatMixin,
+    LevelMixin,
     ExperienceMixin,
     BaseStatsMixin,
-    LevelMixin,
-    BASE_STATS,
+    CombatMixin,
     MovementController,
 } from '../mixins';
+
+import { BASE_STATS } from '../../constants';
 
 import store from '../../store/store';
 import {

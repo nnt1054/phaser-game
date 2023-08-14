@@ -7,6 +7,7 @@ import {
     DialogueMixin,
 } from '../mixins';
 
+
 import store from '../../store/store';
 import {
     setDialogue,
