@@ -10,9 +10,6 @@ import {
 
 import { Player } from '../game/Player';
 import {
-    NPC,
-} from '../game/NPC';
-import {
     SignPost,
 } from '../game/npcs/Sign';
 import {
