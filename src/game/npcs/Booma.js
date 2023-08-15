@@ -168,13 +168,15 @@ export class Booma extends ArcadeContainer {
         MovementController,
     ]
 
-    constructor(scene, x, y, displayName='Non-Player') {
+    constructor(id, scene, x, y, displayName='Non-Player') {
         super(scene, x, y);
         this.initialPosition = [x, y];
 
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
         })
+
+        this.id = id;
 
         this.initializeAggroMixin();
         this.initializeBuffMixin();

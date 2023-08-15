@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { v4 as uuid } from 'uuid';
 
 import {
     scaleToWidth,
@@ -118,33 +119,29 @@ class defaultScene extends Phaser.Scene {
         this.platformGroup = this.add.group([layer2]);
         this.climbableGroup = this.add.group([this.ladder, this.ladder2]);
 
-        this.playerGroup = this.add.group([], { runChildUpdate: true });
-        this.player = this.addPlayer(1, true);
-        this.player2 = this.addPlayer(2, false);
+        this.entityGroup = this.add.group([], { runChildUpdate: true })
+        this.playerGroup = this.add.group([]);
+        this.enemyGroup = this.add.group([]);
+
+        this.player = this.addPlayer(uuid(), true);
+        this.player2 = this.addPlayer(uuid(), false);
         this.player.setDepth(101);
         this.clientPlayer = this.player;
 
+        this.addEnemy(32 * 12, 32 * 58, 'Hostile Enemy A');
+        this.addEnemy(32 * 14.5, 32 * 58, 'Hostile Enemy B');
+        this.addEnemy(32 * 17, 32 * 58, 'Hostile Enemy C');
+
         this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
         this.lamb = new Lamb(this, 32 * 20, 32 * 1.5, 'Auspicious Friend');
-        this.booma1 = new Booma(this, 32 * 12, 32 * 58, 'Hostile Enemy A');
-        this.booma2 = new Booma(this, 32 * 14.5, 32 * 58, 'Hostile Enemy B');
-        this.booma3 = new Booma(this, 32 * 17, 32 * 58, 'Hostile Enemy C');
 
         this.physics.add.collider(this.playerGroup, this.staticGroup);
-
-        this.enemyGroup = this.add.group(
-            [this.booma1, this.booma2, this.booma3],
-            { runChildUpdate: true }
-        );
         this.physics.add.collider(this.enemyGroup, this.staticGroup);
         this.physics.add.collider(this.enemyGroup, this.platformGroup);
 
         this.npcGroup = this.add.group([
             this.sign,
             this.lamb,
-            this.booma1,
-            this.booma2,
-            this.booma3,
         ]);
 
         this.cameras.main.startFollow(this.player, false, 1, 1);
@@ -227,8 +224,8 @@ class defaultScene extends Phaser.Scene {
         this.zoom = Math.max(this.zoom, zoomX, zoomY, 1);
         this.zoom = Math.min(this.zoom, 6)
         this.cameras.main.setZoom(this.zoom);
-        for (const player of this.playerGroup.children.entries) {
-            player.autoZoom(this.zoom);
+        for (const entity of this.entityGroup.children.entries) {
+            entity.autoZoom(this.zoom);
         }
         for (const npc of this.npcGroup.children.entries) {
             npc.autoZoom(this.zoom);
@@ -245,6 +242,12 @@ class defaultScene extends Phaser.Scene {
 
     getObjectFromId(id) {
         return this.playerGroup.children.entries.find(gameObject => gameObject.id == id);
+    }
+
+    addEnemy(x, y, displayName) {
+        const enemy = new Booma(uuid(), this, x, y, displayName);
+        this.entityGroup.add(enemy);
+        this.enemyGroup.add(enemy);
     }
 
     addPlayer(id, isClientPlayer) {
@@ -293,6 +296,7 @@ class defaultScene extends Phaser.Scene {
 
         const player = new Player(id, this, 32 * 9, 32 * 58, config, isClientPlayer);
 
+        this.entityGroup.add(player);
         this.playerGroup.add(player);
         return player;
     }

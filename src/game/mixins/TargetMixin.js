@@ -11,20 +11,23 @@ import {
 
 const TargetMixin = {
 
+    targetId: null,
+
     currentTarget: null,
     isTargetable: true,
 
-    // isTargeted and isCotargeted are in relation to the Player
     isTargeted: false,
     isCotargeted: false,
 
-    // clickRect: null,
-
     targetObjectFromId: function(id) {
         if (this.currentTarget && this.currentTarget.id === id) return;
-        const gameObject = this.scene.getObjectFromId(id);
-        if (gameObject) {
-            this.targetObject(gameObject);
+        if (id) {
+            const gameObject = this.scene.getObjectFromId(id);
+            if (gameObject) {
+                this.targetObject(gameObject);
+            }
+        } else {
+            this.untargetObject();
         }
     },
 
