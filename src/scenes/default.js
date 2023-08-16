@@ -248,7 +248,48 @@ class defaultScene extends Phaser.Scene {
     }
 
     addEnemy(x, y, displayName) {
-        const enemy = new Enemy(uuid(), this, x, y, displayName);
+        const characterConfig = {
+            'hair_back': 'hair',
+            'legs': 'legs',
+            'pants': 'pants',
+            'arm_back': 'arm_back',
+            'armor_body_back_sleeve': 'armor_body_back_sleeve',
+            'torso': 'torso',
+            'armor_body': 'armor_body',
+            'arm_front': 'arm_front',
+            'armor_body_front_sleeve': 'armor_body_front_sleeve',
+            'armor_body_collar': 'armor_body_collar',
+            'head': 'head',
+            'ears': 'ears',
+            'headband': 'headband',
+            'hair_front': 'hair',
+        };
+
+        const indexes = {
+            'hair_back': 1,
+            'legs': 1,
+            'pants': 1,
+            'arm_back': 1,
+            'armor_body_back_sleeve': 2,
+            'torso': 1,
+            'armor_body': 2,
+            'arm_front': 1,
+            'armor_body_front_sleeve': 2,
+            'armor_body_collar': 2,
+            'head': 1,
+            'ears': 1,
+            'headband': 3,
+            'hair_front': 1,
+        };
+
+        const config = {
+            character: {
+                config: characterConfig,
+                indexes: indexes,
+            },
+        }
+
+        const enemy = new Enemy(uuid(), this, x, y, config, displayName);
         this.entityGroup.add(enemy);
         this.enemyGroup.add(enemy);
     }

@@ -120,8 +120,14 @@ export class Player extends ArcadeContainer {
         this.ref_y = this.body.height;
 
         this.state = {
+            x: x,
+            y: y,
             width: 20,
             height: 48,
+            facingRight: true,
+            currentAnim: 'idle',
+            health: 100,
+            maxHealth: 100,
             character: {
                 config: compositeConfig,
                 indexes: config.spriteConfig,
@@ -129,6 +135,7 @@ export class Player extends ArcadeContainer {
             displayName: config.displayName,
             equipment: config.equipment,
         }
+
         this.initializeCompositeSprite();
         this.initializeMovementController();
         this.initializeDisplayName();
@@ -158,7 +165,7 @@ export class Player extends ArcadeContainer {
             this.healthBar,
         ]);
 
-        this.reduxCursors = {
+        this.inputCursors = {
             up: 0,
             down: 0,
             left: 0,
@@ -168,7 +175,7 @@ export class Player extends ArcadeContainer {
     }
 
     setInput(input) {
-        this.reduxCursors = {
+        this.inputCursors = {
             up: input.up,
             down: input.down,
             left: input.left,

@@ -23,6 +23,7 @@ const DisplayNameMixin = {
             this.name.setOrigin(0.5, 0);
         } else {
             this.name.setOrigin(0.5, 1);
+            this.name.setY(0);
         }
         this.name.setInteractive();
         this.name.on('clicked', (object) => {

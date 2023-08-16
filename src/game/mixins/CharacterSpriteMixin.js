@@ -12,6 +12,7 @@ const CharacterSpriteMixin = {
             this.state.character.config,
             this.state.character.indexes,
         );
+        this.playAnimation(this.state.currentAnim);
     },
 
     playAnimation(anim) {

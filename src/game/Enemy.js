@@ -16,6 +16,8 @@ import {
     BaseStatsMixin,
     CombatMixin,
     MovementController,
+    CharacterSpriteMixin,
+    DisplayNameMixin,
 } from './mixins';
 
 import { BASE_STATS } from '../constants';
@@ -166,9 +168,11 @@ export class Enemy extends ArcadeContainer {
         BaseStatsMixin,
         LevelMixin,
         MovementController,
+        CharacterSpriteMixin,
+        DisplayNameMixin,
     ]
 
-    constructor(id, scene, x, y, displayName='Non-Player') {
+    constructor(id, scene, x, y, config, displayName='Non-Player') {
         super(scene, x, y);
         this.initialPosition = [x, y];
 
@@ -178,10 +182,22 @@ export class Enemy extends ArcadeContainer {
 
         this.id = id;
 
+        this.state = {
+            x: x,
+            y: y,
+            width: 32,
+            height: 48,
+            displayName: displayName,
+            currentAnim: 'floss',
+            character: {
+                config: config.character.config,
+                indexes: config.character.indexes,
+            },
+        }
+
         this.initializeAggroMixin();
         this.initializeBuffMixin();
         this.initializeCooldowns();
-
 
         this.setLevel(1);
         this.setCurrentHealth(this.maxHealth);
@@ -201,48 +217,10 @@ export class Enemy extends ArcadeContainer {
         this.ref_x = width / 2;
         this.ref_y = height;
 
-        this.setGravityY(1600);
+        this.initializeDisplayName()
+        this.initializeCompositeSprite();
 
-        this.name = scene.add.text(0, 0, this.displayName, {
-            fontFamily: 'Comic Sans MS',
-            fontSize: '16px',
-            fill: '#FFF',
-            stroke: '#000',
-            strokeThickness: 8,
-        });
-        this.name.setOrigin(0.5, 1);
-        this.name.setPosition(this.ref_x + 0, this.ref_y - height);
-        this.name.setInteractive();
-        this.name.on('clicked', (object) => {
-            this.handleClick();
-        });
-
-        this.character = new CompositeSprite(
-            scene,
-            this.ref_x,
-            this.ref_y + 1,
-            compositeConfig,
-            compositeConfigIndexes
-        );
-        this.character.setScale(0.1);
-        this.character.scaleX = -Math.abs(this.character.scaleX);
-
-        // loop animation
-        this.character.play('floss', false);
-        this.character.on('animationcomplete', () => {
-            this.character.play('floss', false);
-        })
-
-        let clickPadding = { width: 32, height: 64 };
-        this.clickRect = scene.add.rectangle(
-            0, 0, clickPadding.width, clickPadding.height,
-        );
-        this.clickRect.setOrigin(0.5, 1);
-        this.clickRect.setPosition(this.ref_x + 0, this.ref_y);
-        this.clickRect.setInteractive();
-        this.clickRect.on('clicked', (object) => {
-            this.handleClick();
-        });
+        this.initializeTargetMixin();
 
         this.hitboxRect = new ArcadeRectangle(scene, this.ref_x, this.ref_y, 32, 42);
         this.hitboxRect.setOrigin(0.5, 1);

@@ -68,14 +68,14 @@ const MovementController = {
                 this.x = this.climbing.body.center.x - (this.body.width / 2);
             }
         } else {
-            if (this.reduxCursors.up) {
+            if (this.inputCursors.up) {
                 const ladder = this.overlappingLadders.find(x => !!x);
                 if (ladder) {
                     if (!this.climbingDisabled) {
                         this.startClimbing(ladder);
                     }
                 }
-            } else if (this.reduxCursors.down) {
+            } else if (this.inputCursors.down) {
                 const ladder = this.overlappingLadders.find(x => !!x);
                 if (ladder) {
                     if (!this.climbingDisabled) {
@@ -86,9 +86,9 @@ const MovementController = {
         }
 
         if (this.isClimbing) {
-            if (this.reduxCursors.up) {
+            if (this.inputCursors.up) {
                 this.setVelocityY(-150)
-            } else if (this.reduxCursors.down) {
+            } else if (this.inputCursors.down) {
                 this.setVelocityY(150)
                 if (this.body.onFloor()) {
                     this.stopClimbing();
@@ -97,7 +97,7 @@ const MovementController = {
                 this.setVelocityY(0)
             }
 
-            if (this.reduxCursors.jump) {
+            if (this.inputCursors.jump) {
                 this.executeJump();
             }
             return;
@@ -109,8 +109,8 @@ const MovementController = {
             this.stopDash();
         }
 
-        if (this.reduxCursors.left) {
-            if (this.reduxCursors.down) {
+        if (this.inputCursors.left) {
+            if (this.inputCursors.down) {
                 this.setVelocityX(-75);
             } else {
                 this.setVelocityX(-150);
@@ -118,8 +118,8 @@ const MovementController = {
             if (this.directionLockTimer <= 0) {
                 this.facingRight = false;
             }
-        } else if (this.reduxCursors.right) {
-            if (this.reduxCursors.down) {
+        } else if (this.inputCursors.right) {
+            if (this.inputCursors.down) {
                 this.setVelocityX(75);
             } else {
                 this.setVelocityX(150);
@@ -134,13 +134,13 @@ const MovementController = {
         if (this.body.onFloor()) {
             this.coyoteTime = 0;
             this.jumpUsed = false;
-            if (this.reduxCursors.down && this.reduxCursors.jump) {
+            if (this.inputCursors.down && this.inputCursors.jump) {
                 this.executeDownJump();
-            } else if (this.reduxCursors.jump) {
+            } else if (this.inputCursors.jump) {
                 this.executeJump();
             }
         } else {
-            if (this.reduxCursors.jump && this.coyoteTime < 240 && !this.jumpUsed) {
+            if (this.inputCursors.jump && this.coyoteTime < 240 && !this.jumpUsed) {
                 this.executeJump();
             }
             this.coyoteTime += delta;
@@ -153,7 +153,7 @@ const MovementController = {
             this.setGravityY(1600);
         }
 
-        if (this.reduxCursors.down) {
+        if (this.inputCursors.down) {
             this.ladderHitbox.setY(this.ref_y + 4);
         } else {
             this.ladderHitbox.setY(this.ref_y);
