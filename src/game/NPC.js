@@ -1,13 +1,13 @@
-import store from '../../store/store';
+import store from '../store/store';
 
 import {
     TargetMixin,
     DialogueMixin,
-} from '../mixins';
+} from './mixins';
 
 import {
     CompositeSprite,
-} from '../utils';
+} from './utils';
 
 const compositeConfig = {
     'hair_back': 'hair',
@@ -46,7 +46,7 @@ const compositeConfigIndexes = {
 };
 
 
-export class Lamb extends Phaser.GameObjects.Container {
+export class NPC extends Phaser.GameObjects.Container {
 
     mixins = [
         TargetMixin,

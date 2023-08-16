@@ -8,15 +8,34 @@ import {
     updatePreview
 } from '../../store/characterPreview';
 
+import helmets from '../equipment/helmets';
+
 
 const EquipmentMixin = {
     hasEquipment: true,
 
-    equipped: {
-        weapon: null,
-        helmet: null,
-        armor: null,
-        pants: null,
+    equipped: {},
+
+    initializeEquipmentMixin() {
+        this.equipped = {
+            weapon: null,
+            helmet: null,
+            armor: null,
+            pants: null,
+        };
+
+        this.equipHelmetFromId(this.state.equipment.helmet);
+
+        if (this.hasJob) {
+            this.setJob(this.equipped.helmet.job);
+        }
+    },
+
+    equipHelmetFromId(id) {
+        const helmet = helmets[id];
+        if (helmet) {
+            this.equipHelmet(helmet);
+        }
     },
 
     equipHelmet: function(item) {

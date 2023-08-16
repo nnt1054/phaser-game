@@ -1,3 +1,5 @@
+import { ArcadeRectangle } from '../utils';
+
 const MovementController = {
     isDashing: false,
     isClimbing: false,
@@ -14,7 +16,15 @@ const MovementController = {
 
     directionLockTimer: 0,
 
+    ladderHitbox: null,
+
     initializeMovementController() {
+        this.ladderHitbox = new ArcadeRectangle(
+            this.scene, 0, 0,
+            this.state.width, this.state.height / 2,
+        );
+        this.ladderHitbox.setOrigin(0, 1);
+
         this.overlappingLadders = [];
         this.previousOverlappingLadders = [];
         this.walls = [];

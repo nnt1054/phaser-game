@@ -10,6 +10,7 @@ import jobMap from '../jobs';
 const JobMixin = {
     hasJob: true,
     currentJob: null,
+
     setJob(key) {
         this.unapplyAllBuffsFromSource();
         const job = jobMap[key]

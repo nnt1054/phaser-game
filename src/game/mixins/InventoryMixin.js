@@ -8,7 +8,16 @@ import {
 
 const InventoryMixin = {
 
-    inventory: new Map(),
+    inventory: null,
+
+    initializeInventoryMixin(config) {
+        this.inventory = new Map();
+
+        const { inventory } = config;
+        for (let item in inventory) {
+            this.addItem(item, inventory[item])
+        }
+    },
 
     addItem: function(key, amount) {
         if (amount == null) amount = 1;

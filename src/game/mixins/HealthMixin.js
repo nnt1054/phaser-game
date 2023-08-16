@@ -18,7 +18,19 @@ const HealthMixin = {
     hasHealth: true,
     health: 100,
     maxHealth: 100,
-    // hitboxRect: null,
+
+    initializeHealthBars() {
+        this.healthBarWidth = 32;
+        this.healthBar = this.scene.add.rectangle(
+            this.state.width / 2, 0, 32, 4, 0x00ff00
+        );
+        this.healthBar.setOrigin(0.5, 1);
+
+        this.healthBarUnderlay = this.scene.add.rectangle(
+            this.state.width / 2, 0.5, 33, 5, 0x000000
+        );
+        this.healthBarUnderlay.setOrigin(0.5, 1);
+    },
 
     setHealth(health, maxHealth) {
         this.currentHealth = health;

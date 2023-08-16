@@ -10,17 +10,15 @@ import {
 } from '../game/utils'
 
 import { Player } from '../game/Player';
+import { Enemy } from '../game/Enemy';
+import { NPC } from '../game/NPC';
 import {
     SignPost,
 } from '../game/npcs/Sign';
 import {
     Lamb,
 } from '../game/npcs/Lamb';
-import {
-    Booma,
-} from '../game/npcs/Booma';
 import { Ladder } from '../game/Ladder';
-
 
 import jumpquest_map from '../assets/tilemaps/jq_map.json';
 import jumpquest_bg from '../assets/jq.png';
@@ -40,9 +38,6 @@ import {
     clearSystemAction,
     setRefreshCooldown,
 } from '../store/playerState';
-
-import helmets from '../game/equipment/helmets';
-import armors from '../game/equipment/armors';
 
 import store from '../store/store';
 
@@ -102,9 +97,6 @@ class defaultScene extends Phaser.Scene {
         layer2.setVisible(false);
         setLayerCollisionTopOnly(layer2.layer, [8, 9, 10, 16, 20, 24, 25, 31, 26]);
 
-        this.ladder = new Ladder(this, 32 * 5, 32 * 52, 12, 256);
-        this.ladder2 = new Ladder(this, 32 * 3, 32 * 52, 12, 256);
-
         const inputUnderlay = this.add.rectangle(
             0, 0,
             this.map.widthInPixels, this.map.heightInPixels,
@@ -115,34 +107,40 @@ class defaultScene extends Phaser.Scene {
             this.player.untargetObject();
         })
 
-        this.staticGroup = this.add.group([layer1])
+        this.staticGroup = this.add.group([layer1]);
         this.platformGroup = this.add.group([layer2]);
-        this.climbableGroup = this.add.group([this.ladder, this.ladder2]);
+        this.climbableGroup = this.add.group([]);
 
         this.entityGroup = this.add.group([], { runChildUpdate: true })
         this.playerGroup = this.add.group([]);
         this.enemyGroup = this.add.group([]);
-
-        this.player = this.addPlayer(uuid(), true);
-        this.player2 = this.addPlayer(uuid(), false);
-        this.player.setDepth(101);
-        this.clientPlayer = this.player;
-
-        this.addEnemy(32 * 12, 32 * 58, 'Hostile Enemy A');
-        this.addEnemy(32 * 14.5, 32 * 58, 'Hostile Enemy B');
-        this.addEnemy(32 * 17, 32 * 58, 'Hostile Enemy C');
-
-        this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
-        this.lamb = new Lamb(this, 32 * 20, 32 * 1.5, 'Auspicious Friend');
+        this.npcGroup = this.add.group([]);
 
         this.physics.add.collider(this.playerGroup, this.staticGroup);
         this.physics.add.collider(this.enemyGroup, this.staticGroup);
         this.physics.add.collider(this.enemyGroup, this.platformGroup);
 
-        this.npcGroup = this.add.group([
-            this.sign,
-            this.lamb,
-        ]);
+        // CLIMBABLES
+        this.addLadder(32 * 5, 32 * 52, 12, 256);
+        this.addLadder(32 * 3, 32 * 52, 12, 256);
+
+        // PLAYERS
+        this.player = this.addPlayer(uuid(), true);
+        this.player2 = this.addPlayer(uuid(), false);
+        this.player.setDepth(101);
+        this.clientPlayer = this.player;
+
+        // ENEMIES
+        this.addEnemy(32 * 12, 32 * 58, 'Hostile Enemy A');
+        this.addEnemy(32 * 14.5, 32 * 58, 'Hostile Enemy B');
+        this.addEnemy(32 * 17, 32 * 58, 'Hostile Enemy C');
+
+        // NPCS
+        this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
+        this.addNPC(32 * 4, 32 * 58.51, 'Auspicious Friend');
+
+        this.entityGroup.add(this.sign);
+        this.npcGroup.add(this.sign);
 
         this.cameras.main.startFollow(this.player, false, 1, 1);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
@@ -151,7 +149,7 @@ class defaultScene extends Phaser.Scene {
             this.autoZoomCamera();
         });
 
-        this.zoom = 2;
+        this.zoom = 1;
         this.input.on(Phaser.Input.Events.POINTER_WHEEL, (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
             this.zoom -= deltaY * 0.001;
             this.autoZoomCamera();
@@ -244,10 +242,40 @@ class defaultScene extends Phaser.Scene {
         return this.playerGroup.children.entries.find(gameObject => gameObject.id == id);
     }
 
+    addLadder(x, y, width, height) {
+        const ladder = new Ladder(this, x, y, width, height);
+        this.climbableGroup.add(ladder);
+    }
+
     addEnemy(x, y, displayName) {
-        const enemy = new Booma(uuid(), this, x, y, displayName);
+        const enemy = new Enemy(uuid(), this, x, y, displayName);
         this.entityGroup.add(enemy);
         this.enemyGroup.add(enemy);
+    }
+
+    addNPC(x, y, displayName, config) {
+        const spriteConfig = {
+            'hair_back': 2,
+            'legs': 1,
+            'arm_back': 1,
+            'torso': 1,
+            'arm_front': 1,
+            'head': 1,
+            'ears': 1,
+            'face': 0,
+            'hair_front': 2,
+
+            'pants': 1,
+            'armor_body_back_sleeve': 3,
+            'armor_body': 3,
+            'armor_body_front_sleeve': 3,
+            'armor_body_collar': 3,
+            'headband': 2,
+        };
+
+        const npc = new NPC(uuid(), this, x, y, displayName);
+        this.entityGroup.add(npc);
+        this.npcGroup.add(npc);
     }
 
     addPlayer(id, isClientPlayer) {
@@ -270,10 +298,9 @@ class defaultScene extends Phaser.Scene {
             'headband': 1,
         };
 
-        const ears = helmets[1];
         const equipment = {
             weapon: null,
-            helmet: ears,
+            helmet: 1,
             armor: null,
             pants: null,
         }
@@ -299,69 +326,6 @@ class defaultScene extends Phaser.Scene {
         this.entityGroup.add(player);
         this.playerGroup.add(player);
         return player;
-    }
-
-
-    _testClientInput() {
-        this.time.delayedCall(1500, () => {
-            this.player2.setInput({
-                up: 0,
-                down: 0,
-                left: 0,
-                right: 0,
-                jump: false,
-                systemAction: 'cycleTarget',
-            })
-        })
-        this.time.delayedCall(2500, () => {
-            this.player2.setInput({
-                up: 0,
-                down: 0,
-                left: 1,
-                right: 0,
-                jump: false,
-            })
-        })
-        this.time.delayedCall(3500, () => {
-            this.player2.setInput({
-                up: 0,
-                down: 0,
-                left: 0,
-                right: 0,
-                jump: false,
-                queuedAbility: 'jolt',
-            })
-        })
-        this.time.delayedCall(6500, () => {
-            this.player2.setInput({
-                up: 0,
-                down: 0,
-                left: 0,
-                right: 0,
-                jump: false,
-                queuedAbility: 'jolt',
-            })
-        })
-        this.time.delayedCall(9500, () => {
-            this.player2.setInput({
-                up: 0,
-                down: 0,
-                left: 0,
-                right: 0,
-                jump: false,
-                queuedAbility: 'jolt',
-            })
-        })
-        this.time.delayedCall(12500, () => {
-            this.player2.setInput({
-                up: 0,
-                down: 0,
-                left: 0,
-                right: 0,
-                jump: false,
-                queuedAbility: 'jolt',
-            })
-        })
     }
 }
 

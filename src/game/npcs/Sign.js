@@ -1,17 +1,9 @@
-import {
-    StaticCompositeSprite,
-} from '../utils';
+import store from '../../store/store';
 
 import {
     TargetMixin,
     DialogueMixin,
 } from '../mixins';
-
-import store from '../../store/store';
-import {
-    setDialogue,
-    clearDialogue,
-} from '../../store/dialogueBox';
 
 
 export class SignPost extends Phaser.GameObjects.Container {

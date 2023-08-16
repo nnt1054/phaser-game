@@ -202,7 +202,6 @@ export class CompositeSprite extends Phaser.GameObjects.Container {
         Object.entries(indexes).forEach(([key, index]) => {
             this.indexes[key] = index;
         })
-        this.play('idle');
     }
 
     play(anim, ignoreIfPlaying) {

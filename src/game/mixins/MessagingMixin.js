@@ -3,6 +3,20 @@ const MessagingMixin = {
 	currentMessage: '',
 	messageTimer: 0,
 
+    chatBubble: null,
+
+    initializeMessagingMixin() {
+        this.chatBubble = this.scene.add.dom(
+            0, 0,
+            'div',
+            '',
+            this.currentMessage,
+        );
+        this.chatBubble.setClassName('chat-bubble-hidden');
+        this.chatBubble.setOrigin(0.5, 1);
+        this.chatBubble.setPosition(this.state.width / 2, -8); 
+    },
+
     clearMessage() {
         this.currentMessage = '';
         this.chatBubble.setText('');

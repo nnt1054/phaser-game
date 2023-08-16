@@ -2,7 +2,7 @@ import {
     ArcadeContainer,
     ArcadeRectangle,
     CompositeSprite,
-} from '../utils';
+} from './utils';
 
 import {
     HealthMixin,
@@ -16,15 +16,15 @@ import {
     BaseStatsMixin,
     CombatMixin,
     MovementController,
-} from '../mixins';
+} from './mixins';
 
-import { BASE_STATS } from '../../constants';
+import { BASE_STATS } from '../constants';
 
-import store from '../../store/store';
+import store from '../store/store';
 import {
     setDialogue,
     clearDialogue,
-} from '../../store/dialogueBox';
+} from '../store/dialogueBox';
 
 const compositeConfig = {
     'hair_back': 'hair',
@@ -153,7 +153,7 @@ const abilities = {
 }
 
 
-export class Booma extends ArcadeContainer {
+export class Enemy extends ArcadeContainer {
 
     mixins = [
         TargetMixin,

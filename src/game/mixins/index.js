@@ -15,6 +15,8 @@ import CombatMixin from './CombatMixin';
 import JobMixin from './JobMixin';
 import MessagingMixin from './MessagingMixin';
 import AnimationEditorMixin from './AnimationEditorMixin';
+import CharacterSpriteMixin from './CharacterSpriteMixin';
+import DisplayNameMixin from './DisplayNameMixin';
 
 import MovementController from './MovementController';
 import ActionController from './ActionController';
@@ -38,6 +40,8 @@ export {
     JobMixin,
     MessagingMixin,
     AnimationEditorMixin,
+    CharacterSpriteMixin,
+    DisplayNameMixin,
 
     MovementController,
     ActionController,

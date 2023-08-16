@@ -36,6 +36,8 @@ import {
     MovementController,
     ActionController,
     AnimationController,
+    CharacterSpriteMixin,
+    DisplayNameMixin,
 } from './mixins';
 
 import {
@@ -90,27 +92,11 @@ export class Player extends ArcadeContainer {
         DialogueMixin,
         MessagingMixin,
         AnimationController,
+        CharacterSpriteMixin,
+        DisplayNameMixin,
     ]
 
     constructor(id, scene, x, y, config, isClientPlayer) {
-        const compositeConfigIndexes = {
-            'hair_back': 1,
-            'legs': 1,
-            'pants': 1,
-            'arm_back': 1,
-            'armor_body_back_sleeve': 1,
-            'torso': 1,
-            'armor_body': 1,
-            'arm_front': 1,
-            'armor_body_front_sleeve': 1,
-            'armor_body_collar': 1,
-            'head': 1,
-            'ears': 1,
-            'face': 0,
-            'headband': 1,
-            'hair_front': 1,
-        };
-
         super(scene, x, y);
         this.mixins.forEach(mixin => {
             Object.assign(this, mixin);
@@ -129,69 +115,37 @@ export class Player extends ArcadeContainer {
         this.setMaxVelocity(800);
         this.setGravityY(1600);
 
+        // todo: remove
         this.ref_x = this.body.width / 2;
         this.ref_y = this.body.height;
 
-        this.displayName = config.displayName;
+        this.state = {
+            width: 20,
+            height: 48,
+            character: {
+                config: compositeConfig,
+                indexes: config.spriteConfig,
+            },
+            displayName: config.displayName,
+            equipment: config.equipment,
+        }
+        this.initializeCompositeSprite();
+        this.initializeMovementController();
+        this.initializeDisplayName();
+        this.initializeTargetMixin();
+        this.initializeMessagingMixin();
+        this.initializeHealthBars();
+        this.initializeEnemyListMixin();
+        this.initializeBuffMixin();
+        this.initializeCooldowns();
+        this.initializeExperienceMixin();
+        this.initializeEquipmentMixin();
+        this.initializeInventoryMixin(config);
 
-        this.ladderHitbox = new ArcadeRectangle(scene, 0, 0, 20, 36);
-        this.ladderHitbox.setOrigin(0.5, 1);
-        this.ladderHitbox.setPosition(this.ref_x, this.ref_y);
-
-        this.hitboxRect = new ArcadeRectangle(scene, this.ref_x, this.ref_y, 24, 42);
+        this.hitboxRect = new ArcadeRectangle(
+            this.scene, this.state.width / 2, this.state.height, 24, 42,
+        );
         this.hitboxRect.setOrigin(0.5, 1);
-
-        this.name = scene.add.text(
-            this.ref_x,
-            this.ref_y,
-            this.displayName,
-            {
-                fontFamily: 'Comic Sans MS',
-                fontSize: '16px',
-                fill: '#FFF',
-                stroke: '#000',
-                strokeThickness: 8,
-            }
-        );
-        this.name.setOrigin(0.5, 0);
-        this.name.setInteractive();
-        this.name.on('clicked', (object) => {
-            this.handleClick();
-        });
-
-        this.character = new CompositeSprite(
-            scene,
-            this.ref_x,
-            this.ref_y + 1.5,
-            compositeConfig,
-            config.spriteConfig,
-        );
-
-        this.clickRect = scene.add.rectangle(0, 0, 32, 64,);
-        this.clickRect.setOrigin(0.5, 1);
-        this.clickRect.setPosition(this.ref_x, this.ref_y);
-        this.clickRect.setInteractive();
-        this.clickRect.on('clicked', (object) => {
-            this.handleClick();
-        });
-
-        this.chatBubble = scene.add.dom(0, 0,
-            'div',
-            '',
-            this.currentMessage,
-        );
-        this.chatBubble.setClassName('chat-bubble-hidden');
-        this.chatBubble.setOrigin(0.5, 1);
-        this.chatBubble.setPosition(this.ref_x + 0, -8);
-
-        this.healthBarWidth = 32;
-        this.healthBar = scene.add.rectangle(0, 0, 32, 4, 0x00ff00);
-        this.healthBar.setOrigin(0.5, 1);
-        this.healthBar.setPosition(this.ref_x, 0);
-
-        this.healthBarUnderlay = scene.add.rectangle(0, 0, 33, 5, 0x000000);
-        this.healthBarUnderlay.setOrigin(0.5, 1);
-        this.healthBarUnderlay.setPosition(this.ref_x, 0.5);
 
         this.add([
             this.chatBubble,
@@ -204,12 +158,6 @@ export class Player extends ArcadeContainer {
             this.healthBar,
         ]);
 
-        this.initializeEnemyListMixin();
-        this.initializeBuffMixin();
-        this.initializeMovementController();
-        this.initializeCooldowns();
-        this.initializeExperienceMixin();
-
         this.reduxCursors = {
             up: 0,
             down: 0,
@@ -217,27 +165,6 @@ export class Player extends ArcadeContainer {
             right: 0,
             jump: 0,
         }
-
-        const { inventory, equipment } = config;
-        for (let item in inventory) {
-            this.addItem(item, inventory[item])
-        }
-        this.equipHelmet(equipment.helmet);
-        this.setJob(this.equipped.helmet.job);
-
-        this.state = {
-            id: this.id,
-            x: this.x,
-            y: this.y,
-            currentAnim: null,
-        }
-
-        // this.state = {
-        //     partyId: null,
-        //     targetId: null,
-        //     character: null,
-        //     equipment: null,
-        // }
     }
 
     setInput(input) {
@@ -278,10 +205,11 @@ export class Player extends ArcadeContainer {
         this.updateAbilityState(delta);
         this.updateSystemAction(delta);
         this.updateAnimationState(delta);
-        this.clearLadders();
 
         this.updateState();
         this.updateFromState();
+
+        this.clearLadders();
     }
 
     setState(state) {
@@ -297,14 +225,26 @@ export class Player extends ArcadeContainer {
         this.state.currentAnim = this.currentAnim;
         this.state.health = this.health;
         this.state.maxHealth = this.maxHealth;
+        this.state.character = {
+            config: this.character.config,
+            indexes: this.character.indexes,
+        };
+        this.state.equipment = {
+            weapon: this.equipped.weapon ? this.equipped.weapon.id : null,
+            helmet: this.equipped.helmet ? this.equipped.helmet.id : null,
+            armor: this.equipped.armor ? this.equipped.armor.id : null,
+            pants: this.equipped.pants ? this.equipped.pants.id : null,
+        };
     }
 
     updateFromState() {
         this.displayName = this.state.displayName;
         this.setPosition(this.state.x, this.state.y);
         this.setCharacterDirection(this.state.facingRight);
-        this.character.play(this.state.currentAnim, true);
+        this.playAnimation(this.state.currentAnim);
         this.setHealth(this.state.health, this.state.maxHealth);
+        this.character.updateIndexes(this.state.character.indexes);
+        this.equipHelmetFromId(this.state.equipment.helmet);
     }
 
     autoZoom(zoom) {

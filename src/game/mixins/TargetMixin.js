@@ -19,6 +19,21 @@ const TargetMixin = {
     isTargeted: false,
     isCotargeted: false,
 
+    clickRect: null,
+
+    initializeTargetMixin() {
+        this.clickRect = this.scene.add.rectangle(
+            0, 0,
+            this.state.width + 12, this.state.height,
+        );
+        this.clickRect.setOrigin(0.5, 1);
+        this.clickRect.setPosition(this.state.width / 2, this.state.height);
+        this.clickRect.setInteractive();
+        this.clickRect.on('clicked', (object) => {
+            this.handleClick();
+        });
+    },
+
     targetObjectFromId: function(id) {
         if (this.currentTarget && this.currentTarget.id === id) return;
         if (id) {
@@ -74,15 +89,15 @@ const TargetMixin = {
 
         const camera = this.scene.cameras.main;
         const targets = [];
-        for (const target of this.scene.npcGroup.children.entries) {
+        for (const target of this.scene.entityGroup.children.entries) {
             if (
                 Phaser.Geom.Rectangle.Overlaps(camera.worldView, target.getBounds())
                 && target.visible
+                && !target.isPlayer
             ) {
                 targets.push(target);
             }
         };
-
 
         // TODO: if no targets in current direction; check behind
         const playerX = this.body.center.x;
