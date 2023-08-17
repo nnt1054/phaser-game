@@ -18,15 +18,12 @@ import {
     MovementController,
     CharacterSpriteMixin,
     DisplayNameMixin,
+    AnimationController,
 } from './mixins';
 
 import { BASE_STATS } from '../constants';
 
 import store from '../store/store';
-import {
-    setDialogue,
-    clearDialogue,
-} from '../store/dialogueBox';
 
 const compositeConfig = {
     'hair_back': 'hair',
@@ -170,6 +167,7 @@ export class Enemy extends ArcadeContainer {
         MovementController,
         CharacterSpriteMixin,
         DisplayNameMixin,
+        AnimationController,
     ]
 
     constructor(id, scene, x, y, config, displayName='Non-Player') {
@@ -299,6 +297,7 @@ export class Enemy extends ArcadeContainer {
         this.updateCooldowns(delta);
         this.updateCast(delta);
         this.updateBuffs(delta);
+        this.updateAnimationState();
 
         const isIdle = !this.casting
         if (isIdle) {
@@ -319,8 +318,6 @@ export class Enemy extends ArcadeContainer {
 
                 } else if (this.canCast(autoAttackAbility, this.currentTarget)) {
 
-                // if (this.canCast(autoAttackAbility, this.currentTarget)) {
-
                     // execute auto attack
                     autoAttackAbility.execute(this, this.currentTarget);
 
@@ -334,9 +331,11 @@ export class Enemy extends ArcadeContainer {
                     if (distance > 32) {
                         this.setVelocityX(-64);
                         this.character.scaleX = -Math.abs(this.character.scaleX);
+                        this.setCharacterDirection(false);
                     } else if (distance < -32) {
                         this.setVelocityX(64);
                         this.character.scaleX = Math.abs(this.character.scaleX);
+                        this.setCharacterDirection(true);
                     } else {
                         this.setVelocityX(0);   
                     }

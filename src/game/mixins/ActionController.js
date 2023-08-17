@@ -90,8 +90,7 @@ const ActionController = {
         } else if (ability.canTarget(this, null)) {
             targetObject = null;
         } else if (this.currentTarget == null) {
-            const isReverse = !this.facingRight;
-            this.cycleTargets(isReverse);
+            this.cycleTargets(this.facingRight);
             if (this.currentTarget == null) {
                 if (this.isClientPlayer) {
                     store.dispatch(setAlert('Invalid Target.'));

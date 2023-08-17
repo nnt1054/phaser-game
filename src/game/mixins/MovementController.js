@@ -3,6 +3,7 @@ import { ArcadeRectangle } from '../utils';
 const MovementController = {
     isDashing: false,
     isClimbing: false,
+    isCrouching: false,
 
     climbing: null,
     climbingDisabled: false,
@@ -153,7 +154,13 @@ const MovementController = {
             this.setGravityY(1600);
         }
 
-        if (this.inputCursors.down) {
+        if (this.body.onFloor() && this.inputCursors.down && this.body.velocity.x == 0) {
+            this.isCrouching = true;
+        } else {
+            this.isCrouching = false;
+        }
+
+        if (this.isCrouching) {
             this.ladderHitbox.setY(this.ref_y + 4);
         } else {
             this.ladderHitbox.setY(this.ref_y);

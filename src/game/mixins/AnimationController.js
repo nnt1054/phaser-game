@@ -24,14 +24,16 @@ const AnimationController = {
         } else if (speedX > 0) {
             anim = 'walk';
         }
-        if (!this.body.onFloor() || this.inputCursors.jump) {
+
+        if (!this.body.onFloor()) {
             if (this.body.velocity.x && this.body.velocity.y > 90) {
                 anim = 'jump';
             } else if (this.body.velocity.x == 0) {
                 anim = 'jumpIdle';
             }
         }
-        if (this.body.onFloor() && this.inputCursors.down && this.body.velocity.x == 0) {
+
+        if (this.isCrouching) {
             anim = 'crouch';
         }
 
