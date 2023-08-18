@@ -126,21 +126,21 @@ class defaultScene extends Phaser.Scene {
 
         // PLAYERS
         this.player = this.addPlayer(uuid(), true);
-        this.player2 = this.addPlayer(uuid(), false);
-        this.player.setDepth(101);
-        this.clientPlayer = this.player;
+
+        // this.player2 = this.addPlayer(uuid(), false);
+        // this.player.setDepth(101);
+        // this.clientPlayer = this.player;
 
         // ENEMIES
-        this.addEnemy(32 * 12, 32 * 58, 'Hostile Enemy A');
-        this.addEnemy(32 * 14.5, 32 * 58, 'Hostile Enemy B');
-        this.addEnemy(32 * 17, 32 * 58, 'Hostile Enemy C');
+        // this.addEnemy(32 * 12, 32 * 58, 'Hostile Enemy A');
+        // this.addEnemy(32 * 14.5, 32 * 58, 'Hostile Enemy B');
+        // this.addEnemy(32 * 17, 32 * 58, 'Hostile Enemy C');
 
         // NPCS
-        this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
-        this.addNPC(32 * 4, 32 * 58.51, 'Auspicious Friend');
-
-        this.entityGroup.add(this.sign);
-        this.npcGroup.add(this.sign);
+        // this.addNPC(32 * 4, 32 * 58.51, 'Auspicious Friend');
+        // this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
+        // this.entityGroup.add(this.sign);
+        // this.npcGroup.add(this.sign);
 
         this.cameras.main.startFollow(this.player, false, 1, 1);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
@@ -225,16 +225,39 @@ class defaultScene extends Phaser.Scene {
         for (const entity of this.entityGroup.children.entries) {
             entity.autoZoom(this.zoom);
         }
-        for (const npc of this.npcGroup.children.entries) {
-            npc.autoZoom(this.zoom);
-        }
     }
 
     getServerState() {
-        this.state = {
+        const state = {
             players: {},
-            enemies: {},
-            npcs: {},
+        };
+
+        for (const player of this.playerGroup.children.entries) {
+            state.players[player.id] = player.state;
+        };
+
+        return state;
+    }
+
+    initializeSceneFromState(state) {
+        for (const [playerId, playerState] of Object.entries(state['players'])) {
+            this.addPlayer(playerId, false, playerState);
+        }
+    }
+
+    updateSceneFromState(state) {
+        for (const [playerId, playerState] of Object.entries(state['players'])) {
+            const player = this.playerGroup.children.entries.find(gameObject => gameObject.id == playerId);
+            if (player) {
+                player.setState(playerState);
+            } else {
+                this.addPlayer(playerId, false, playerState)
+            }
+        }
+        for (const player of this.playerGroup.children.entries) {
+            if (!(player.id in state['players']) && !player.isClientPlayer) {
+                player.destroy();
+            }
         };
     }
 
@@ -319,7 +342,7 @@ class defaultScene extends Phaser.Scene {
         this.npcGroup.add(npc);
     }
 
-    addPlayer(id, isClientPlayer) {
+    addPlayer(id, isClientPlayer, state) {
         const spriteConfig = {
             'hair_back': 1,
             'legs': 1,
@@ -363,12 +386,19 @@ class defaultScene extends Phaser.Scene {
         }
 
         const player = new Player(id, this, 32 * 9, 32 * 58, config, isClientPlayer);
+        player.autoZoom(this.zoom);
+        if (state) {
+            player.setState(state);
+        }
+
+        if (isClientPlayer) {
+            this.clientPlayer = player;
+        }
 
         this.entityGroup.add(player);
         this.playerGroup.add(player);
         return player;
     }
 }
-
 
 export default defaultScene;

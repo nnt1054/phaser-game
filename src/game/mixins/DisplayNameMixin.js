@@ -30,6 +30,15 @@ const DisplayNameMixin = {
             this.handleClick();
         });
     },
+
+    setDisplayName(displayName) {
+        this.displayName = displayName;
+        if (this.isTargeted) {
+            this.name.setText(`> ${ this.displayName } <`);
+        } else {
+            this.name.setText(this.displayName);
+        }
+    },
 }
 
 export default DisplayNameMixin;

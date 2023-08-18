@@ -245,7 +245,7 @@ export class Player extends ArcadeContainer {
     }
 
     updateFromState() {
-        this.displayName = this.state.displayName;
+        this.setDisplayName(this.state.displayName);
         this.setPosition(this.state.x, this.state.y);
         this.setCharacterDirection(this.state.facingRight);
         this.playAnimation(this.state.currentAnim);
