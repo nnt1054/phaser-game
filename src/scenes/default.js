@@ -132,15 +132,15 @@ class defaultScene extends Phaser.Scene {
         // this.clientPlayer = this.player;
 
         // ENEMIES
-        // this.addEnemy(32 * 12, 32 * 58, 'Hostile Enemy A');
-        // this.addEnemy(32 * 14.5, 32 * 58, 'Hostile Enemy B');
-        // this.addEnemy(32 * 17, 32 * 58, 'Hostile Enemy C');
+        this.addEnemy(32 * 12, 32 * 58, 'Hostile Enemy A');
+        this.addEnemy(32 * 14.5, 32 * 58, 'Hostile Enemy B');
+        this.addEnemy(32 * 17, 32 * 58, 'Hostile Enemy C');
 
         // NPCS
-        // this.addNPC(32 * 4, 32 * 58.51, 'Auspicious Friend');
-        // this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
-        // this.entityGroup.add(this.sign);
-        // this.npcGroup.add(this.sign);
+        this.addNPC(32 * 20, 32 * 1.5, 'Auspicious Friend');
+        this.sign = new SignPost(this, 32 * 3, 32 * 26.5, 'Inconspicuous Sign');
+        this.entityGroup.add(this.sign);
+        this.npcGroup.add(this.sign);
 
         this.cameras.main.startFollow(this.player, false, 1, 1);
         this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);

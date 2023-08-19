@@ -1033,7 +1033,7 @@ export const abilities = {
         castTime: '2.0s',
         cooldown: '2.5s',
         description: `
-            Deals 25 Magic Damage to Target.
+            Deals 25 Magic Damage to Target and all enemies nearby it.
         `,
     },
     'verthunder': {
@@ -1064,7 +1064,7 @@ export const abilities = {
         icon: 'fleche',
         cooldown: '12.0s',
         description: `
-            Ranged OGCD; Deals 10 Damage to Target.
+            'Deals 10 Magic Damage to Target.
         `,
     },
     'vercure': {
@@ -1093,7 +1093,7 @@ export const abilities = {
         castTime: '0s',
         cooldown: '1.5s',
         description: `
-            Melee Slash; Deals 15 Damage to Target.
+            Deals 15 Physical Damage to Target.
         `,  
     },
     'corps_a_corps': {
@@ -1102,7 +1102,7 @@ export const abilities = {
         icon: 'corps_a_corps',
         cooldown: '12.0s',
         description: `
-            Dash to target; Deals 10 Damage to Target.
+            Dash towards and deal 10 Physical Damage to Target.
         `,
     },
     'displacement': {
@@ -1111,11 +1111,11 @@ export const abilities = {
         icon: 'displacement',
         cooldown: '12.0s',
         description: `
-            Dash away from the target; Deals 10 Damage to Target.
+            Dash away from and deal 10 Physical Damage to Target.
         `,
     },
     'combo1': {
-        label: 'combo1',
+        label: 'Combo 1',
         action: () => { store.dispatch(setQueuedAbility('combo1')) },
         icon: 'melee1',
         gcd: true,
@@ -1126,7 +1126,7 @@ export const abilities = {
         `,  
     },
     'combo2': {
-        label: 'combo2',
+        label: 'Combo 2',
         action: () => { store.dispatch(setQueuedAbility('combo2')) },
         icon: 'melee2',
         gcd: true,
@@ -1134,14 +1134,18 @@ export const abilities = {
         cooldown: '2.5s',
         description: `
             Melee Slash; Deals 15 Damage to Target.
-        `,  
+        `,
+        extraDescription: [
+            ['Combo Action:', 'Combo 1'],
+            ['Combo Potency:', '25'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return (state.playerState.comboAction == 'combo1')
         },
     },
     'combo3': {
-        label: 'combo3',
+        label: 'Combo 3',
         action: () => { store.dispatch(setQueuedAbility('combo3')) },
         icon: 'melee3',
         gcd: true,
@@ -1150,21 +1154,10 @@ export const abilities = {
         description: `
             Melee Slash; Deals 15 Damage to Target.
         `,  
-        isHighlighted: () => {
-            const state = store.getState();
-            return (state.playerState.comboAction == 'combo2')
-        },
-    },
-    'combo4': {
-        label: 'combo4',
-        action: () => { store.dispatch(setQueuedAbility('combo4')) },
-        icon: 'melee4',
-        gcd: true,
-        castTime: '0s',
-        cooldown: '2.5s',
-        description: `
-            Melee Slash; Deals 15 Damage to Target.
-        `,  
+        extraDescription: [
+            ['Combo Action:', 'Combo 2'],
+            ['Combo Potency:', '30'],
+        ],
         isHighlighted: () => {
             const state = store.getState();
             return (state.playerState.comboAction == 'combo2')
